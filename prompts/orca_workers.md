@@ -13,8 +13,14 @@
 | codex | `codex` | `gpt-6-luna` | 지정하지 않음. 카탈로그 기본값은 medium | `~/.codex/models_cache.json` slug. 지원 effort는 low, medium, high, xhigh, max. `~/.codex/config.toml` 기본 모델은 `gpt-5.6-luna`라서 기동 때 모델을 빼면 luna 6이 아니다 |
 | antigravity | `antigravity` | `gemini-3.8-flash-medium` | ID에 포함 | `agy models`의 Flash는 high, medium, low 세 ID다. 사용자가 단계만 말했으므로 medium을 기본으로 둔다. high는 `gemini-3.8-flash-high`, low는 `gemini-3.8-flash-low`. 2026-10-28에 토큰이 소진됐다. 다시 있다고 말하기 전에는 새 작성 워커로 띄우지 않는다. 진행 중이던 v17 작성은 qwen Nemotron 3 Ultra로 바꿨다 |
 | qwen | Orca 에이전트 ID 없음 | `nvidia/nemotron-3-ultra-550b-a55b:free` | max | qwen 표시 이름은 `NVIDIA: Nemotron 3 Ultra (free)`. `~/.qwen/settings.json`의 `model.name`과 `model.reasoningEffort`가 이 값이다. CLI에 effort 플래그는 없다 |
+| cmd-deepseek | 터미널 선생성(`command-code`는 `--model` 미지원) | `deepseek/deepseek-v4.1-flash` | 지정하지 않음. 화면 표시는 max | Command Code v1.88.2 `cmd --list-models`에 있음. 2026-10-29 화면에서 `deepseek-v4.1-flash-(latest) with max effort` 확인 |
+| cmd-glm | 터미널 선생성 | `z-ai/glm-5.3-flash` | 지정하지 않음. 화면 표시는 high | `cmd --list-models`에 있음. 2026-10-29 화면에서 `glm-5.3-flash with high effort` 확인 |
 
 `orca agent launch --agent qwen`은 `Unknown TUI agent "qwen"`이다. qwen만 터미널을 먼저 만들고 `worker-start --terminal`로 붙인다.
+
+cmd(Command Code)는 Orca 에이전트 ID `command-code`가 있지만, `worker-start --model`은 이 에이전트에 모델을 넘기지 않는다(자체 설정 모델로 뜸). 그래서 cmd 두 슬롯도 qwen처럼 터미널을 먼저 만들고 붙인다.
+
+2026-10-29 사용자 지정: 작성·리뷰 워커는 cmd 두 슬롯(DeepSeek v4.1 Flash, GLM 5.3 Flash)으로 돌리고, Claude가 코디네이터를 맡는다. 웨이브마다 한쪽이 작성, 다른 쪽이 리뷰다.
 
 ## 배정
 
@@ -33,6 +39,15 @@ orca orchestration worker-start --task <task_id> --worktree current --agent anti
 ```
 
 영수증의 `launch.requested`와 `launch.effective`가 다를 수 있다. 실제로 뜬 모델은 `launch.effective`다.
+
+cmd:
+
+```text
+orca terminal create --worktree current --title "cmd deepseek v4.1 flash" --command "cmd -t --skip-onboarding -m deepseek/deepseek-v4.1-flash --permission-mode accept-edits" --json
+orca terminal create --worktree current --title "cmd glm 5.3 flash" --command "cmd -t --skip-onboarding -m z-ai/glm-5.3-flash --permission-mode accept-edits" --json
+```
+
+`orca terminal read --terminal <handle>`의 `# models:` 줄이 지정 모델일 때만 `worker-start --task <task_id> --terminal <handle> --worktree current --json`으로 붙인다. `accept-edits`는 파일 수정만 자동 승인한다. 셸 명령 승인 창이 뜨면 코디네이터가 화면을 보고 사용자에게 알린다.
 
 qwen:
 
