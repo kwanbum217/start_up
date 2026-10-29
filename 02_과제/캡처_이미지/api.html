@@ -1,0 +1,25 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>BidBox API</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1600px;background:#fff;font-family:"Apple SD Gothic Neo",sans-serif;color:#0f1b33;padding:26px 36px}
+h2{font-size:26px;font-weight:800}h2 span{color:#1d63e0}
+.lead{font-size:15px;color:#5b6478;margin:6px 0 16px}
+.grid{display:grid;grid-template-columns:1fr 1.25fr;gap:18px}
+.p{border:1px solid #d9e2f2;border-radius:12px;padding:12px;background:#f7f9fd}
+.p h3{font-size:17px;margin-bottom:8px}.p h3 b{color:#1d63e0}
+.p img{width:100%;display:block;border:1px solid #d9e2f2;border-radius:6px;background:#fff}
+.groups{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.g{background:#fff;border:1px solid #d9e2f2;border-radius:8px;padding:7px 9px;font-size:13px;line-height:1.35}
+.g b{display:block;font-size:14px;color:#1d63e0}
+</style></head><body>
+<h2>서비스 기능을 <span>API</span>로 분리 구현 — 9개 그룹, 64개 API</h2>
+<div class="lead">화면·상담·외부 연동이 같은 API를 사용. 규칙 판정과 예측은 Evaluations·Predictions에서 처리 (Swagger, 2026-10-22 캡처)</div>
+<div class="grid">
+ <div class="p"><h3><b>①</b> API 그룹 구성</h3><img src="api_overview.jpg">
+  <div class="groups">
+   <div class="g"><b>Bids</b>공고·낙찰 조회, 통계, 수집</div>
+   <div class="g"><b>Predictions</b>공고 기반 낙찰가 예측</div>
+   <div class="g"><b>Evaluations</b>적격심사 분석·추천·규칙</div>
+   <div class="g"><b>Chatbot</b>근거 인용 상담</div>
+  </div></div>
+ <div class="p"><h3><b>②</b> Evaluations: 적격심사 정량평가 분석, 투찰가 추천, 별표 규칙 목록</h3><img src="api_eval.jpg"></div>
+</div></body></html>

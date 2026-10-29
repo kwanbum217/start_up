@@ -1,0 +1,83 @@
+[mcp_servers.notion]
+url = "https://mcp.notion.com/mcp"
+enabled = true
+
+[mcp_servers.slack]
+url = "https://mcp.slack.com/mcp"
+enabled = true
+
+[mcp_servers.google-drive]
+url = "https://drivemcp.googleapis.com/mcp/v1"
+enabled = true
+
+[mcp_servers.gmail]
+url = "https://gmailmcp.googleapis.com/mcp/v1"
+enabled = true
+
+[mcp_servers.google-calendar]
+url = "https://calendarmcp.googleapis.com/mcp/v1"
+enabled = true
+
+[mcp_servers.railway]
+url = "https://mcp.railway.com"
+enabled = true
+
+[mcp_servers.google-slides]
+command = "npx"
+args = [
+    "-y",
+    "mcp-google-slides",
+]
+enabled = true
+startup_timeout_sec = 120
+
+[mcp_servers.google-slides.env]
+GOOGLE_APPLICATION_CREDENTIALS = "${GOOGLE_APPLICATION_CREDENTIALS}"
+GOOGLE_CLOUD_PROJECT = "${GOOGLE_CLOUD_PROJECT}"
+
+[mcp_servers.mcp-gsheets]
+command = "npx"
+args = [
+    "-y",
+    "mcp-gsheets",
+]
+enabled = true
+startup_timeout_sec = 120
+
+[mcp_servers.mcp-gsheets.env]
+GOOGLE_PROJECT_ID = "${GOOGLE_PROJECT_ID}"
+GOOGLE_APPLICATION_CREDENTIALS = "${GOOGLE_APPLICATION_CREDENTIALS}"
+
+[mcp_servers.puppeteer]
+command = "npx"
+args = [
+    "-y",
+    "@modelcontextprotocol/server-puppeteer",
+]
+enabled = true
+startup_timeout_sec = 120
+
+[mcp_servers.slack-admin]
+command = "node"
+args = [
+    "/Users/kwanbum/.config/opencode/slack-delete-mcp.mjs",
+    "--stdio",
+]
+enabled = true
+
+[mcp_servers.slack-admin.env]
+SLACK_BOT_TOKEN = "${SLACK_BOT_TOKEN}"
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = [
+    "-y",
+    "chrome-devtools-mcp@latest",
+    "--autoConnect",
+    "--filesystemRoot=/Users/kwanbum/Documents/korea_IT/start_up",
+]
+enabled = true
+startup_timeout_sec = 120
+
+[mcp_servers.chrome-devtools.env]
+CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS = "1"

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>BidBox 서비스 흐름</title>
+<style>
+:root{--blue:#1d63e0;--blue2:#e8f0fe;--ink:#0f1b33;--sub:#5b6478;--line:#d9e2f2;--red:#d93838;--red2:#fdecec;--green:#127a4a;--green2:#e3f5ec;--amber:#a15c00;--amber2:#fff3dc}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1600px;background:#fff;font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:var(--ink);padding:34px 40px 26px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
+.tag{font-size:15px;letter-spacing:.12em;color:var(--blue);font-weight:700}
+h1{font-size:36px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--blue)}
+.lead{font-size:17px;color:var(--sub);margin-top:6px}
+.badge-proto{font-size:14px;border:1px solid var(--line);border-radius:999px;padding:6px 14px;color:var(--sub)}
+.screens{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;background:#f5f8fe;border-radius:18px;padding:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column}
+.card h3{font-size:18px;display:flex;align-items:center;gap:8px}
+.num{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:15px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.card p{font-size:13.5px;color:var(--sub);margin:6px 0 10px;line-height:1.4;min-height:38px}
+.frame{border:1px solid #cfd8e8;border-radius:8px;overflow:hidden;background:#fff}
+.bar{height:16px;background:#eef2f8;display:flex;gap:5px;align-items:center;padding-left:7px}
+.bar i{width:7px;height:7px;border-radius:50%;background:#c5cedd;display:block}
+.frame img{display:block;width:100%;height:190px;object-fit:cover;object-position:left top}
+.sec{display:inline-block;margin:24px 0 14px;background:var(--blue);color:#fff;font-weight:700;font-size:18px;border-radius:999px;padding:6px 18px}
+.flow{display:flex;align-items:flex-start;justify-content:space-between}
+.node{width:170px;text-align:center}
+.ic{width:84px;height:84px;margin:0 auto;border-radius:50%;background:var(--blue2);display:flex;align-items:center;justify-content:center}
+.ic svg{width:42px;height:42px;stroke:var(--blue);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.node b{display:block;font-size:16.5px;margin-top:10px}
+.node small{display:block;font-size:13px;color:var(--sub);margin-top:3px;line-height:1.35}
+.chev{font-size:30px;color:#9fb3d9;margin-top:24px}
+.branch{margin-top:8px;font-size:12.5px;color:var(--red);background:var(--red2);border-radius:8px;padding:5px 6px;line-height:1.35;font-weight:600}
+.feat{display:grid;grid-template-columns:120px repeat(7,1fr);gap:10px;margin-top:22px}
+.flabel{background:#1f3d7a;color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px}
+.f{border:1px solid var(--line);border-radius:12px;padding:11px 11px 10px}
+.f b{font-size:15.5px;display:block}
+.f span{display:block;font-size:12.5px;color:var(--sub);margin-top:5px;line-height:1.4;min-height:52px}
+.chip{font-style:normal;display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;margin-top:6px}
+.ok{background:var(--green2);color:var(--green)}
+.plan{background:var(--amber2);color:var(--amber)}
+.foot{margin-top:16px;font-size:12.5px;color:var(--sub);text-align:center;letter-spacing:.02em}
+</style></head><body>
+<div class="top">
+ <div>
+  <div class="tag">BIDBOX · 용역 적격심사 의사결정 지원</div>
+  <h1>공고를 열면, <em>적용 규칙</em>과 <em>통과 가능 구간</em>을 한 화면에서</h1>
+  <div class="lead">나라장터 공고 → 규칙 판정 → 구간 역산 → 낙찰률 예측 → 근거 확인. 기준이 없으면 계산 중단</div>
+ </div>
+ <div class="badge-proto">동작 중인 프로토타입 화면 (2026-10-22 캡처)</div>
+</div>
+
+<div class="screens">
+ <div class="card"><h3><span class="num">1</span>공고 탐색</h3><p>용역 공고 목록, 적격심사 분석 대상 표시, 업종·지역 필터</p><div class="frame"><div class="bar"><i></i><i></i><i></i></div><img src="bids_list.jpg"></div></div>
+ <div class="card"><h3><span class="num">2</span>공고 상세</h3><p>계약·입찰·낙찰 방법, 기초금액, 과거 유사 낙찰 사례</p><div class="frame"><div class="bar"><i></i><i></i><i></i></div><img src="detail_top.jpg"></div></div>
+ <div class="card"><h3><span class="num">3</span>규칙 판정 · 계산 차단</h3><p>낙찰방법 → 별표 매칭, 규칙 ID·판별 근거 표시. 배점표 미확인 시 계산 차단</p><div class="frame"><div class="bar"><i></i><i></i><i></i></div><img src="detail_rule.jpg" style="object-position:left top"></div></div>
+ <div class="card"><h3><span class="num">4</span>입찰 인텔리전스</h3><p>낙찰 건수·금액·평균 낙찰률, 월별 추이, 기관별 계약 규모</p><div class="frame"><div class="bar"><i></i><i></i><i></i></div><img src="dashboard.jpg"></div></div>
+</div>
+
+<div class="sec">서비스 흐름도</div>
+<div class="flow">
+ <div class="node"><div class="ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></div><b>공고 수집</b><small>나라장터 OpenAPI<br>공고·낙찰 결과</small></div>
+ <div class="chev">›</div>
+ <div class="node"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div><b>검색 · 선별</b><small>용역 적격심사 공고<br>업종·지역 필터</small></div>
+ <div class="chev">›</div>
+ <div class="node"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 4h6M12 4v16M5 20h14"/><path d="M5 8l-3 6h6zM19 8l-3 6h6z"/><path d="M5 8h14"/></svg></div><b>적용 규칙 판정</b><small>시행일·기관별<br>규칙 206종</small><div class="branch">기준 미확보 → 계산 차단<br>· 직접 입력 전환</div></div>
+ <div class="chev">›</div>
+ <div class="node"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M7 8v8M17 8v8"/><path d="M7 12h10" stroke-width="5" opacity=".35"/></svg></div><b>통과 구간 역산</b><small>적격 통과 가능<br>투찰 구간 산출</small></div>
+ <div class="chev">›</div>
+ <div class="node"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M4 16l5-6 4 3 7-8"/><circle cx="20" cy="5" r="1.5"/></svg></div><b>낙찰률 예측 구간</b><small>용역 낙찰률 모델<br>유사 낙찰 위치 표시</small></div>
+ <div class="chev">›</div>
+ <div class="node"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg></div><b>근거 인용 상담</b><small>규칙 원문·수치<br>인용 답변</small></div>
+ <div class="chev">›</div>
+ <div class="node"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8 14l3-3 3 2 5-5"/><path d="M16 8h3v3"/></svg></div><b>기록 · 규칙 보강</b><small>담당자 수정 불일치<br>기록 → 규칙 보강</small></div>
+</div>
+
+<div class="feat">
+ <div class="flabel">주요 기능</div>
+ <div class="f"><b>공고 데이터</b><span>최근 1년 505,271건 색인<br>(2026-09-09)</span><em class="chip ok">구현</em></div>
+ <div class="f"><b>규칙 판정</b><span>규칙 206종<br>자동 적용 21,394건</span><em class="chip ok">구현</em></div>
+ <div class="f"><b>안전장치</b><span>기준 미확보 9,911건<br>자동 계산 차단</span><em class="chip ok">구현</em></div>
+ <div class="f"><b>구간 역산</b><span>규칙 판정 경로에서<br>통과 구간 산출</span><em class="chip ok">구현</em></div>
+ <div class="f"><b>낙찰률 예측</b><span>평균 절대오차 1.19%p<br>(3,000건, 2026-09-15)</span><em class="chip ok">구현</em></div>
+ <div class="f"><b>근거 상담</b><span>수치 정답 144/144<br>인용 72/72</span><em class="chip ok">구현</em></div>
+ <div class="f"><b>결제 · 알림</b><span>구독 결제<br>관심 공고 알림</span><em class="chip plan">협약 2~3개월</em></div>
+</div>
+<div class="foot">수치 출처: BidBox 내부 집계·검증(2026-08~10) &nbsp;|&nbsp; 예측과 구간은 참고 정보이며 낙찰을 보증하지 않음</div>
+</body></html>
