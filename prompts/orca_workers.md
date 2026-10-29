@@ -43,11 +43,22 @@ orca orchestration worker-start --task <task_id> --worktree current --agent anti
 cmd:
 
 ```text
-orca terminal create --worktree current --title "cmd deepseek v4.1 flash" --command "cmd -t --skip-onboarding -m deepseek/deepseek-v4.1-flash --permission-mode accept-edits" --json
-orca terminal create --worktree current --title "cmd glm 5.3 flash" --command "cmd -t --skip-onboarding -m z-ai/glm-5.3-flash --permission-mode accept-edits" --json
+orca terminal create --worktree current --title "cmd deepseek v4.1 flash" --command "cmd -t --skip-onboarding -m deepseek/deepseek-v4.1-flash --yolo" --json
+orca terminal create --worktree current --title "cmd glm 5.3 flash" --command "cmd -t --skip-onboarding -m z-ai/glm-5.3-flash --yolo" --json
 ```
 
-`orca terminal read --terminal <handle>`의 `# models:` 줄이 지정 모델일 때만 `worker-start --task <task_id> --terminal <handle> --worktree current --json`으로 붙인다. `accept-edits`는 파일 수정만 자동 승인한다. 셸 명령 승인 창이 뜨면 코디네이터가 화면을 보고 사용자에게 알린다.
+`orca terminal read --terminal <handle> --screen`에서 두 줄을 확인한 뒤에만 `worker-start --task <task_id> --terminal <handle> --worktree current --json`으로 붙인다. 하나라도 다르면 그 터미널에 작업을 넣지 않는다.
+- `# models:` 줄이 지정 모델이다.
+- 아래 상태 줄이 `permission bypass on`이다.
+
+### cmd 권한 모드: yolo (2026-10-29 사용자 지정)
+
+cmd 워커는 항상 `--yolo`(`--dangerously-skip-permissions`와 같음)로 띄운다. 승인 창 때문에 워커가 멈추지 않게 하려는 것이다.
+- 배경: `accept-edits`로 띄웠을 때 워커가 `orca orchestration send`, `check` 같은 셸 명령마다 승인 창에서 멈췄다. 코디네이터(Claude)가 다른 에이전트의 승인 창을 대신 누르는 것은 Claude Code 자동 모드가 막는다(`Self-Modification`). 그래서 사람이 누를 때까지 작업이 서 있었다.
+- yolo는 셸 명령과 파일 수정을 묻지 않고 실행한다. 그래서 안전장치는 작업 스펙과 이 파일의 규칙이 맡는다. 스펙마다 Target, Ownership(고칠 수 있는 파일), 금지 범위를 적는다. 셸 명령이 필요 없는 일은 「셸 명령을 쓰지 않는다」고 적는다.
+- 금지는 yolo에서도 그대로다. `02_과제/양식_원본` 수정, 백업 없이 제출 docx 덮어쓰기, `git push`·커밋(커밋과 푸시는 코디네이터가 회수 뒤에 한다), 파일 삭제, `orca terminal close`·`worktree rm`, `slack-admin` 같은 외부 발신 도구, 제품 저장소 `refac_bid_box` 수정은 하지 않는다.
+- 이미 `accept-edits`로 뜬 cmd 워커는 승인 창을 누르지 말고 다시 띄운다. 절차: `worker-stop --dispatch <id>` → `stop_unknown`이면(외부 터미널) `orca terminal close --terminal <handle>`로 그 워커 터미널만 닫고 `ptyKilled: true`를 확인 → `worker-stop`을 다시 실행해 `failed`로 정리됐는지 확인 → yolo 터미널 생성·확인 → `worker-start --task <task_id> --retry-of <dispatch_id> --terminal <새 handle> --worktree current --json`.
+- 코디네이터는 워커 화면을 주기적으로 읽어 위 금지 범위를 벗어난 명령이 없는지 본다. 벗어났으면 `terminal send --interrupt`로 멈추고 사용자에게 알린다.
 
 qwen:
 
