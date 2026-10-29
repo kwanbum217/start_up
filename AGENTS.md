@@ -188,7 +188,8 @@ LibreOffice로 센 v7과 v8의 쪽 수는 각 8쪽이다. 이 Mac의 LibreOffice
 
 - 이 프로젝트에서 쓰는 MCP 목록(2026-10-28 기준)
   - 원격(OAuth): notion, slack, google-drive, gmail, google-calendar, railway
-  - 로컬(stdio): google-slides, mcp-gsheets, puppeteer, slack-admin, chrome-devtools
+  - 로컬(stdio): google-slides, mcp-gsheets, puppeteer, slack-admin, chrome-devtools, google-docs
+- `google-docs`(2026-10-29 Claude Code에 추가, 사용자 범위)는 Grok과 같은 `npx -y @a-bonus/google-docs-mcp`이고, 서비스 계정 키 파일 경로만 환경변수로 넘긴다(`claude mcp remove google-docs -s user`로 제거). 대상 구글 문서는 그 키 파일의 `client_email` 계정에 편집자로 공유돼 있어야 한다. 추가한 세션에서는 도구가 잡히지 않으니 Claude Code를 다시 시작한다.
 - `chrome-devtools`는 Chrome 156에 `--autoConnect`로 붙는다. 사용 전 Chrome에서 `chrome://inspect/#remote-debugging`의 원격 디버깅을 켜고, 연결 허용 대화상자를 눌러야 한다. 스크린샷 저장 경로는 이 프로젝트 폴더다. 사용 통계는 끄고, `~/.grok/config.toml`의 `google-docs`는 그대로 둔다.
 - Grok에 같은 구성을 설정하는 프롬프트: `prompts/grok_mcp_setup.md`. Grok은 이 프로젝트 폴더에서 실행해야 `.grok/config.toml`이 적용된다.
 - `slack-admin`은 Slack 메시지를 삭제하는 도구다. 호출 전마다 사용자 확인을 받는다.
