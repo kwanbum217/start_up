@@ -21,12 +21,23 @@ bad = [l for l in langs if 'w:eastAsia="ko-KR"' not in l]
 check('w:lang eastAsia=ko-KR', not bad, f'{len(bad)}/{len(langs)}곳 위반')
 n = allx.count('w:lineRule="exact"')
 check('줄 간격 exact 없음', n == 0, f'{n}곳')
-n = len(re.findall(r'<w:spacing w:val="-\d+"', allx))
-check('음수 자간 없음', n == 0, f'{n}곳')
+sp = re.findall(r'<w:spacing\b[^>]*?\bw:val="(-?\d+)"', allx)
+other = sorted({v for v in sp if v != '-3'})
+check('-3 외 자간 없음', not other, f'-3 {sp.count("-3")}곳, 다른 값 {other}')
 n = len(re.findall(r'<w:w w:val="\d+"', allx))
 check('장평 조정 없음', n == 0, f'{n}곳')
 pg = set(re.findall(r'<w:pgSz w:w="(\d+)" w:h="(\d+)"', doc))
 check('A4 11906×16838', pg == {('11906', '16838')}, str(pg))
+margins = [{k: v for k, v in re.findall(r'w:(\w+)="(\d+)"', m)}
+           for m in re.findall(r'<w:pgMar\b[^>]*>', doc)]
+badm = [m for m in margins if m.get('top') != '1417' or m.get('bottom') != '1417'
+        or m.get('header') != '850' or m.get('footer') != '850']
+check('위아래 여백 1417, 머리말·꼬리말 850', not badm, f'{len(badm)}/{len(margins)}섹션 위반')
+shds = re.findall(r'<w:shd\b[^>]*>', allx)
+badshd = sorted({f for s in shds for f in re.findall(r'w:fill="([^"]*)"', s)
+                 if f.upper() not in ('D9D9D9', 'F2F2F2', 'FFFFFF', 'AUTO')})
+check('음영은 D9D9D9·F2F2F2·FFFFFF·auto·없음', not badshd,
+      f'{len(badshd)}종 위반 {badshd}, 음영 {len(shds)}곳')
 mar = re.search(r'<w:pgMar [^>]*w:right="(\d+)"[^>]*w:left="(\d+)"', doc)
 body = 11906 - int(mar.group(1)) - int(mar.group(2))
 tbls = re.findall(r'<w:tbl>.*?</w:tbl>', doc, re.S)
@@ -54,8 +65,12 @@ check('셀 여백 통일(위아래 40, 좌우 80)', mars == {'<w:top w:w="40" w:
 cells = [c for t in tbls for c in re.findall(r'<w:tc>.*?</w:tc>', t, re.S)]
 notmid = sum('<w:vAlign w:val="center"/>' not in c for c in cells)
 check('셀 세로 가운데 정렬', notmid == 0, f'{notmid}/{len(cells)}칸 위반')
-cind = sum(len(re.findall(r'<w:ind\b', c)) for c in cells)
-check('셀 안 문단 들여쓰기 없음', cind == 0, f'{cind}곳')
+cind = [m for c in cells for m in re.findall(r'<w:ind\b([^>]*)>', c)]
+def hanging_only(m):
+    left, hang = re.search(r'w:left="(\d+)"', m), re.search(r'w:hanging="(\d+)"', m)
+    return bool(left and hang and left.group(1) == hang.group(1))
+badind = [m for m in cind if not hanging_only(m)]
+check('셀 안 들여쓰기는 left==hanging 글머리만', not badind, f'{len(badind)}/{len(cind)}곳 위반')
 anchors = doc.count('<wp:anchor')
 check('이미지 inline', anchors == 0, f'anchor {anchors}개')
 emu_body = body * 635

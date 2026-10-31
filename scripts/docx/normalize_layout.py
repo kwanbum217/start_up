@@ -73,7 +73,10 @@ for tbl in body.iter(W + 'tbl'):
                 ppr = p.find(W + 'pPr')
                 if ppr is None: continue
                 i = ppr.find(W + 'ind')
-                if i is not None: ppr.remove(i)
+                if i is not None:
+                    left = i.get(W + 'left')
+                    if not (left and left == i.get(W + 'hanging')):  # 1-1절 글머리 내어쓰기는 남김
+                        ppr.remove(i)
                 sp = ppr.find(W + 'spacing')
                 if sp is not None and sp.get(W + 'lineRule') in ('atLeast', 'exact'):
                     sp.set(W + 'line', '240'); sp.set(W + 'lineRule', 'auto')

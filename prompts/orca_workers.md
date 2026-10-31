@@ -49,6 +49,8 @@ orca terminal create --worktree current --title "cmd deepseek v4.1 flash" --comm
 orca terminal create --worktree current --title "cmd glm 5.3 flash" --command "cmd -t --skip-onboarding -m z-ai/glm-5.3-flash --yolo" --json
 ```
 
+Claude Code 코디네이터가 yolo 터미널을 만들려면 이 폴더의 `.claude/settings.local.json`에 `Bash(orca terminal create:*)`, `Bash(orca orchestration:*)` 허용 규칙이 있어야 한다(2026-10-31 사용자 허용, 없으면 자동 모드가 「Create Unsafe Agents」로 막는다). `worker-start --terminal`은 한 번에 하나씩 실행한다. 2026-10-31에 한 셸 루프로 셋을 연달아 붙였을 때 첫 시도가 모두 실패했고, 하나씩 다시 붙이자 성공했다.
+
 `orca terminal read --terminal <handle> --screen`에서 두 줄을 확인한 뒤에만 `worker-start --task <task_id> --terminal <handle> --worktree current --json`으로 붙인다. 하나라도 다르면 그 터미널에 작업을 넣지 않는다.
 - `# models:` 줄이 지정 모델이다.
 - 아래 상태 줄이 `permission bypass on`이다.
