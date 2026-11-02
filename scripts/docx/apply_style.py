@@ -10,7 +10,7 @@ except ImportError:
 W = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
 
 # 1-1절 값 (1/2pt 단위)
-SZ_CHAP, SZ_TITLE, SZ_SUB, SZ_BODY, SZ_CELL = 32, 26, 24, 22, 20   # 2026-11-02 양식 원본 기준
+SZ_CHAP, SZ_TITLE, SZ_SUB, SZ_BODY, SZ_CELL = 26, 22, 22, 20, 18
 SPACE = -3                    # -0.15pt
 MARGIN_TOP = MARGIN_BOTTOM = 1417
 MARGIN_HEADER = MARGIN_FOOTER = 850
@@ -34,9 +34,9 @@ if '--step' in sys.argv:
     step = int(sys.argv[sys.argv.index('--step') + 1])
     if not 0 <= step <= 3:
         sys.exit('--step 은 0~3 이다.')
-if step >= 1: SZ_SUB = 22     # ① 소제목 11pt
-if step >= 2: SZ_TITLE = 22   # ② 표 제목 11pt
-if step >= 3: SZ_CHAP = 26    # ③ 장 제목 13pt
+if step >= 1: SZ_SUB = 21     # ① 소제목 10.5pt
+if step >= 2: SZ_TITLE = 20   # ② 표 제목 10pt
+if step >= 3: SZ_CHAP = 24    # ③ 장 제목 12pt
 
 root = pathlib.Path(args[0]) / 'word'
 BUL = ('○', '◦', '-', '·', '▪', '※')   # 표 칸 안 글머리
