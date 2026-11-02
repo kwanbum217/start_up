@@ -16,7 +16,7 @@ description: >
 
 ## 0. 시작 전에 읽을 것
 
-1. `AGENTS.md`의 「현재 사업계획서」(최신 작업본·제출 기준 버전, 시장 설정, 명사 종결 규칙, 쓰면 안 되는 사실)와 「사업계획서 docx 작성 규칙」 1절·1-1절·2절.
+1. `AGENTS.md`의 「현재 사업계획서」 상태 표(작업본·제출 기준·쪽수·다음 파일)와 시장 설정, 명사 종결, 쓰면 안 되는 사실, 「사업계획서 docx 작성 규칙」 1절·1-1절·2절. 상태 표와 인수인계·`prompts/orca_workers.md` 첫 상태 줄이 다르면 상태 표를 따른다.
 2. 가장 최근 `prompts/handoff_*.md`(남은 일과 사용자에게 받을 것).
 3. 작업 종류에 따라 이 스킬의 참고 문서 하나:
 
@@ -37,7 +37,7 @@ description: >
    python3 -I scripts/docx/check_docx.py <새파일.docx>                       # 서식: 「결과: 모두 통과」
    python3 -I .agents/skills/bizplan-writing/scripts/check_voice.py <새파일.docx>  # 문장: AI 티 후보
    ```
-   쪽 수는 `zsh scripts/docx/count_pages.sh <새파일.docx>`로 센다(12쪽 이하). 그냥 LibreOffice로 변환하면 한글이 빈칸이라 2~3쪽 적게 나온다.
+   쪽 수는 `zsh scripts/docx/count_pages.sh <새파일.docx>`로 센다(12쪽 이하). 반영 기록에 적는 쪽수는 이 출력만 쓴다. LibreOffice를 그냥 변환해 센 쪽수는 적지 않는다. 한글이 빈칸이라 2~3쪽 적게 나온다.
 6. **구글 문서 반영**: 사용자에게 「검토용 구글 문서를 vNN으로 덮어쓸지」 묻고, 허락하면 `references/gdoc.md` 절차대로 올린다. 사용자가 이번 세션에서 이미 허락했으면 다시 묻지 않는다.
 7. **기록과 보고**: `AGENTS.md` 「현재 사업계획서」에 버전 한 줄을 더하고, 보고에는 백업·새 파일 경로, check_docx 전후 위반 수, check_voice 후보 수와 고친 수, 쪽 수, 구글 문서 링크, 직접 확인 못 한 것(Word 줄바꿈 등)을 쓴다. 그다음 `AGENTS.md` 「원격 동기화」대로 커밋·푸시한다(저장소가 공개이니 `04_참고자료/_추출/대표자_이력_요약.md` 같은 로컬 전용 파일은 올리지 않는다).
 

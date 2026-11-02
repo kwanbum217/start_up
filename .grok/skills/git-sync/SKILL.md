@@ -23,7 +23,7 @@ description: >
 
 1. `git status`, `git diff`, `git diff --cached`, `git log -5 --oneline`으로 올릴 내용을 본다.
 2. `git remote get-url origin`이 `https://github.com/kwanbum217/start_up.git`인지 확인한다. `origin`이 없을 때만 그 주소로 추가한다. 다른 주소가 이미 있으면 덮어쓰지 말고 사용자에게 알린다.
-3. 비밀값(토큰, 비밀번호, `.env`, 인증서, 개인 키, 자격 증명 JSON)이 스테이지에 있으면 커밋하지 않는다. `.DS_Store`, `.grok/doc-review/`, `.commandcode/`는 올리지 않는다.
+3. 비밀값(토큰, 비밀번호, `.env`, 인증서, 개인 키, 자격 증명 JSON)이 스테이지에 있으면 커밋하지 않는다. `.DS_Store`, `.grok/doc-review/`, `.commandcode/`는 올리지 않는다. 스테이지한 뒤 `python3 -I scripts/docx/check_push_scope.py`를 실행하고, 종료 코드가 1이면 커밋하지 않는다. `core.hooksPath`가 `.githooks`가 아니면 `git config core.hooksPath .githooks`로 맞춘다. `git commit --no-verify`는 쓰지 않는다.
 4. `origin/main`을 `git fetch origin`으로 받은 뒤, 로컬 `main`보다 앞에 있으면 `git pull --ff-only origin main`으로 맞춘다. fast-forward가 아니면 푸시하지 않고 사용자에게 알린다.
 5. 확인한 파일만 스테이지한다. 커밋 메시지는 한국어로, 무엇을 왜 넣는지 쓴다.
 6. `git push -u origin main`으로 올린다. `git push --force`, 이력 재작성, 원격 브랜치 삭제는 사용자가 그 명령을 명시하기 전에는 하지 않는다.

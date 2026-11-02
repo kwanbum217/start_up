@@ -1,7 +1,10 @@
 # 사업계획서 오케스트레이션 워커
 
 2026-10-28에 확인한 기동 정본이다. 모델 이름이나 기동 방법이 바뀌면 이 파일만 고친다.
-코디네이터 Run은 `run_4aa7ff0a34ed`다. 기준 제출본은 `02_과제/정부지원_사업계획서_제출용_별첨1_refac_bid_box_v17.docx`이고, 다음 수정은 v18로 저장한다.
+
+상태(2026-11-02): 작업본 `02_과제/정부지원_사업계획서_제출용_별첨1_refac_bid_box_v25.docx` · 제출 기준 v17 · 쪽수 count_pages.sh로 12쪽(만땅) · 다음 파일 v26(읽기 전용 리뷰 후) · Word 확인 전 내용을 더 빼지 않음
+
+정본은 `AGENTS.md` 「현재 사업계획서」 상태 표다. 이 줄과 그 표가 다르면 그 표를 따른다. 인수인계는 `prompts/handoff_20261102.md`다. 코디네이터 Run은 `run_4aa7ff0a34ed`다. v26 작성 전에 v25 읽기 전용 리뷰가 관문이고, 리뷰가 끝나기 전에는 제출 docx를 고치지 않는다.
 
 이 폴더는 git 저장소다. 원격은 `https://github.com/kwanbum217/start_up.git`의 `main`이다. 워커는 그래도 현재 폴더에 둔다. `--worktree current`를 쓴다. 자식 워크트리에만 고치면 원격 동기화에서 빠진다. 커밋과 푸시의 정본은 `AGENTS.md`의 「원격 동기화」와 `.grok/skills/git-sync/SKILL.md`다.
 
@@ -32,15 +35,7 @@ cmd(Command Code)는 Orca 에이전트 ID `command-code`가 있지만, `worker-s
 
 ## 기동
 
-세 에이전트는 작업 스펙을 정한 뒤 이렇게 띄운다. `--model`은 사용자가 이 풀로 지정했으므로 매번 넣는다. effort는 사용자가 그 슬롯에 말한 때만 넣는다. 지금은 qwen의 max뿐이다.
-
-```text
-orca orchestration worker-start --task <task_id> --worktree current --agent opencode --model opencode/deepseek-v4.1-flash-free --json
-orca orchestration worker-start --task <task_id> --worktree current --agent codex --model gpt-6-luna --json
-orca orchestration worker-start --task <task_id> --worktree current --agent antigravity --model gemini-3.8-flash-medium --json
-```
-
-영수증의 `launch.requested`와 `launch.effective`가 다를 수 있다. 실제로 뜬 모델은 `launch.effective`다.
+작성·리뷰의 기본은 아래 cmd 두 슬롯이다. opencode, codex, antigravity, qwen은 2026-10-29 이후 기본으로 띄우지 않는다. 그 슬롯의 명령은 이 절 끝 「보류 슬롯」에 둔다.
 
 cmd:
 
@@ -55,6 +50,13 @@ Claude Code 코디네이터가 yolo 터미널을 만들려면 이 폴더의 `.cl
 - `# models:` 줄이 지정 모델이다.
 - 아래 상태 줄이 `permission bypass on`이다.
 
+기동할 때 같이 지킬 것:
+- `worker-start --terminal`은 한 번에 하나. 한 셸에서 여러 개를 붙이지 않는다.
+- 꼭 들어갈 지시는 스펙에 넣는다. 진행 중 워커에 `orchestration send`로 보낸 지시는 워커가 확인하기 전에 끝나면 반영되지 않는다.
+- PDF와 docx는 `pdftotext`와 `04_참고자료/_추출/*.txt`로 읽는다. 이미지로 읽지 않는다.
+- 쪽수는 `zsh scripts/docx/count_pages.sh`만 기록한다. LibreOffice를 그냥 변환해 센 쪽수와 구글 PDF 쪽수는 제출 판정에 쓰지 않는다.
+- 워커는 커밋·푸시하지 않는다. `git commit --no-verify`도 쓰지 않는다. 커밋은 회수 뒤 코디네이터가 `python3 -I scripts/docx/check_push_scope.py`를 통과시킨 뒤에 한다.
+
 ### cmd 권한 모드: yolo (2026-10-29 사용자 지정)
 
 cmd 워커는 항상 `--yolo`(`--dangerously-skip-permissions`와 같음)로 띄운다. 승인 창 때문에 워커가 멈추지 않게 하려는 것이다.
@@ -64,19 +66,26 @@ cmd 워커는 항상 `--yolo`(`--dangerously-skip-permissions`와 같음)로 띄
 - 이미 `accept-edits`로 뜬 cmd 워커는 승인 창을 누르지 말고 다시 띄운다. 절차: `worker-stop --dispatch <id>` → `stop_unknown`이면(외부 터미널) `orca terminal close --terminal <handle>`로 그 워커 터미널만 닫고 `ptyKilled: true`를 확인 → `worker-stop`을 다시 실행해 `failed`로 정리됐는지 확인 → yolo 터미널 생성·확인 → `worker-start --task <task_id> --retry-of <dispatch_id> --terminal <새 handle> --worktree current --json`.
 - 코디네이터는 워커 화면을 주기적으로 읽어 위 금지 범위를 벗어난 명령이 없는지 본다. 벗어났으면 `terminal send --interrupt`로 멈추고 사용자에게 알린다.
 
-qwen:
+### 보류 슬롯
+
+2026-10-29 이후 작성·리뷰의 기본이 아니다. 사용자가 그 슬롯을 다시 쓰라고 말하기 전에 띄우지 않는다. antigravity는 2026-10-28에 토큰이 소진됐다. `--model`은 사용자가 이 풀로 지정했으므로 그때는 매번 넣는다. effort는 사용자가 그 슬롯에 말한 때만 넣는다. 지금은 qwen의 max뿐이다.
+
+```text
+orca orchestration worker-start --task <task_id> --worktree current --agent opencode --model opencode/deepseek-v4.1-flash-free --json
+orca orchestration worker-start --task <task_id> --worktree current --agent codex --model gpt-6-luna --json
+orca orchestration worker-start --task <task_id> --worktree current --agent antigravity --model gemini-3.8-flash-medium --json
+```
+
+영수증의 `launch.requested`와 `launch.effective`가 다를 수 있다. 실제로 뜬 모델은 `launch.effective`다. OpenCode가 폴더 작업실에서 `--model`을 거부하면 그 영수증의 `failedStage`를 보고, 복구 안내를 따른다. 같은 명령으로 다시 띄우지 않는다.
+
+qwen은 Orca 에이전트 ID가 없다. 터미널을 먼저 만들고 `worker-start --terminal`로 붙인다. `orca agent launch --agent qwen`은 `Unknown TUI agent "qwen"`이다.
 
 ```text
 orca terminal create --worktree current --title "qwen nemotron ultra free" --command "qwen -m nvidia/nemotron-3-ultra-550b-a55b:free" --json
-```
-
-화면의 모델이 `nvidia/nemotron-3-ultra-550b-a55b:free`이고 effort가 max인 뒤에만 붙인다. 다르면 그 터미널에 작업을 넣지 않는다. `~/.qwen/settings.json`은 이 작업에서 고치지 않는다.
-
-```text
 orca orchestration worker-start --task <task_id> --terminal <handle> --worktree current --json
 ```
 
-OpenCode가 폴더 작업실에서 `--model`을 거부하면 그 영수증의 `failedStage`를 보고, 복구 안내를 따른다. 같은 명령으로 다시 띄우지 않는다.
+화면의 모델이 `nvidia/nemotron-3-ultra-550b-a55b:free`이고 effort가 max인 뒤에만 붙인다. 다르면 그 터미널에 작업을 넣지 않는다. `~/.qwen/settings.json`은 이 작업에서 고치지 않는다.
 
 ## 회수
 
