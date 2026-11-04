@@ -2,7 +2,7 @@
 
 2026-10-28에 확인한 기동 정본이다. 모델 이름이나 기동 방법이 바뀌면 이 파일만 고친다.
 
-상태(2026-11-04): 작업본 `02_과제/정부지원_사업계획서_제출용_별첨1_refac_bid_box_v27.docx` · 제출 기준 v17 · 쪽수 count_pages.sh로 12쪽(만땅) · 다음 파일 v28 · 쉬운 말 명세(`.agents/skills/bizplan-writing/references/plain.md`) 적용 중, 1~4장 본문은 적용 전 · Word 확인 전 내용을 더 빼지 않음
+상태(2026-11-04): 작업본 `02_과제/정부지원_사업계획서_제출용_별첨1_refac_bid_box_v28.docx` · 제출 기준 v17 · 쪽수 count_pages.sh로 12쪽(만땅) · 다음 파일 v29 · 쉬운 말 명세(`.agents/skills/bizplan-writing/references/plain.md`) 전 장 1차 적용 · 검토용 구글 문서는 v28 · Word 확인 전 내용을 더 빼지 않음
 
 정본은 `AGENTS.md` 「현재 사업계획서」 상태 표다. 이 줄과 그 표가 다르면 그 표를 따른다. 인수인계는 `prompts/handoff_20261102.md`다. 코디네이터 Run은 `run_4aa7ff0a34ed`다. v25 읽기 전용 리뷰는 끝났고 v26에서 처리했다. 작업본은 v26이다.
 
