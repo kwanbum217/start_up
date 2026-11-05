@@ -329,35 +329,38 @@ function note(s, text, y = 6.62, dark = false) {
       fontFace: F, fontSize: 15, align: "center", valign: "middle", margin: 0, objectName: nm("tools-sum") });
   s.addNotes("BidBox는 세 가지 도구를 씁니다. 규칙 사전은 AI가 아니라 사람이 원문을 읽고 정리한 규칙표 206종입니다. 맞는 규칙이 없으면 계산을 멈춥니다. 예측 나무 숲은 머신러닝 LightGBM으로, 지난 낙찰 기록을 공부한 나무들이 스무고개처럼 질문을 이어 가며 금액과 범위를 냅니다. 실제 값이 범위 안에 든 비율은 90.25%입니다. 똑똑한 도서관 사서는 딥러닝 언어 모델과 검색을 함께 쓰는 RAG로, 근거를 먼저 찾고 그 근거로만 답합니다.");
 
-  // ===== RAG 인텔리전스 =====
+  // ===== RAG 인텔리전스 (실제 화면 포함) =====
   s = darkSlide("S 실현 가능성", "S · 실현 가능성", "RAG 인텔리전스: [[근거를 찾아 답하는 상담]]");
+  // 왼쪽: AI 어드바이저 실제 화면(2026-11-05 로컬 실행 캡처, 사용자 이름이 보이는 사이드바는 잘라 냄)
+  const advW = 6.0, advH = advW / (1015 / 468);
+  box(s, { x: M - 0.1, y: 1.62, w: advW + 0.2, h: advH + 0.2, fill: K.navy3, radius: 0.16, shadow: true, name: "adv-frame" });
+  s.addImage({ path: CAP("ai_advisor_rag.jpg"), x: M, y: 1.72, w: advW, h: advH, objectName: nm("adv-shot") });
+  T(s, "실제 화면: 찾은 문서 [1][3][4][5]에 답이 없자 지어내지 않고 거절", { x: M, y: 1.72 + advH + 0.18, w: advW + 0.4, h: 0.32, fontSize: 13, bold: true, color: K.skyOnDark });
+  // 오른쪽: 5단계 흐름(세로)
   const rag = [["FaComments", "질문", "공고·낙찰·규칙을 묻는 질문"],
     ["FaListCheck", "뜻 파악", "공고·숫자·규칙 가운데 무엇을 묻는지 나눔"],
     ["FaMagnifyingGlass", "세 길로 찾기", "뜻으로(bge-m3) · 제목 글자로 · 숫자는 DB에서 바로"],
     ["FaDatabase", "근거 모으기", "최근 1년 공고와 낙찰 결과 지식베이스"],
-    ["FaRobot", "근거로 답하기", "서비스 안 언어 모델(gemma)이 출처를 달아 답, 근거 없으면 거절"]];
-  const ragW = (CW - 4 * 0.32) / 5;
+    ["FaRobot", "근거로 답하기", "서비스 안 언어 모델(gemma)이 출처를 달고, 근거 없으면 거절"]];
+  const fx = M + advW + 0.45, fw = CW - advW - 0.45;
   for (let i = 0; i < 5; i++) {
-    const x = M + i * (ragW + 0.32), hot = i === 2 || i === 4;
-    box(s, { x, y: 1.72, w: ragW, h: 2.0, fill: hot ? K.blue : K.navy2, line: hot ? K.blue : K.navy3, radius: 0.14 });
-    await iconCircle(s, rag[i][0], x + 0.22, 1.92, 0.55, hot ? K.blue : K.skyOnDark, hot ? K.white : K.navy3);
-    T(s, `${i + 1}`, { x: x + ragW - 0.55, y: 1.95, w: 0.35, h: 0.35, fontSize: 14, bold: true, color: hot ? K.white : K.onDarkMute, align: "right" });
-    T(s, rag[i][1], { x: x + 0.22, y: 2.6, w: ragW - 0.4, h: 0.38, fontSize: 16, bold: true, color: K.white });
-    T(s, rag[i][2], { x: x + 0.22, y: 3.0, w: ragW - 0.36, h: 0.66, fontSize: 11, color: hot ? K.white : K.onDarkMute });
-    if (i < 4) arrow(s, x + ragW + 0.04, 2.57, 0.24, K.skyOnDark);
+    const y = 1.62 + i * 0.7, hot = i === 2 || i === 4;
+    box(s, { x: fx, y, w: fw, h: 0.6, fill: hot ? K.blue : K.navy2, line: hot ? K.blue : K.navy3, radius: 0.12 });
+    await iconCircle(s, rag[i][0], fx + 0.1, y + 0.08, 0.44, hot ? K.blue : K.skyOnDark, hot ? K.white : K.navy3);
+    T(s, `${i + 1}. ${rag[i][1]}`, { x: fx + 0.65, y, w: 1.55, h: 0.6, fontSize: 13, bold: true, color: K.white, valign: "middle" });
+    T(s, rag[i][2], { x: fx + 2.2, y, w: fw - 2.3, h: 0.6, fontSize: 11, color: hot ? K.white : K.onDarkMute, valign: "middle" });
   }
+  // 아래: 품질 숫자
   const rq = [["144/144", "숫자 정답"], ["1.0", "근거 찾기 재현율"], ["72/72", "출처 인용"], ["24/24", "거절해야 할 질문 거절"], ["0건", "지나친 답"], ["2.66초", "첫 글자까지 (P95)"]];
   const qw = (CW - 5 * 0.15) / 6;
   rq.forEach(([v, l], i) => {
     const x = M + i * (qw + 0.15);
-    box(s, { x, y: 4.0, w: qw, h: 1.3, fill: K.navy2, line: K.navy3, radius: 0.12 });
-    T(s, v, { x: x + 0.15, y: 4.12, w: qw - 0.3, h: 0.6, fontSize: 24, bold: true, color: K.skyOnDark });
-    T(s, l, { x: x + 0.15, y: 4.75, w: qw - 0.3, h: 0.45, fontSize: 11, color: K.onDarkMute });
+    box(s, { x, y: 5.35, w: qw, h: 1.0, fill: K.navy2, line: K.navy3, radius: 0.12 });
+    T(s, v, { x: x + 0.15, y: 5.42, w: qw - 0.3, h: 0.5, fontSize: 21, bold: true, color: K.skyOnDark });
+    T(s, l, { x: x + 0.15, y: 5.92, w: qw - 0.3, h: 0.35, fontSize: 10.5, color: K.onDarkMute });
   });
-  chip(s, "기본은 서비스 안 모델 · 공고 원문을 외부 모델로 보내지 않음", M, 5.6, K.white, K.navy3, { w: 5.6, h: 0.42, size: 12 });
-  chip(s, "외부 모델을 켜면 따로 알림", M + 5.8, 5.6, K.white, K.navy3, { w: 2.8, h: 0.42, size: 12 });
-  note(s, "96개 요청 평가(제품 저장소 RAG 품질 정본) · 응답 속도는 첫 토큰 P95 2,664.19ms · 숫자 답은 계산이 아니라 DB에서 조회", 6.45, true);
-  s.addNotes("RAG는 질문에 바로 답하지 않고 근거를 먼저 찾는 방식입니다. 질문의 뜻을 나눈 뒤 뜻으로 찾기, 제목 글자로 찾기, 숫자는 데이터베이스에서 바로 조회하는 세 길로 근거를 모으고, 서비스 안의 언어 모델이 출처를 달아 답합니다. 96개 요청 평가에서 숫자 정답 144/144, 출처 인용 72/72, 거절해야 할 질문 24/24를 지켰습니다.");
+  note(s, "숫자: 96개 요청 평가(제품 저장소 RAG 품질 정본), 첫 토큰 P95 2,664.19ms · 화면: 로컬 실행 캡처(2026-11-05) · 서비스 안 모델이 기본, 공고 원문을 외부 모델로 보내지 않음", 6.5, true);
+  s.addNotes("RAG는 질문에 바로 답하지 않고 근거를 먼저 찾는 방식입니다. 왼쪽은 실제 화면입니다. 낙찰하한율의 뜻을 물었는데 찾은 문서 1, 3, 4, 5번에 그 내용이 없자, 지어내지 않고 답할 수 없다고 했습니다. 질문의 뜻을 나눈 뒤 뜻으로 찾기, 제목 글자로 찾기, 숫자는 데이터베이스에서 바로 조회하는 세 길로 근거를 모으고, 서비스 안의 언어 모델이 출처를 달아 답합니다. 96개 요청 평가에서 숫자 정답 144/144, 출처 인용 72/72, 거절해야 할 질문 24/24를 지켰습니다.");
 
   // ===== 11. 세 가지 금액 + 모르면 멈춤 =====
   s = lightSlide("S 실현 가능성", "S · 실현 가능성", "세 가지 금액을 한 화면에, [[모르면 계산 멈춤]]");
