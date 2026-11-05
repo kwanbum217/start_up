@@ -171,7 +171,7 @@ function note(s, text, y = 6.62, dark = false) {
   s.addImage({ path: LOGO(true), x: M - 0.05, y: 4.05, w: 0.78 * LOGO_R, h: 0.78, objectName: nm("logo") });
   T(s, "(가칭)", { x: M + 0.78 * LOGO_R + 0.08, y: 4.4, w: 1.2, h: 0.35, fontSize: 14, color: K.onDarkMute });
   s.addImage({ data: await icon("FaScaleBalanced", K.greenOnDark), x: M, y: 4.97, w: 0.3, h: 0.3, objectName: nm("esg-icon") });
-  T(s, "조달 정보 차이를 줄이고, 근로조건 점수까지 보는 도구", { x: M + 0.42, y: 4.95, w: 5.3, h: 0.36, fontSize: 13, color: K.greenOnDark });
+  T(s, "공고마다 맞는 규칙을 보여 줘서, 조달 정보 차이를 줄이는 도구", { x: M + 0.42, y: 4.95, w: 5.3, h: 0.36, fontSize: 13, color: K.greenOnDark });
   let cx = M;
   for (const [ic, t] of [["FaBroom", "청소"], ["FaShieldHalved", "경비"], ["FaPeopleGroup", "파견"], ["FaHandshake", "직업소개"]]) {
     await iconCircle(s, ic, cx, 5.6, 0.5, K.skyOnDark, K.navy3);
@@ -181,7 +181,7 @@ function note(s, text, y = 6.62, dark = false) {
   T(s, "Narani", { x: M, y: 6.55, w: 3, h: 0.4, fontSize: 16, bold: true, color: K.white });
   shot(s, "dashboard.jpg", 7.2, 1.05, 5.5, 1530 / 661, "대시보드");
   shot(s, "detail_top.jpg", 6.55, 3.75, 5.65, 1568 / 661, "공고 상세");
-  s.addNotes("BidBox는 공공기관 청소·경비·파견·직업소개 용역 입찰에서, 공고에 맞는 점수 계산 규칙을 찾아 써 낼 금액의 범위를 알려 주는 웹 서비스입니다. 조달 정보 차이를 줄이고, 근로조건 점수까지 함께 보여 주는 것이 이 서비스의 사회적 의미입니다. 오른쪽은 실제 동작하는 시제품 화면입니다.");
+  s.addNotes("BidBox는 공공기관 청소·경비·파견·직업소개 용역 입찰에서, 공고에 맞는 점수 계산 규칙을 찾아 써 낼 금액의 범위를 알려 주는 웹 서비스입니다. 공고에 맞는 규칙과 가격 기준을 화면에 보여 줘서 중소 용역업체의 조달 정보 차이를 줄이는 것이 이 서비스의 사회적 의미입니다. 오른쪽은 실제 동작하는 시제품 화면입니다.");
 
   pres.addSection({ title: "P 문제 인식" });
 
@@ -625,14 +625,13 @@ function note(s, text, y = 6.62, dark = false) {
   s.addNotes("정부지원 1단계와 2단계 각 2,000만 원입니다. 1단계는 외주용역, 지급수수료, 광고선전비이고, 2단계는 영업 담당 인건비, 지급수수료, 상표·특허입니다. 대표자 인건비와 현물 출자는 넣지 않았습니다.");
 
   // ===== 21. 사회적 가치 =====
-  s = lightSlide("S 성장전략", "S · 성장전략 · ESG", "사회적 가치: [[공정한 정보, 일하는 사람의 조건]]");
+  s = lightSlide("S 성장전략", "S · 성장전략 · ESG", "사회적 가치: [[모두가 같은 정보로 입찰]]");
   const esg = [["S", "FaScaleBalanced", "조달 정보 차이 줄이기", "규칙표·가격 기준을 공고 화면에 공개, 검색·대시보드·직접 계산 무료", "2024 중소기업 수주 142.1조원(63.1%)", "1년차 시험 사용 20사 중 비수도권 10사 이상"],
-    ["S", "FaHelmetSafety", "용역 노동자 근로조건", "근로조건 이행계획 점수(별표 2 시설분야 10점)를 계산에 반영", "고용노동부 도급 노동자 보호지침(2026-09-08)", "점수 반영 구현 · 노임 경고 3년차"],
     ["S", "FaUsers", "약자기업·고용 우수기업", "여성·장애인기업, 청년·여성·장애인 고용 등 가점 계산과 안내", "적격심사 신인도 항목, 규칙에 구현", "2년차 가점 안내 화면"],
     ["G", "FaUserShield", "정보 보호·책임 있는 AI", "필요한 항목만 수집, 상담은 서비스 안 모델, 글자 읽기(OCR) 기본 꺼짐", "약관 첫머리에 낙찰 비보증 명시", "1년차부터"]];
-  const ew = (CW - 3 * 0.18) / 4;
-  for (let i = 0; i < 4; i++) {
-    const [L, ic, t, d, g, when] = esg[i], x = M + i * (ew + 0.18);
+  const ew = (CW - 2 * 0.3) / 3;
+  for (let i = 0; i < 3; i++) {
+    const [L, ic, t, d, g, when] = esg[i], x = M + i * (ew + 0.3);
     box(s, { x, y: 1.75, w: ew, h: 4.75, fill: K.white, line: K.line, shadow: true });
     s.addText(L, { shape: pres.shapes.OVAL, x: x + 0.25, y: 2.0, w: 0.55, h: 0.55, fill: { color: L === "G" ? K.navy3 : K.blue }, line: { type: "none" },
       fontFace: F, fontSize: 18, bold: true, color: K.white, align: "center", valign: "middle", margin: 0, objectName: nm("esg-letter") });
@@ -643,8 +642,8 @@ function note(s, text, y = 6.62, dark = false) {
     s.addText(when, { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.1, x: x + 0.2, y: 5.6, w: ew - 0.4, h: 0.65,
       fill: { color: K.blueTint }, line: { type: "none" }, fontFace: F, fontSize: 11, bold: true, color: K.blueDeep, align: "center", valign: "middle", margin: 0.05, objectName: nm("when") });
   }
-  note(s, "지표의 숫자 목표는 시험 사용 측정 뒤 결정 · 약자기업 우대 단가와 노임 경고 기준은 확인 전까지 수치 미설정");
-  s.addNotes("네 업종은 인건비 비중이 큰 단순노무 용역이라, 근로조건 항목이 금액 판단과 바로 이어집니다. 정보 차이 줄이기, 근로조건, 약자기업 가점, 정보 보호의 네 가지를 단계별로 도입합니다.");
+  note(s, "지표의 숫자 목표는 시험 사용 측정 뒤 결정 · 약자기업 우대 단가는 확인 전까지 수치 미설정");
+  s.addNotes("사회적 가치는 공공조달 정보 차이를 줄이는 데서 나옵니다. 공고에 맞는 규칙표와 가격 기준을 보여 주고, 약자기업·고용 우수기업이 받을 수 있는 가점을 안내하며, 정보 보호와 낙찰 비보증을 지킵니다.");
 
   pres.addSection({ title: "T 팀 구성" });
 
