@@ -63,15 +63,19 @@ const eyebrowPh = (dark) => ({
     text: "",
   },
 });
-const footer = (dark) => ({
-  text: { text: "BidBox · Narani", options: { x: M, y: 7.02, w: 4, h: 0.3, fontFace: F, fontSize: 10,
-    color: dark ? K.onDarkMute : K.mute, margin: 0 } },
-});
+// BidBox 로고: 제품 저장소 logo.png에서 make_logo.py로 바탕을 투명하게 뺀 것(가로:세로 870:308)
+const LOGO = (dark) => path.join(__dirname, "assets", dark ? "bidbox_logo_dark.png" : "bidbox_logo_light.png");
+const LOGO_R = 870 / 308;
+const footer = (dark) => [
+  { image: { x: M, y: 7.03, w: 0.26 * LOGO_R, h: 0.26, path: LOGO(dark) } },
+  { text: { text: "· Narani", options: { x: M + 0.26 * LOGO_R + 0.08, y: 7.02, w: 2, h: 0.3, fontFace: F, fontSize: 10,
+    color: dark ? K.onDarkMute : K.mute, margin: 0 } } },
+];
 pres.defineSlideMaster({ title: "LIGHT", background: { color: K.page },
-  objects: [eyebrowPh(false), titlePh(false), footer(false)],
+  objects: [eyebrowPh(false), titlePh(false), ...footer(false)],
   slideNumber: { x: 12.23, y: 7.0, w: 0.5, h: 0.3, fontFace: F, fontSize: 10, color: K.mute, align: "right" } });
 pres.defineSlideMaster({ title: "DARK", background: { color: K.navy },
-  objects: [eyebrowPh(true), titlePh(true), footer(true)],
+  objects: [eyebrowPh(true), titlePh(true), ...footer(true)],
   slideNumber: { x: 12.23, y: 7.0, w: 0.5, h: 0.3, fontFace: F, fontSize: 10, color: K.onDarkMute, align: "right" } });
 pres.defineSlideMaster({ title: "COVER", background: { color: K.navy }, objects: [] });
 
@@ -164,13 +168,14 @@ function note(s, text, y = 6.62, dark = false) {
   T(s, "공고마다 다른 점수 규칙,\n찾아서 금액 범위까지", { x: M, y: 1.55, w: 6.2, h: 1.9, fontSize: 38, bold: true,
     color: K.white, lineSpacingMultiple: 1.1 });
   T(s, "공공기관 용역 입찰 도우미 웹 서비스", { x: M, y: 3.7, w: 6, h: 0.4, fontSize: 18, color: K.onDarkMute });
-  T(s, "BidBox (가칭)", { x: M, y: 4.12, w: 6, h: 0.6, fontSize: 28, bold: true, color: K.blue });
-  s.addImage({ data: await icon("FaScaleBalanced", K.greenOnDark), x: M, y: 4.82, w: 0.3, h: 0.3, objectName: nm("esg-icon") });
-  T(s, "조달 정보 차이를 줄이고, 근로조건 점수까지 보는 도구", { x: M + 0.42, y: 4.8, w: 5.3, h: 0.36, fontSize: 13, color: K.greenOnDark });
+  s.addImage({ path: LOGO(true), x: M - 0.05, y: 4.05, w: 0.78 * LOGO_R, h: 0.78, objectName: nm("logo") });
+  T(s, "(가칭)", { x: M + 0.78 * LOGO_R + 0.08, y: 4.4, w: 1.2, h: 0.35, fontSize: 14, color: K.onDarkMute });
+  s.addImage({ data: await icon("FaScaleBalanced", K.greenOnDark), x: M, y: 4.97, w: 0.3, h: 0.3, objectName: nm("esg-icon") });
+  T(s, "조달 정보 차이를 줄이고, 근로조건 점수까지 보는 도구", { x: M + 0.42, y: 4.95, w: 5.3, h: 0.36, fontSize: 13, color: K.greenOnDark });
   let cx = M;
   for (const [ic, t] of [["FaBroom", "청소"], ["FaShieldHalved", "경비"], ["FaPeopleGroup", "파견"], ["FaHandshake", "직업소개"]]) {
-    await iconCircle(s, ic, cx, 5.5, 0.5, K.skyOnDark, K.navy3);
-    T(s, t, { x: cx + 0.58, y: 5.6, w: 1.0, h: 0.3, fontSize: 14, color: K.white });
+    await iconCircle(s, ic, cx, 5.6, 0.5, K.skyOnDark, K.navy3);
+    T(s, t, { x: cx + 0.58, y: 5.7, w: 1.0, h: 0.3, fontSize: 14, color: K.white });
     cx += t.length > 2 ? 1.75 : 1.35;
   }
   T(s, "Narani", { x: M, y: 6.55, w: 3, h: 0.4, fontSize: 16, bold: true, color: K.white });
@@ -680,7 +685,7 @@ function note(s, text, y = 6.62, dark = false) {
   // ===== 24. 마무리 =====
   pres.addSection({ title: "마무리" });
   s = pres.addSlide({ masterName: "COVER", sectionTitle: "마무리" });
-  T(s, "BidBox", { x: M, y: 1.1, w: 6, h: 0.5, fontSize: 20, bold: true, color: K.blue });
+  s.addImage({ path: LOGO(true), x: M - 0.03, y: 0.95, w: 0.5 * LOGO_R, h: 0.5, objectName: nm("logo") });
   T(s, "모르면 멈추는\n입찰 도우미", { x: M, y: 1.7, w: 8, h: 1.9, fontSize: 48, bold: true, color: K.white, lineSpacingMultiple: 1.05 });
   const fin = [["206종", "공고에 맞는 계산 규칙"], ["31,305건", "최근 12개월 규칙 판정"], ["0원", "금액 없는 공고 추천"]];
   fin.forEach(([v, l], i) => {
