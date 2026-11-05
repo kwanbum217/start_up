@@ -30,11 +30,14 @@ const THEME = {
 };
 // 색 토큰(hex). 옅은 바탕색은 테마에 없으니 hex로 둔다.
 const K = {
-  ink: "0F172A", ink2: "334155", mute: "64748B", line: "E6E9EF", bg: "F9FAFB", white: "FFFFFF",
+  ink: "0F172A", ink2: "334155", mute: "64748B", line: "E1E7EF", bg: "FFFFFF", white: "FFFFFF",
+  page: "F2F5F9", mark: "E2E8F0", // 본문 장 바탕(연한 회청색)과 장 기호 워터마크
   blue: "0073E6", blueDeep: "005BB3", blueTint: "E6F1FF", blue2: "9CC9F7", blue3: "4D9DEC",
   navy: "020B1A", navy2: "0F1B2E", navy3: "1E2A3D", onDarkMute: "A8B3C4", skyOnDark: "6CB4FF",
   green: "059669", greenTint: "ECFDF5", amber: "B45309", amberTint: "FFFBEB", red: "DC2626", redTint: "FEF2F2",
-  slateTint: "F1F5F9",
+  slateTint: "E8EDF3",
+  // 어두운 장 위 상태 색(대비를 위해 한 단계 밝게)
+  greenOnDark: "34D399", amberOnDark: "FBBF24", redOnDark: "F87171",
 };
 
 const pres = new pptxgen();
@@ -64,7 +67,7 @@ const footer = (dark) => ({
   text: { text: "BidBox · Narani", options: { x: M, y: 7.02, w: 4, h: 0.3, fontFace: F, fontSize: 10,
     color: dark ? K.onDarkMute : K.mute, margin: 0 } },
 });
-pres.defineSlideMaster({ title: "LIGHT", background: { color: K.white },
+pres.defineSlideMaster({ title: "LIGHT", background: { color: K.page },
   objects: [eyebrowPh(false), titlePh(false), footer(false)],
   slideNumber: { x: 12.23, y: 7.0, w: 0.5, h: 0.3, fontFace: F, fontSize: 10, color: K.mute, align: "right" } });
 pres.defineSlideMaster({ title: "DARK", background: { color: K.navy },
@@ -125,8 +128,15 @@ function shot(s, file, x, y, w, ratio, label) {
   if (label) chip(s, label, x + 0.15, y + h - 0.47, K.white, K.navy, { size: 12 });
   return h;
 }
+// 장 기호(P·S·T)를 오른쪽 아래에 아주 옅게 깐다(6회차 강의 슬라이드의 큰 「P」). 카드보다 먼저 넣어 뒤에 깔리게 한다.
+function watermark(s, eyebrow) {
+  const L = eyebrow.trim()[0];
+  if (!"PST".includes(L)) return;
+  T(s, L, { x: 9.0, y: 2.2, w: 4.2, h: 5.2, fontSize: 340, bold: true, color: K.mark, align: "right", valign: "bottom", objectName: nm("watermark") });
+}
 function lightSlide(section, eyebrow, title) {
   const s = pres.addSlide({ masterName: "LIGHT", sectionTitle: section });
+  watermark(s, eyebrow);
   s.addText(eyebrow, { placeholder: "eyebrow" });
   s.addText(title, { placeholder: "title" });
   return s;
@@ -254,21 +264,21 @@ function note(s, text, y = 6.62, dark = false) {
   s.addNotes("점수를 계산하려면 공고마다 규칙표와 기준값이 필요한데, 이 내용은 첨부 파일에만 있습니다. 인천광역시처럼 같은 기준의 옛 판과 고친 판이 나란히 올라오기도 합니다.");
 
   // ===== 6. 문제 크기 =====
-  s = lightSlide("P 문제 인식", "P · 문제 인식", "10건 중 3건꼴은 기준이 없어 자동 계산 불가");
+  s = darkSlide("P 문제 인식", "P · 문제 인식", "10건 중 3건꼴은 기준이 없어 자동 계산 불가");
   s.addChart(pres.charts.DOUGHNUT, [{ name: "최근 12개월 용역 적격심사", labels: ["규칙 자동 적용 21,394건", "기준 없음 9,911건"], values: [21394, 9911] }],
-    { x: M, y: 1.65, w: 5.4, h: 4.75, holeSize: 66, chartColors: [K.blue, K.red], showLegend: true, legendPos: "b",
-      legendFontFace: F, legendFontSize: 13, legendColor: K.ink2, showValue: false, showPercent: false, showLabel: false,
-      dataBorder: { pt: 2, color: "FFFFFF" }, objectName: nm("donut") });
-  T(s, "31.7%", { x: M + 1.45, y: 3.0, w: 2.5, h: 0.75, fontSize: 40, bold: true, color: K.red, align: "center" });
-  T(s, "기준 없음", { x: M + 1.45, y: 3.75, w: 2.5, h: 0.35, fontSize: 14, color: K.mute, align: "center" });
-  const st = [["9,911건", "기준이 없어 자동 계산 불가", K.red], ["31,305건", "최근 12개월 용역 적격심사 공고", K.ink], ["55.1조원", "2024년 공공조달 용역 계약 (조달청)", K.blue]];
+    { x: M, y: 1.65, w: 5.4, h: 4.75, holeSize: 66, chartColors: [K.blue, K.redOnDark], showLegend: true, legendPos: "b",
+      legendFontFace: F, legendFontSize: 13, legendColor: K.onDarkMute, showValue: false, showPercent: false, showLabel: false,
+      dataBorder: { pt: 2, color: K.navy }, objectName: nm("donut") });
+  T(s, "31.7%", { x: M + 1.45, y: 3.0, w: 2.5, h: 0.75, fontSize: 40, bold: true, color: K.redOnDark, align: "center" });
+  T(s, "기준 없음", { x: M + 1.45, y: 3.75, w: 2.5, h: 0.35, fontSize: 14, color: K.onDarkMute, align: "center" });
+  const st = [["9,911건", "기준이 없어 자동 계산 불가", K.redOnDark], ["31,305건", "최근 12개월 용역 적격심사 공고", K.white], ["55.1조원", "2024년 공공조달 용역 계약 (조달청)", K.skyOnDark]];
   st.forEach(([v, l, c], i) => {
     const y = 1.8 + i * 1.55;
-    box(s, { x: 6.5, y, w: 6.23, h: 1.35, fill: K.bg, line: K.line });
+    box(s, { x: 6.5, y, w: 6.23, h: 1.35, fill: K.navy2, line: K.navy3 });
     T(s, v, { x: 6.85, y: y + 0.2, w: 3.0, h: 0.9, fontSize: 34, bold: true, color: c, valign: "middle" });
-    T(s, l, { x: 9.75, y: y + 0.2, w: 2.85, h: 0.9, fontSize: 14, color: K.ink2, valign: "middle" });
+    T(s, l, { x: 9.75, y: y + 0.2, w: 2.85, h: 0.9, fontSize: 14, color: K.onDarkMute, valign: "middle" });
   });
-  note(s, "규칙 판정 2026-10-19 · 55.1조원은 조달청 보도자료(2025-06-27)의 계약 규모이며 소프트웨어 매출 아님");
+  note(s, "규칙 판정 2026-10-19 · 55.1조원은 조달청 보도자료(2025-06-27)의 계약 규모이며 소프트웨어 매출 아님", 6.62, true);
   s.addNotes("최근 12개월 용역 적격심사 31,305건 중 9,911건, 31.7%는 기준이 없어 자동 계산이 되지 않습니다. 2024년 공공조달 용역 계약은 55.1조원입니다.");
 
   // ===== 7. 기존 방법 한계 =====
@@ -310,7 +320,7 @@ function note(s, text, y = 6.62, dark = false) {
     ["매일 맞는 공고를 직접 고르기", "FaMagnifyingGlass", "네 업종이 목록 기본값, 공고 505,271건 색인"]];
   for (let i = 0; i < 4; i++) {
     const y = 2.05 + i * 1.13;
-    box(s, { x: M, y, w: 5.75, h: 0.95, fill: K.slateTint, radius: 0.12 });
+    box(s, { x: M, y, w: 5.75, h: 0.95, fill: K.white, line: K.line, radius: 0.12 });
     T(s, ps[i][0], { x: M + 0.25, y, w: 5.3, h: 0.95, fontSize: 15, color: K.ink2, valign: "middle" });
     arrow(s, 6.47, y + 0.33, 0.45, K.blue);
     box(s, { x: 7.0, y, w: 5.73, h: 0.95, fill: K.blueTint, radius: 0.12 });
@@ -392,29 +402,29 @@ function note(s, text, y = 6.62, dark = false) {
   s.addNotes("강의 팁대로 줄글 대신 OX로 비교했습니다. 규칙표 고르기, 기준이 없을 때 멈추기, 근거 표시는 BidBox만 지원합니다. 확인하지 못한 칸은 미확인으로 두었습니다.");
 
   // ===== 13. 개발 현황 =====
-  s = lightSlide("S 실현 가능성", "S · 실현 가능성", "이미 만든 것, 숫자로 확인");
+  s = darkSlide("S 실현 가능성", "S · 실현 가능성", "이미 만든 것, 숫자로 확인");
   const tiles = [["206종", "규칙 ID", "기관·시행일별 계산 규칙"], ["21,394건", "자동 적용", "31,305건 중 (2026-10-19)"],
     ["505,271건", "공고 색인", "최근 1년 (2026-09-09)"], ["1.1885%p", "낙찰률 평균 오차", "3,000건 (2026-09-15)"],
     ["90.25%", "예측 범위 포함률", "3,589건 (2026-08-30)"], ["144/144", "상담 숫자 정답", "96개 요청 평가"]];
   tiles.forEach(([v, l, d], i) => {
     const x = M + (i % 3) * 2.83, y = 1.75 + Math.floor(i / 3) * 2.42;
-    box(s, { x, y, w: 2.65, h: 2.22, fill: K.bg, line: K.line });
-    T(s, v, { x: x + 0.25, y: y + 0.3, w: 2.3, h: 0.7, fontSize: 28, bold: true, color: K.blue });
-    T(s, l, { x: x + 0.25, y: y + 1.1, w: 2.3, h: 0.4, fontSize: 15, bold: true, color: K.ink });
-    T(s, d, { x: x + 0.25, y: y + 1.5, w: 2.3, h: 0.4, fontSize: 11, color: K.mute });
+    box(s, { x, y, w: 2.65, h: 2.22, fill: K.navy2, line: K.navy3 });
+    T(s, v, { x: x + 0.25, y: y + 0.3, w: 2.3, h: 0.7, fontSize: 28, bold: true, color: K.skyOnDark });
+    T(s, l, { x: x + 0.25, y: y + 1.1, w: 2.3, h: 0.4, fontSize: 15, bold: true, color: K.white });
+    T(s, d, { x: x + 0.25, y: y + 1.5, w: 2.3, h: 0.4, fontSize: 11, color: K.onDarkMute });
   });
-  box(s, { x: 9.2, y: 1.75, w: 3.53, h: 4.64, fill: K.white, line: K.line, shadow: true });
-  T(s, "개발 진행 상태 (10개 항목)", { x: 9.45, y: 1.97, w: 3.1, h: 0.4, fontSize: 14, bold: true, color: K.ink });
-  const stat = [[7, "구현 완료", K.green, K.greenTint], [1, "부분 구현", K.amber, K.amberTint], [2, "미구축 · 협약 중 구축", K.red, K.redTint]];
+  box(s, { x: 9.2, y: 1.75, w: 3.53, h: 4.64, fill: K.navy2, line: K.navy3 });
+  T(s, "개발 진행 상태 (10개 항목)", { x: 9.45, y: 1.97, w: 3.1, h: 0.4, fontSize: 14, bold: true, color: K.white });
+  const stat = [[7, "구현 완료", K.greenOnDark, K.navy3], [1, "부분 구현", K.amberOnDark, K.navy3], [2, "미구축 · 협약 중 구축", K.redOnDark, K.navy3]];
   let sq = 0;
   for (const [n, , c] of stat) for (let k = 0; k < n; k++, sq++)
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 9.45 + sq * 0.305, y: 2.5, w: 0.26, h: 0.42, rectRadius: 0.05, fill: { color: c }, line: { type: "none" }, objectName: nm("sq") });
   stat.forEach(([n, l, c, t], i) => {
     s.addText(String(n), { shape: pres.shapes.OVAL, x: 9.45, y: 3.2 + i * 0.6, w: 0.42, h: 0.42, fill: { color: t }, line: { type: "none" },
       fontFace: F, fontSize: 14, bold: true, color: c, align: "center", valign: "middle", margin: 0, objectName: nm("count") });
-    T(s, l, { x: 10.0, y: 3.24 + i * 0.6, w: 2.6, h: 0.36, fontSize: 13, color: K.ink2 });
+    T(s, l, { x: 10.0, y: 3.24 + i * 0.6, w: 2.6, h: 0.36, fontSize: 13, color: K.onDarkMute });
   });
-  T(s, "협약 중 만들 것\n· 운영 주소, 이용권 결제, 약관, 보안 점검\n· 시험 사용 기록, 지자체 원문", { x: 9.45, y: 5.1, w: 3.15, h: 1.15, fontSize: 12, color: K.ink2 });
+  T(s, "협약 중 만들 것\n· 운영 주소, 이용권 결제, 약관, 보안 점검\n· 시험 사용 기록, 지자체 원문", { x: 9.45, y: 5.1, w: 3.15, h: 1.15, fontSize: 12, color: K.onDarkMute });
   s.addNotes("규칙 206종, 31,305건 중 21,394건 자동 적용, 낙찰률 평균 오차 1.1885%p, 상담 숫자 정답 144/144입니다. 협약 기간에는 운영 공개와 결제, 시험 사용을 만듭니다.");
 
   // ===== 14. 협약 8개월 일정 =====
@@ -424,7 +434,7 @@ function note(s, text, y = 6.62, dark = false) {
     { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.12, x: M, y: 1.72, w: half, h: 0.6, fill: { color: K.blueTint }, line: { type: "none" },
       fontFace: F, fontSize: 16, align: "center", valign: "middle", margin: 0, objectName: nm("phase") });
   s.addText([{ text: "2단계 · 5~8개월   ", options: { bold: true, color: K.ink2 } }, { text: "2,000만 원 (중간평가 통과 시)", options: { bold: true, color: K.ink } }],
-    { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.12, x: M + half + 0.2, y: 1.72, w: half, h: 0.6, fill: { color: K.slateTint }, line: { type: "none" },
+    { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.12, x: M + half + 0.2, y: 1.72, w: half, h: 0.6, fill: { color: K.white }, line: { color: K.line, width: 1 },
       fontFace: F, fontSize: 16, align: "center", valign: "middle", margin: 0, objectName: nm("phase") });
   s.addShape(pres.shapes.LINE, { x: M + 0.4, y: 3.25, w: CW - 0.8, h: 0, line: { color: K.line, width: 3 }, objectName: nm("tl") });
   const ms = [["운영 공개", "서버·도메인·보안 접속, Windows 실행 확인"], ["회사 점수 재현", "등급 넣은 계정과 비교, 약관 초안"],
