@@ -5,6 +5,7 @@
 //         + IBM Carbon식 상태 3색(초록·주황·빨강).
 // 실행: NODE_PATH=<pptxgenjs·react-icons·react·react-dom·sharp 설치 폴더>/node_modules \
 //       node scripts/pitchdeck/build_pitchdeck.js <출력.pptx> <pptx 스킬 apply_theme.js 경로>
+// 검토용 구글 슬라이드에 올리는 절차: .agents/skills/bizplan-writing/references/gslides.md
 const path = require("path");
 const pptxgen = require("pptxgenjs");
 const React = require("react");

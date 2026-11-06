@@ -144,7 +144,7 @@ LibreOffice로 센 v7과 v8의 쪽 수는 각 8쪽이다. 이 Mac의 LibreOffice
 - 구성은 6회차 강의(`01_강의자료/배포용_사업계획서 작성_코리아 6회차.pdf`)를 따른다. **발표(피칭)용이라 목차·간지는 넣지 않는다**(강의 6쪽 「목차·간지 — 피칭 X / 제안서·R&D보고서·회사소개서·팁스 발표자료」). 장마다 제목은 필수, 줄글 대신 숫자·OX 표·도식. 수치는 v28과 이 파일의 사실만 쓰고, 가설·미확인·낙찰 보증 없음 표기는 계획서와 같다.
 - v3(2026-11-05)은 강의 대조 검증을 반영했다. 목차·간지 5장을 뺐다. 영업·홍보 장(온라인·오프라인, 계획서 「진입 채널과 실행」 표 근거)을 더했다. 그 밖에 표지 사회적 의미 한 줄, 고객 장 핵심 니즈, 비즈니스 모델 양방향 현금 흐름, 로드맵 사업·기술 두 줄, 성과 장 특허 출원, 팀 장 인프라를 더했다. 새 숫자는 없다. 피치덱으로 채울 수 없는 강의 항목은 실제 활동이 생긴 뒤에만 넣는다(고객 직접 만남, 구매 예정서·PoC, 고객 리스트·인증 사진, 개인 투자·투자 협약서, ESG의 E).
 - 디자인은 BidBox 웹 화면 색(primary `#0073E6`, 사이드바 `#020B1A`, slate)을 쓴다. `~/Downloads/awesome-design-md-main`의 73개 지침 가운데 Coinbase(단일 강조색, 어두운 띠 위 제품 화면 카드)를 뼈대로, IBM Carbon의 상태 3색(초록·주황·빨강)을 더했다.
-- 검토용 구글 슬라이드: https://docs.google.com/presentation/d/1freHyZ0yO83FKwQ_UziZXhc3czPzsfHGHdEJlUq4Nvw/edit . 서비스 계정(`sync_gdoc.py`의 키)으로 pptx를 같은 파일 ID에 덮어써 변환한다. 구글은 맑은 고딕을 못 그리니 올리는 사본만 Nanum Gothic으로 바꾼다. 네이티브 막대 차트는 변환 때 항목 이름·순서·숫자 형식이 깨져서 막대는 도형으로 그린다(도넛 차트는 정상).
+- 검토용 구글 슬라이드 절차는 `.agents/skills/bizplan-writing/references/gslides.md`다. 링크는 https://docs.google.com/presentation/d/1freHyZ0yO83FKwQ_UziZXhc3czPzsfHGHdEJlUq4Nvw/edit 이고, 2026-11-05에 넣은 판은 피치덱 v7이다. 제출 pptx는 맑은 고딕을 유지하고, 검토용 사본만 Nanum Gothic으로 올린다. 네이티브 막대 차트는 변환 때 항목 이름·순서·숫자 형식이 깨지므로 막대는 도형으로 그린다(도넛 차트는 정상).
 
 ## 사업계획서 docx 작성 규칙
 
@@ -241,7 +241,7 @@ LibreOffice로 센 v7과 v8의 쪽 수는 각 8쪽이다. 이 Mac의 LibreOffice
 
 | 스킬 | 언제 | 본체 |
 |---|---|---|
-| bizplan-writing | 사업계획서를 쓰거나 고치거나 검토할 때. 쉬운 말로 쓰기(`references/plain.md`), 대표자 목소리로 쓰기(AI 티 줄이기), 예시 계획서 기준 서식, 검토용 구글 문서 반영 | `.agents/skills/bizplan-writing/SKILL.md` |
+| bizplan-writing | 사업계획서를 쓰거나 고치거나 검토할 때. 쉬운 말로 쓰기(`references/plain.md`), 대표자 목소리로 쓰기(AI 티 줄이기), 예시 계획서 기준 서식, 검토용 구글 문서 반영, 피치덱 검토용 구글 슬라이드 반영(`references/gslides.md`) | `.agents/skills/bizplan-writing/SKILL.md` |
 | git-sync | 커밋, 푸시, 원격 동기화 | `.grok/skills/git-sync/SKILL.md` |
 
 bizplan-writing은 절차와 판단 기준만 담고, 수치와 사실은 이 파일을 정본으로 읽는다. 2026-11-02에 그 스킬의 `sync_gdoc.py --check`로 본 검토용 구글 문서는 v26(표 20, 그림 11, 보정 후 나눔고딕, 여백 2.5·2cm)이다.
