@@ -1,5 +1,5 @@
 // BidBox 피치덱(.pptx) 생성기
-// 근거: 사업계획서 v28(02_과제/..._v28.docx)과 AGENTS.md 「현재 사업계획서」의 수치만 쓴다. 새 숫자 없음.
+// 근거: 사업계획서 v33(02_과제/..._v33.docx)과 AGENTS.md 「현재 사업계획서」의 수치만 쓴다. 새 숫자 없음.
 // 구성: 6회차 강의(P·S·S·T, 장 제목 필수, 줄글 대신 숫자·OX·도식). 발표용이라 목차·간지 없음(강의 6쪽 「피칭 X」).
 // 디자인: BidBox 웹 화면 색(primary #0073E6, sidebar #020B1A, slate) + Coinbase식 단일 강조색·어두운 띠 위 제품 화면
 //         + IBM Carbon식 상태 3색(초록·주황·빨강).
@@ -179,10 +179,11 @@ function note(s, text, y = 6.62, dark = false) {
     T(s, t, { x: cx + 0.58, y: 5.7, w: 1.0, h: 0.3, fontSize: 14, color: K.white });
     cx += t.length > 2 ? 1.75 : 1.35;
   }
-  T(s, "Narani", { x: M, y: 6.55, w: 3, h: 0.4, fontSize: 16, bold: true, color: K.white });
+  T(s, "Narani", { x: M, y: 6.55, w: 1.5, h: 0.4, fontSize: 16, bold: true, color: K.white });
+  chip(s, "회사 대상 이용권형(SaaS)", M + 1.65, 6.58, K.skyOnDark, K.navy3, { w: 2.7, h: 0.34, size: 12 });
   shot(s, "dashboard.jpg", 7.2, 1.05, 5.5, 1530 / 661, "대시보드");
   shot(s, "detail_top.jpg", 6.55, 3.75, 5.65, 1568 / 661, "공고 상세");
-  s.addNotes("BidBox는 공공기관 청소·경비·파견·직업소개 용역 입찰에서, 공고에 맞는 점수 계산 규칙을 찾아 써 낼 금액의 범위를 알려 주는 웹 서비스입니다. 공고에 맞는 규칙과 가격 기준을 화면에 보여 줘서 중소 용역업체의 조달 정보 차이를 줄이는 것이 이 서비스의 사회적 의미입니다. 오른쪽은 실제 동작하는 시제품 화면입니다.");
+  s.addNotes("BidBox는 공공기관 청소·경비·파견·직업소개 용역 입찰에서, 공고에 맞는 점수 계산 규칙을 찾아 써 낼 금액의 범위를 알려 주는 웹 서비스입니다. 회사 대상 이용권형 프로그램입니다. 공고에 맞는 규칙과 가격 기준을 화면에 보여 줘서 중소 용역업체의 조달 정보 차이를 줄이는 것이 이 서비스의 사회적 의미입니다. 오른쪽은 실제 동작하는 시제품 화면입니다.");
 
   pres.addSection({ title: "P 문제 인식" });
 
@@ -228,15 +229,15 @@ function note(s, text, y = 6.62, dark = false) {
   s.addNotes("고객은 청소·경비·파견·직업소개 네 업종 중소 용역업체의 입찰 담당자입니다. 공고 한 건을 볼 때마다 첨부 파일에서 규칙표를 찾고, 기관과 시행일에 맞는 판을 직접 골라야 합니다. 인천광역시처럼 옛 판과 고친 판이 함께 올라온 경우도 있습니다.");
 
   // ===== P2. 문제의 근거: 뉴스·통계 =====
-  s = lightSlide("P 문제 인식", "P · 문제 인식", "[[1년 새 세 번]] 바뀐 낙찰하한율, 확인은 담당자 몫");
+  s = lightSlide("P 문제 인식", "P · 문제 인식", "[[공사 두 번·용역 한 번]], 1년 새 오른 낙찰하한율");
   box(s, { x: M, y: 1.72, w: CW, h: 1.78, fill: K.white, line: K.line });
-  T(s, "낙찰하한율(이보다 낮게 쓰면 탈락하는 비율)이 +2%p씩 오른 순서", { x: M + 0.3, y: 1.85, w: 7.5, h: 0.32, fontSize: 13, bold: true, color: K.ink2 });
+  T(s, "낙찰하한율(더 낮게 쓰면 탈락)이 2%p(퍼센트포인트)씩 오른 순서", { x: M + 0.3, y: 1.85, w: 7.6, h: 0.32, fontSize: 13, bold: true, color: K.ink2 });
   s.addShape(pres.shapes.LINE, { x: M + 0.7, y: 2.62, w: CW - 1.4, h: 0, line: { color: K.blue2, width: 3 }, objectName: nm("tl") });
   const evs = [["2025-07-01", "지방계약 공사", "행정안전부"], ["2026-01-30", "국가계약 시설공사", "조달청"], ["2026-05-26 공고부터", "일반용역 · 9년 만", "조달청 공고 제2026-260호"]];
   evs.forEach(([d, t, src], i) => {
     const cx2 = M + CW * (i * 2 + 1) / 6, hot = i === 2;
-    s.addShape(pres.shapes.OVAL, { x: cx2 - 0.16, y: 2.46, w: 0.32, h: 0.32, fill: { color: hot ? K.blue : K.white }, line: { color: K.blue, width: 2.5 }, objectName: nm("ev") });
-    T(s, d, { x: cx2 - 1.9, y: 2.82, w: 3.8, h: 0.3, fontSize: 14, bold: true, color: hot ? K.blue : K.ink, align: "center" });
+    s.addShape(pres.shapes.OVAL, { x: cx2 - 0.16, y: 2.46, w: 0.32, h: 0.32, fill: { color: hot ? K.blue : K.amber }, line: { color: hot ? K.blue : K.amber, width: 2.5 }, objectName: nm("ev") });
+    T(s, d, { x: cx2 - 1.9, y: 2.82, w: 3.8, h: 0.3, fontSize: 14, bold: true, color: hot ? K.blue : K.amber, align: "center" });
     T(s, `${t} (${src})`, { x: cx2 - 1.9, y: 3.12, w: 3.8, h: 0.3, fontSize: 11, color: K.ink2, align: "center" });
   });
   chip(s, "청소·경비 등 시설분야 87.995% → 89.995%", 8.55, 1.86, K.white, K.blue, { w: 3.95, h: 0.36, size: 12 });
@@ -269,12 +270,12 @@ function note(s, text, y = 6.62, dark = false) {
   T(s, "고객의 불편", { x: M + 0.25, y: 1.62, w: 4, h: 0.35, fontSize: 14, bold: true, color: K.mute });
   T(s, "BidBox의 해결", { x: 7.25, y: 1.62, w: 4, h: 0.35, fontSize: 14, bold: true, color: K.blue });
   const ps = [["기관·시행일마다 규칙이 달라 어느 판을 쓸지 모름", "FaCodeBranch", "공고 날짜에 맞는 판을 골라 자동 적용"],
-    ["탈락하지 않는 금액 범위를 직접 계산", "FaCalculator", "최저가·최상가를 거꾸로 계산, 회사 신용등급·신인도 반영"],
+    ["써 낼 금액의 범위를 직접 계산", "FaCalculator", "최저가·최상가를 거꾸로 계산, 회사 신용 점수·평판 점수 반영"],
     ["지난 입찰에서 얼마에 따냈는지 따로 찾기", "FaChartLine", "AI 예측가와 예상 낙찰률을 금액 범위 옆에 표시"],
     ["매일 맞는 공고를 직접 고르기", "FaMagnifyingGlass", "네 업종이 목록 기본값, 공고 505,271건 색인"]];
   for (let i = 0; i < 4; i++) {
     const y = 2.05 + i * 1.13;
-    box(s, { x: M, y, w: 5.75, h: 0.95, fill: K.white, line: K.line, radius: 0.12 });
+    box(s, { x: M, y, w: 5.75, h: 0.95, fill: K.amberTint, line: "FDE68A", radius: 0.12 });
     T(s, ps[i][0], { x: M + 0.25, y, w: 5.3, h: 0.95, fontSize: 15, color: K.ink2, valign: "middle" });
     arrow(s, 6.47, y + 0.33, 0.45, K.blue);
     box(s, { x: 7.0, y, w: 5.73, h: 0.95, fill: K.blueTint, radius: 0.12 });
@@ -331,7 +332,7 @@ function note(s, text, y = 6.62, dark = false) {
   s.addNotes("BidBox는 세 가지 도구를 씁니다. 규칙 사전은 AI가 아니라 사람이 원문을 읽고 정리한 규칙표 206종입니다. 맞는 규칙이 없으면 계산을 멈춥니다. 예측 나무 숲은 머신러닝 LightGBM으로, 지난 낙찰 기록을 공부한 나무들이 스무고개처럼 질문을 이어 가며 금액과 범위를 냅니다. 실제 값이 범위 안에 든 비율은 90.25%입니다. 똑똑한 도서관 사서는 딥러닝 언어 모델과 검색을 함께 쓰는 RAG로, 근거를 먼저 찾고 그 근거로만 답합니다.");
 
   // ===== RAG 인텔리전스 (실제 화면 포함) =====
-  s = darkSlide("S 실현 가능성", "S · 실현 가능성", "RAG 인텔리전스: [[근거를 찾아 답하는 상담]]");
+  s = darkSlide("S 실현 가능성", "S · 실현 가능성", "근거 상담(RAG): [[없으면 답하지 않음]]");
   // 왼쪽: AI 어드바이저 실제 화면(2026-11-05 로컬 실행 캡처, 사용자 이름이 보이는 사이드바는 잘라 냄)
   const advW = 6.0, advH = advW / (1015 / 468);
   box(s, { x: M - 0.1, y: 1.62, w: advW + 0.2, h: advH + 0.2, fill: K.navy3, radius: 0.16, shadow: true, name: "adv-frame" });
@@ -340,9 +341,9 @@ function note(s, text, y = 6.62, dark = false) {
   // 오른쪽: 5단계 흐름(세로)
   const rag = [["FaComments", "질문", "공고·낙찰·규칙을 묻는 질문"],
     ["FaListCheck", "뜻 파악", "공고·숫자·규칙 가운데 무엇을 묻는지 나눔"],
-    ["FaMagnifyingGlass", "세 길로 찾기", "뜻으로(bge-m3) · 제목 글자로 · 숫자는 DB에서 바로"],
-    ["FaDatabase", "근거 모으기", "최근 1년 공고와 낙찰 결과 지식베이스"],
-    ["FaRobot", "근거로 답하기", "서비스 안 언어 모델(gemma)이 출처를 달고, 근거 없으면 거절"]];
+    ["FaMagnifyingGlass", "세 길로 찾기", "비슷한 뜻 · 제목 글자 · 숫자는 저장 자료에서"],
+    ["FaDatabase", "근거 모으기", "최근 1년 공고와 낙찰 결과를 모아 둔 자료"],
+    ["FaRobot", "근거로 답하기", "서비스 안 언어 모델이 출처를 달고, 없으면 거절"]];
   const fx = M + advW + 0.45, fw = CW - advW - 0.45;
   for (let i = 0; i < 5; i++) {
     const y = 1.62 + i * 0.7, hot = i === 2 || i === 4;
@@ -352,7 +353,7 @@ function note(s, text, y = 6.62, dark = false) {
     T(s, rag[i][2], { x: fx + 2.2, y, w: fw - 2.3, h: 0.6, fontSize: 11, color: hot ? K.white : K.onDarkMute, valign: "middle" });
   }
   // 아래: 품질 숫자
-  const rq = [["144/144", "숫자 정답"], ["1.0", "근거 찾기 재현율"], ["72/72", "출처 인용"], ["24/24", "거절해야 할 질문 거절"], ["0건", "지나친 답"], ["2.66초", "첫 글자까지 (P95)"]];
+  const rq = [["144/144", "숫자 정답"], ["1.0", "근거를 다시 찾음"], ["72/72", "출처 인용"], ["24/24", "거절해야 할 질문"], ["0건", "근거 없는 답"], ["2.66초", "가장 느린 쪽 첫 글자"]];
   const qw = (CW - 5 * 0.15) / 6;
   rq.forEach(([v, l], i) => {
     const x = M + i * (qw + 0.15);
@@ -459,7 +460,7 @@ function note(s, text, y = 6.62, dark = false) {
       fontFace: F, fontSize: 16, align: "center", valign: "middle", margin: 0, objectName: nm("phase") });
   s.addShape(pres.shapes.LINE, { x: M + 0.4, y: 3.25, w: CW - 0.8, h: 0, line: { color: K.line, width: 3 }, objectName: nm("tl") });
   const ms = [["운영 공개", "서버·도메인·보안 접속, Windows 실행 확인"], ["회사 점수 재현", "등급 넣은 계정과 비교, 약관 초안"],
-    ["이용권 결제", "1토큰 1,000원(가설), 보안 점검"], ["시험 사용 1차", "10사 사용 기록, 중간평가 자료"],
+    ["이용권 결제", "1,000원(가설), 보안 점검"], ["시험 사용 1차", "10사 사용 기록, 중간평가 자료"],
     ["지자체 규칙 보강", "막힌 원문 등록, 영업 담당 채용"], ["시험 사용 확대", "20사(가설), 비수도권 10사 이상"],
     ["단가 확정", "상표 1건, 특허 출원 1건"], ["유료 전환", "유료 회사 수(기준 8사), 결과 보고"]];
   const step = CW / 8;
@@ -518,11 +519,11 @@ function note(s, text, y = 6.62, dark = false) {
 
   // ===== 17. 비즈니스 모델 =====
   s = lightSlide("S 성장전략", "S · 성장전략", "비즈니스 모델: 검색은 무료, [[판단은 이용권으로]]");
-  chip(s, "B2B", 11.93, 0.4, K.blue, K.blueTint, { w: 0.8, size: 12 });
+  chip(s, "회사 대상", 11.55, 0.4, K.blue, K.blueTint, { w: 1.18, size: 12 });
   const hd = [["누가 내나", M], ["무엇을 받나", 4.75], ["어떻게, 언제", 9.35]];
   for (const [t, x] of hd) T(s, t, { x: x + 0.2, y: 1.6, w: 3, h: 0.3, fontSize: 12, bold: true, color: K.mute });
   const bm = [["무료 입구", "모든 방문자", "네 업종 검색, 대시보드, 기준값 직접 입력 계산", "무료 · 지금(구현됨)", "FaGift", 0],
-    ["① 주수익", "네 업종 중소기업\n(대표·입찰 비용 결재자)", "규칙 자동 찾기, 세 가지 금액, 근거 상담", "이용권 1토큰 1,000원\n협약 3개월차 결제 시작", "FaTicket", 2],
+    ["① 주수익", "네 업종 중소기업\n(대표·입찰 비용 결재자)", "규칙 자동 찾기, 세 가지 금액, 근거 상담", "이용권(토큰) 1개 1,000원\n협약 3개월차 결제 시작", "FaTicket", 2],
     ["② 부수익", "입찰 대행·교육 기관", "고객 회사 대신 쓰는 묶음 이용권", "묶음 단가는 사용 확인 뒤\n3년차", "FaLayerGroup", 1],
     ["③ 부수익", "담당자가 여럿이거나\n자기 시스템에 붙이는 회사", "계정 추가, 프로그램 연결(API)", "협약 중 가격 미공개\n4년차(계획)", "FaPlug", 1]];
   for (let i = 0; i < 4; i++) {
@@ -538,10 +539,10 @@ function note(s, text, y = 6.62, dark = false) {
     box(s, { x: 9.65, y, w: 3.08, h: 0.8, fill: main ? K.blue : K.white, line: main ? K.blue : K.line, radius: 0.12 });
     T(s, how, { x: 9.8, y, w: 2.85, h: 0.8, fontSize: 12, bold: main, color: main ? K.white : K.ink2, valign: "middle" });
   }
-  s.addText([{ text: "유료 8사 × 연 100토큰 × 1,000원 = 연 80만 원 (가설)", options: { bold: true, color: K.ink } },
+  s.addText([{ text: "유료 8사 × 연 100이용권(토큰) × 1,000원 = 연 80만 원 (가설)", options: { bold: true, color: K.ink } },
     { text: "   손익이 아니라 지불 의사를 확인하는 매출", options: { color: K.ink2 } }],
     { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.12, x: M, y: 5.85, w: 9.6, h: 0.6, fill: { color: K.bg }, line: { color: K.line, width: 1 },
-      fontFace: F, fontSize: 15, align: "center", valign: "middle", margin: 0, objectName: nm("formula") });
+      fontFace: F, fontSize: 14, align: "center", valign: "middle", margin: 0, objectName: nm("formula") });
   chip(s, "낙찰 성공보수 없음", 10.4, 5.85, K.red, K.redTint, { w: 2.33, h: 0.6, size: 14 });
   note(s, "⇄ 현금 흐름: 이용권 결제는 고객 → BidBox, 세 가지 금액·근거·상담은 BidBox → 고객 · 무료 입구는 결제 없이 제공");
   s.addNotes("검색과 대시보드는 무료이고, 규칙 찾기와 세 가지 금액, 상담은 이용권으로 씁니다. 1토큰 1,000원, 유료 8사가 연 100토큰을 사면 연 80만 원입니다. 이 값은 지불 의사를 보는 가설입니다. 낙찰 성공보수는 받지 않습니다.");
@@ -651,7 +652,7 @@ function note(s, text, y = 6.62, dark = false) {
     T(s, k, { x: x + 0.3, y, w: 2.15, h: 0.34, fontSize: 12, color: K.ink2 });
   });
   const fund = [["정부지원 1단계", "2,000만 원", "1~4개월 · 운영 공개·결제·시험 사용", K.blue], ["정부지원 2단계", "2,000만 원", "5~8개월 · 중간평가 통과 후 집행", K.blue],
-    ["매출", "연 80만 원", "유료 8사 × 연 100토큰 (가설)", K.amber], ["엔젤·시드", "미확인", "협약 중 투자 유치 일정 없음", K.mute]];
+    ["매출", "연 80만 원", "유료 8사 × 연 100이용권(토큰) (가설)", K.amber], ["엔젤·시드", "미확인", "협약 중 투자 유치 일정 없음", K.mute]];
   fund.forEach(([a, v, d, c], i) => {
     const y = 1.75 + i * 1.12;
     box(s, { x: 8.4, y, w: 4.33, h: 0.98, fill: K.bg, line: K.line, radius: 0.12 });
@@ -665,7 +666,7 @@ function note(s, text, y = 6.62, dark = false) {
   // ===== 21. 사회적 가치 =====
   s = lightSlide("S 성장전략", "S · 성장전략 · ESG", "사회적 가치: [[모두가 같은 정보로 입찰]]");
   const esg = [["S", "FaScaleBalanced", "조달 정보 차이 줄이기", "규칙표·가격 기준을 공고 화면에 공개, 검색·대시보드·직접 계산 무료", "2024 중소기업 수주 142.1조원(63.1%)", "1년차 시험 사용 20사 중 비수도권 10사 이상"],
-    ["S", "FaUsers", "약자기업·고용 우수기업", "여성·장애인기업, 청년·여성·장애인 고용 등 가점 계산과 안내", "적격심사 신인도 항목, 규칙에 구현", "2년차 가점 안내 화면"],
+    ["S", "FaUsers", "약자기업·고용 우수기업", "여성·장애인기업, 청년·여성·장애인 고용 등 가점은 지금 계산. 안내 화면은 2년차", "적격심사 회사 평판 항목, 규칙에 구현", "2년차 가점 안내 화면"],
     ["G", "FaUserShield", "정보 보호·책임 있는 AI", "필요한 항목만 수집, 상담은 서비스 안 모델, 글자 읽기(OCR) 기본 꺼짐", "약관 첫머리에 낙찰 비보증 명시", "1년차부터"]];
   const ew = (CW - 2 * 0.3) / 3;
   for (let i = 0; i < 3; i++) {
@@ -681,7 +682,7 @@ function note(s, text, y = 6.62, dark = false) {
       fill: { color: K.blueTint }, line: { type: "none" }, fontFace: F, fontSize: 11, bold: true, color: K.blueDeep, align: "center", valign: "middle", margin: 0.05, objectName: nm("when") });
   }
   note(s, "지표의 숫자 목표는 시험 사용 측정 뒤 결정 · 약자기업 우대 단가는 확인 전까지 수치 미설정");
-  s.addNotes("사회적 가치는 공공조달 정보 차이를 줄이는 데서 나옵니다. 공고에 맞는 규칙표와 가격 기준을 보여 주고, 약자기업·고용 우수기업이 받을 수 있는 가점을 안내하며, 정보 보호와 낙찰 비보증을 지킵니다.");
+  s.addNotes("사회적 가치는 공공조달 정보 차이를 줄이는 데서 나옵니다. 공고에 맞는 규칙표와 가격 기준을 보여 줍니다. 약자기업·고용 우수기업 가점은 지금 계산에 반영하고, 받을 수 있는 가점 안내 화면은 2년차입니다. 정보 보호와 낙찰 비보증을 지킵니다.");
 
   pres.addSection({ title: "T 팀 구성" });
 
