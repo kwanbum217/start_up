@@ -301,6 +301,44 @@ function note(s, text, y = 6.62, dark = false) {
   note(s, "실제 프로토타입 화면 (2026-10-22 캡처) · 규칙을 확인하지 못하면 직접 입력", 6.45, true);
   s.addNotes("모두 실제 동작하는 시제품 화면입니다. 공고를 모으고, 네 업종을 검색하고, 맞는 규칙을 찾아 회사 점수를 반영한 세 가지 금액과 근거를 보여 줍니다.");
 
+  // ===== 가져온 공고가 화면까지 (수집 · 다시 배움) =====
+  // 근거: 제품 저장소 docker-compose.yml, src/tasks/scheduled_tasks.py, retrain_task.py (2026-11-06).
+  // 매일 02:00 수집은 기본 실행에서 켜짐. 주간 재학습은 개발 실행·용역만, 승격은 수동. 운영 재학습은 꺼짐.
+  s = lightSlide("S 실현 가능성", "S · 실현 가능성", "가져온 공고가 화면까지 [[한 줄로 이어짐]]");
+  chip(s, "매일 새벽 2시 · 켜 둠", M, 1.62, K.blue, K.blueTint, { w: 2.55, size: 13 });
+  const daily = [
+    ["FaCloudArrowDown", "나라장터에서 가져옴", "새 공고와 낙찰 결과"],
+    ["FaMagnifyingGlass", "검색 목록에 더함", "방금 가져온 것만"],
+    ["FaBookOpen", "상담 자료에 더함", "최근 하루치만"],
+    ["FaDisplay", "화면에서 바로 씀", "규칙, 금액, 근거 상담"],
+  ];
+  const cardW = 2.62, cardGap = 0.55;
+  for (let i = 0; i < daily.length; i++) {
+    const x = M + i * (cardW + cardGap);
+    box(s, { x, y: 2.08, w: cardW, h: 1.82, fill: K.white, line: K.line });
+    await iconCircle(s, daily[i][0], x + 0.16, 2.22, 0.46, K.white, K.blue);
+    T(s, daily[i][1], { x: x + 0.16, y: 2.78, w: cardW - 0.32, h: 0.58, fontSize: 15, bold: true, color: K.ink });
+    T(s, daily[i][2], { x: x + 0.16, y: 3.36, w: cardW - 0.32, h: 0.38, fontSize: 13, color: K.ink2 });
+    if (i < daily.length - 1) arrow(s, x + cardW + 0.08, 2.8, 0.38, K.blue2);
+  }
+  chip(s, "다시 배움 · 개발에서만 켜 둠", M, 4.12, K.amber, K.amberTint, { w: 3.35, size: 13 });
+  const learn = [
+    ["FaCalendarDays", "매주 월요일 새벽 3시", "용역 모델만"],
+    ["FaArrowsRotate", "새 낙찰로 다시 배움", "배울 때와 보여줄 때 계산이 같음"],
+    ["FaUserCheck", "더 맞으면 교체를 권함", "바꾸는 것은 사람이 함"],
+  ];
+  const learnW = 3.7, learnGap = 0.5;
+  for (let i = 0; i < learn.length; i++) {
+    const x = M + i * (learnW + learnGap);
+    box(s, { x, y: 4.56, w: learnW, h: 1.52, fill: K.white, line: "FDE68A" });
+    await iconCircle(s, learn[i][0], x + 0.16, 4.72, 0.44, K.white, K.amber);
+    T(s, learn[i][1], { x: x + 0.72, y: 4.7, w: learnW - 0.88, h: 0.48, fontSize: 15, bold: true, color: K.ink, valign: "middle" });
+    T(s, learn[i][2], { x: x + 0.18, y: 5.32, w: learnW - 0.36, h: 0.52, fontSize: 14, color: K.ink2 });
+    if (i < learn.length - 1) arrow(s, x + learnW + 0.06, 5.12, 0.38, "FCD34D");
+  }
+  note(s, "꺼져 있던 날은 다시 켤 때 한 번 채움. 기록이 예전과 달라지면 알림만 하고, 모델은 바꾸지 않음. 운영에서는 다시 배우기를 꺼 둠.");
+  s.addNotes("나라장터 공고와 낙찰 결과를 매일 새벽 2시에 자동으로 가져옵니다. 검색 목록과 상담 자료에는 방금 가져온 것만 더하고, 505,271건 전체를 처음부터 다시 만들지 않습니다. 그날 수집을 놓치면 다시 켤 때 한 번 채웁니다. 예측 모델은 개발 실행에서만 매주 월요일 새벽 3시에 용역을 다시 배웁니다. 배울 때와 화면에 보여줄 때 같은 계산을 씁니다. 더 맞으면 교체를 권하고, 지금 쓰는 모델로 바꾸는 것은 사람이 합니다. 운영 실행에서는 다시 배우기를 꺼 두었습니다. 기록이 예전과 달라지면 알림만 하고 모델은 바꾸지 않습니다.");
+
   // ===== AI 쉽게 보기 (규칙 · ML · DL) =====
   s = lightSlide("S 실현 가능성", "S · 실현 가능성", "BidBox의 AI, [[세 가지 도구로]] 쉽게 보기");
   const tools = [["FaBookOpen", "규칙표 · AI 아님", K.mute, K.slateTint, "규칙 사전",
