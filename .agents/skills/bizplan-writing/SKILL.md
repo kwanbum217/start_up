@@ -27,6 +27,7 @@ description: >
 | 서식(글꼴·크기·여백·자간·표)을 맞춘다, 예시 계획서와 비교한다 | `references/format.md` |
 | 구글 문서로 옮겨 사용자가 보게 한다 | `references/gdoc.md` |
 | 피치덱을 구글 슬라이드로 옮겨 사용자가 보게 한다 | `references/gslides.md` |
+| 피치덱의 여백·글자 크기·카드 간격·명암을 고친다 | `references/pitch-design.md` (v11부터, 2026-11-06 사용자 지정) |
 
 ## 1. 한 번 수정하는 흐름
 

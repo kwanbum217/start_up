@@ -1,8 +1,9 @@
 // BidBox 피치덱(.pptx) 생성기
-// 근거: 사업계획서 v33(02_과제/..._v33.docx)과 AGENTS.md 「현재 사업계획서」의 수치만 쓴다. 새 숫자 없음.
+// 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
+// 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
 // 구성: 6회차 강의(P·S·S·T, 장 제목 필수, 줄글 대신 숫자·OX·도식). 발표용이라 목차·간지 없음(강의 6쪽 「피칭 X」).
 // 디자인: BidBox 웹 화면 색(primary #0073E6, sidebar #020B1A, slate) + Coinbase식 단일 강조색·어두운 띠 위 제품 화면
-//         + IBM Carbon식 상태 3색(초록·주황·빨강).
+//         + IBM Carbon식 상태 3색(초록·주황·빨강). 레이아웃 숫자는 아직 v10 측정값(pitch-design.md 2절).
 // 실행: NODE_PATH=<pptxgenjs·react-icons·react·react-dom·sharp 설치 폴더>/node_modules \
 //       node scripts/pitchdeck/build_pitchdeck.js <출력.pptx> <pptx 스킬 apply_theme.js 경로>
 // 검토용 구글 슬라이드에 올리는 절차: .agents/skills/bizplan-writing/references/gslides.md
