@@ -298,14 +298,14 @@ function note(s, text, y = 6.62, dark = false) {
       color: K.white, align: "center", valign: "middle", margin: 0, objectName: nm("flow") });
     if (i < 6) arrow(s, x + 1.53, 5.76, 0.2, K.skyOnDark);
   });
-  note(s, "실제 프로토타입 화면 (2026-10-22 캡처) · 규칙을 찾지 못하면 계산 멈춤", 6.45, true);
+  note(s, "실제 프로토타입 화면 (2026-10-22 캡처) · 규칙을 확인하지 못하면 직접 입력", 6.45, true);
   s.addNotes("모두 실제 동작하는 시제품 화면입니다. 공고를 모으고, 네 업종을 검색하고, 맞는 규칙을 찾아 회사 점수를 반영한 세 가지 금액과 근거를 보여 줍니다.");
 
   // ===== AI 쉽게 보기 (규칙 · ML · DL) =====
   s = lightSlide("S 실현 가능성", "S · 실현 가능성", "BidBox의 AI, [[세 가지 도구로]] 쉽게 보기");
   const tools = [["FaBookOpen", "규칙표 · AI 아님", K.mute, K.slateTint, "규칙 사전",
       "사람이 공고문과 기준 원문을 읽고 정리한 규칙표 206종. 공고 날짜와 기관을 보고 맞는 쪽을 펼침",
-      "맞는 쪽이 없으면 「모르겠어요」 하고 계산 멈춤"],
+      "맞는 규칙이 있을 때만 금액. 없으면 직접 입력"],
     ["FaTree", "머신러닝 · LightGBM", K.blue, K.blueTint, "예측 나무 숲",
       "지난 낙찰 기록을 공부한 나무 여러 그루가 스무고개처럼 질문을 이어 가며, 앞 나무의 실수를 다음 나무가 고쳐 답을 모음",
       "「아마 이쯤, 이 사이」: 실제 값이 예측 범위 안에 든 비율 90.25%"],
@@ -329,7 +329,7 @@ function note(s, text, y = 6.62, dark = false) {
     { text: "설명", options: { bold: true, color: K.blueDeep } }, { text: "은 근거를 찾는 언어 모델로", options: { color: K.ink2 } }],
     { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.12, x: M, y: 6.0, w: CW, h: 0.6, fill: { color: K.blueTint }, line: { type: "none" },
       fontFace: F, fontSize: 15, align: "center", valign: "middle", margin: 0, objectName: nm("tools-sum") });
-  s.addNotes("BidBox는 세 가지 도구를 씁니다. 규칙 사전은 AI가 아니라 사람이 원문을 읽고 정리한 규칙표 206종입니다. 맞는 규칙이 없으면 계산을 멈춥니다. 예측 나무 숲은 머신러닝 LightGBM으로, 지난 낙찰 기록을 공부한 나무들이 스무고개처럼 질문을 이어 가며 금액과 범위를 냅니다. 실제 값이 범위 안에 든 비율은 90.25%입니다. 똑똑한 도서관 사서는 딥러닝 언어 모델과 검색을 함께 쓰는 RAG로, 근거를 먼저 찾고 그 근거로만 답합니다.");
+  s.addNotes("BidBox는 세 가지 도구를 씁니다. 규칙 사전은 AI가 아니라 사람이 원문을 읽고 정리한 규칙표 206종입니다. 맞는 규칙이 있을 때만 금액을 내고, 없으면 직접 입력으로 넘깁니다. 예측 나무 숲은 머신러닝 LightGBM으로, 지난 낙찰 기록을 공부한 나무들이 스무고개처럼 질문을 이어 가며 금액과 범위를 냅니다. 실제 값이 범위 안에 든 비율은 90.25%입니다. 똑똑한 도서관 사서는 딥러닝 언어 모델과 검색을 함께 쓰는 RAG로, 근거를 먼저 찾고 그 근거로만 답합니다.");
 
   // ===== RAG 인텔리전스 (실제 화면 포함) =====
   s = darkSlide("S 실현 가능성", "S · 실현 가능성", "근거 상담(RAG): [[없으면 답하지 않음]]");
@@ -364,8 +364,8 @@ function note(s, text, y = 6.62, dark = false) {
   note(s, "숫자: 96개 요청 평가(제품 저장소 RAG 품질 정본), 첫 토큰 P95 2,664.19ms · 화면: 로컬 실행 캡처(2026-11-05) · 서비스 안 모델이 기본, 공고 원문을 외부 모델로 보내지 않음", 6.5, true);
   s.addNotes("RAG는 질문에 바로 답하지 않고 근거를 먼저 찾는 방식입니다. 왼쪽은 실제 화면입니다. 낙찰하한율의 뜻을 물었는데 찾은 문서 1, 3, 4, 5번에 그 내용이 없자, 지어내지 않고 답할 수 없다고 했습니다. 질문의 뜻을 나눈 뒤 뜻으로 찾기, 제목 글자로 찾기, 숫자는 데이터베이스에서 바로 조회하는 세 길로 근거를 모으고, 서비스 안의 언어 모델이 출처를 달아 답합니다. 96개 요청 평가에서 숫자 정답 144/144, 출처 인용 72/72, 거절해야 할 질문 24/24를 지켰습니다.");
 
-  // ===== 11. 세 가지 금액 + 모르면 멈춤 =====
-  s = lightSlide("S 실현 가능성", "S · 실현 가능성", "세 가지 금액을 한 화면에, [[모르면 계산 멈춤]]");
+  // ===== 11. 세 가지 금액 + 확인된 규칙만 =====
+  s = lightSlide("S 실현 가능성", "S · 실현 가능성", "세 가지 금액을 한 화면에, [[확인된 규칙만 계산]]");
   box(s, { x: M, y: 1.75, w: 6.4, h: 4.7, fill: K.bg, line: K.line });
   T(s, "세 가지 금액", { x: M + 0.35, y: 1.98, w: 4, h: 0.4, fontSize: 18, bold: true, color: K.ink });
   const bx0 = M + 0.45, bw = 5.5;
@@ -384,16 +384,16 @@ function note(s, text, y = 6.62, dark = false) {
   const rr = 880 / 450, rw = 5.2;
   box(s, { x: 7.42, y: 1.67, w: rw + 0.16, h: rw / rr + 0.16, fill: K.white, line: "FCA5A5", lw: 1.5, radius: 0.1, name: "rule-frame" });
   s.addImage({ path: CAP("detail_rule.jpg"), x: 7.5, y: 1.75, w: rw, h: rw / rr, objectName: nm("rule-shot") });
-  T(s, "규칙을 찾지 못한 공고: 틀린 금액 대신 계산 멈춤", { x: 7.5, y: 4.55, w: 5.2, h: 0.35, fontSize: 14, bold: true, color: K.red });
+  T(s, "확인하지 못한 공고는 금액을 비우고 직접 입력", { x: 7.5, y: 4.55, w: 5.2, h: 0.35, fontSize: 13, bold: true, color: K.red });
   const stops = ["금액 없는 공고에 0원 추천 없음", "기준 금액 없는 공고(비예가)는 가격점수 계산 안 함", "협상 계약은 평가 비율·낙찰률 참고 분포"];
   for (let i = 0; i < 3; i++) {
     s.addImage({ data: await icon("FaCircleStop", K.red), x: 7.5, y: 5.05 + i * 0.47, w: 0.26, h: 0.26, objectName: nm("stop") });
     T(s, stops[i], { x: 7.9, y: 5.01 + i * 0.47, w: 4.85, h: 0.34, fontSize: 13, color: K.ink2 });
   }
-  s.addNotes("최저가, AI 예측가, 최상가를 한 화면에 보여 줍니다. 규칙을 찾지 못하면 틀린 금액 대신 계산을 멈춥니다. 금액이 없는 공고에 0원을 추천하지 않습니다.");
+  s.addNotes("최저가, AI 예측가, 최상가를 한 화면에 보여 줍니다. 규칙을 확인하지 못한 공고는 금액을 비우고 직접 입력하게 합니다. 금액이 없는 공고에 0원을 추천하지 않습니다.");
 
   // ===== 12. 경쟁 비교 OX =====
-  s = lightSlide("S 실현 가능성", "S · 실현 가능성", "기존 방식과 비교: [[규칙표 고르기와 계산 멈춤]]");
+  s = lightSlide("S 실현 가능성", "S · 실현 가능성", "기존 방식과 비교: [[규칙표 고르기와 확인된 계산]]");
   const sym = { "○": K.green, "△": K.amber, "✕": K.red, "—": "94A3B8" };
   const cell = (v, bid) => {
     const m = v[0], rest = v.slice(1).trim();
@@ -404,7 +404,7 @@ function note(s, text, y = 6.62, dark = false) {
   const hdr = ["항목", "나라장터", "계산기", "사람 자문", "BidBox"].map((h, i) => ({ text: h,
     options: { bold: true, fontSize: 14, color: i === 4 ? K.white : K.ink, fill: { color: i === 4 ? K.blue : K.slateTint }, align: i ? "center" : "left" } }));
   const rowsD = [["규칙표 고르기", "—", "✕ 넣은 숫자로 점수만", "—", "○ 자동 판정 (규칙 206종)"],
-    ["기준 없을 때", "—", "✕ 넣은 값 그대로 계산", "—", "○ 계산 멈춤, 직접 입력"],
+    ["기준 없을 때", "—", "✕ 넣은 값 그대로 계산", "—", "○ 확인된 규칙만, 없으면 직접 입력"],
     ["세 가지 금액", "△ 검색·제출 중심", "△ 점수만 계산", "○ 금액 제안", "○ 최저·예측·최상 한 화면"],
     ["근거 상담(RAG)", "—", "✕ 결과 점수 중심", "—", "○ 근거 찾아 답·출처 인용"],
     ["옛 판·지금 판", "—", "△ 확인 필요", "—", "○ 공고 날짜 기준 적용"],
@@ -417,7 +417,7 @@ function note(s, text, y = 6.62, dark = false) {
   s.addTable(rows, { x: M, y: 1.7, w: CW, colW: [2.35, 2.15, 2.45, 2.15, 3.03], rowH: 0.56, fontFace: F, valign: "middle",
     border: { type: "solid", pt: 0.75, color: K.line }, margin: [0, 0.08, 0, 0.12], objectName: nm("compare") });
   note(s, "○ 지원  △ 부분 지원  ✕ 미지원  — 미확인(근거 미확보, 숫자를 만들지 않음) · 성공보수 1.5%는 비드큐 1:1 분석 안내(bidq.co.kr)", 6.35);
-  s.addNotes("강의 팁대로 줄글 대신 OX로 비교했습니다. 규칙표 고르기, 기준이 없을 때 멈추기, 근거 표시는 BidBox만 지원합니다. 확인하지 못한 칸은 미확인으로 두었습니다.");
+  s.addNotes("강의 팁대로 줄글 대신 OX로 비교했습니다. 규칙표 고르기, 확인된 규칙만 계산하기, 근거 표시는 BidBox만 지원합니다. 확인하지 못한 칸은 미확인으로 두었습니다.");
 
   // ===== 13. 개발 현황 =====
   s = darkSlide("S 실현 가능성", "S · 실현 가능성", "이미 만든 것, [[숫자로 확인]]");
@@ -694,7 +694,7 @@ function note(s, text, y = 6.62, dark = false) {
   T(s, "기획 · 개발 · 데이터 검증", { x: M + 1.6, y: 2.6, w: 4.3, h: 0.4, fontSize: 14, color: K.mute });
   const rep = [["FaBriefcase", "경력", "전시컨벤션 사업 매니저 6년 9개월\n국제회의·기업행사 기획·진행, 사업입찰 진행 포함"],
     ["FaRobot", "기술", "규칙 206종 정리, 낙찰률 예측 모델 학습·운영,\n네 업종 화면과 근거 상담을 한 시제품으로 연결"],
-    ["FaListCheck", "원칙", "기준이 없으면 계산을 멈춤, 원인→시도→해결→검증 기록"],
+    ["FaListCheck", "원칙", "확인된 규칙만 계산, 없으면 직접 입력. 원인→시도→해결→검증 기록"],
     ["FaDatabase", "인프라", "동작하는 시제품 1식, 나라장터 공고 505,271건 색인\n서버는 사지 않고 임대(협약 중)"]];
   for (let i = 0; i < 4; i++) {
     const y = 3.2 + i * 0.8;
@@ -724,7 +724,7 @@ function note(s, text, y = 6.62, dark = false) {
   pres.addSection({ title: "마무리" });
   s = pres.addSlide({ masterName: "COVER", sectionTitle: "마무리" });
   s.addImage({ path: LOGO(true), x: M - 0.03, y: 0.95, w: 0.5 * LOGO_R, h: 0.5, objectName: nm("logo") });
-  T(s, "모르면 멈추는\n입찰 도우미", { x: M, y: 1.7, w: 8, h: 1.9, fontSize: 48, bold: true, color: K.white, lineSpacingMultiple: 1.05 });
+  T(s, "확인된 규칙만\n계산하는 도우미", { x: M, y: 1.7, w: 10.5, h: 1.9, fontSize: 44, bold: true, color: K.white, lineSpacingMultiple: 1.05 });
   const fin = [["206종", "공고에 맞는 계산 규칙"], ["31,305건", "최근 12개월 규칙 판정"], ["0원", "금액 없는 공고 추천"]];
   fin.forEach(([v, l], i) => {
     const x = M + i * 4.1;
@@ -734,7 +734,7 @@ function note(s, text, y = 6.62, dark = false) {
   });
   T(s, "감사합니다 · 질문 받겠습니다", { x: M, y: 5.9, w: 8, h: 0.5, fontSize: 22, bold: true, color: K.white });
   T(s, "Narani · 낙찰 보증 없음, 세 가지 금액은 참고 정보", { x: M, y: 6.5, w: 8, h: 0.35, fontSize: 12, color: K.onDarkMute });
-  s.addNotes("BidBox는 공고에 맞는 규칙을 찾고, 모르면 멈추는 입찰 도우미입니다. 감사합니다. 질문 받겠습니다.");
+  s.addNotes("BidBox는 확인된 규칙만 계산하는 입찰 도우미입니다. 규칙을 확인하지 못한 공고는 금액을 비우고 직접 입력하게 합니다. 감사합니다. 질문 받겠습니다.");
 
   await pres.writeFile({ fileName: OUT });
   if (APPLY) { const { applyTheme } = require(APPLY); await applyTheme(OUT, THEME); }
