@@ -2,9 +2,9 @@
 
 2026-10-28에 확인한 기동 정본이다. 모델 이름이나 기동 방법이 바뀌면 이 파일만 고친다.
 
-상태(2026-11-05): 작업본 `02_과제/정부지원_사업계획서_제출용_별첨1_refac_bid_box_v33.docx` · 제출 기준 v17 · 쪽수 count_pages.sh로 12쪽(만땅) · 다음 파일 v34 · 쉬운 말 명세(`.agents/skills/bizplan-writing/references/plain.md`) 전 장 1차 적용 · 근로조건은 사회적 가치로 쓰지 않음(v29) · RAG·LightGBM 명시(v30) · 문제 인식 외부 근거(v31·개요표 v32) · v32 독립 리뷰 반영(v33) · 검토용 구글 문서는 v33 · 피치덱 v10 · 검토용 구글 슬라이드는 v10 · Word 확인 전 내용을 더 빼지 않음
+상태(2026-11-06): 작업본 `02_과제/정부지원_사업계획서_제출용_별첨1_refac_bid_box_v34.docx` · 제출 기준 v17 · 쪽수 count_pages.sh로 v26~v33은 12쪽, v34는 13쪽 · 다음 파일 v35 · 쉬운 말 명세(`.agents/skills/bizplan-writing/references/plain.md`) 전 장 1차 적용 · 근로조건은 사회적 가치로 쓰지 않음(v29) · RAG·LightGBM 명시(v30) · 문제 인식 외부 근거(v31·개요표 v32) · v32 독립 리뷰 반영(v33) · 수집·다시 배움 표(v34) · 검토용 구글 문서는 v33 · 피치덱 v10 · 검토용 구글 슬라이드는 v10 · Word 확인 전 내용을 더 빼지 않음
 
-정본은 `AGENTS.md` 「현재 사업계획서」 상태 표다. 이 줄과 그 표가 다르면 그 표를 따른다. 인수인계는 `prompts/handoff_20261102.md`다. 코디네이터 Run은 `run_4aa7ff0a34ed`다. v25 읽기 전용 리뷰는 끝났고 v26에서 처리했다. 작업본은 v26이다.
+정본은 `AGENTS.md` 「현재 사업계획서」 상태 표다. 이 줄과 그 표가 다르면 그 표를 따른다. 인수인계는 `prompts/handoff_20261102.md`다. 코디네이터 Run은 `run_4aa7ff0a34ed`다. v25 읽기 전용 리뷰는 끝났고 v26에서 처리했다. 작업본은 위 상태 줄의 v34다.
 
 이 폴더는 git 저장소다. 원격은 `https://github.com/kwanbum217/start_up.git`의 `main`이다. 워커는 그래도 현재 폴더에 둔다. `--worktree current`를 쓴다. 자식 워크트리에만 고치면 원격 동기화에서 빠진다. 커밋과 푸시의 정본은 `AGENTS.md`의 「원격 동기화」와 `.grok/skills/git-sync/SKILL.md`다.
 
