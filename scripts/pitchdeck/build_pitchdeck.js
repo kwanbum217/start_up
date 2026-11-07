@@ -1,8 +1,9 @@
 // BidBox 피치덱(.pptx) 생성기
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
-// v13: 제품 화면이 그 장에서 가장 크다(어두운 틀). 시장은 카드 없이 큰 숫자 세 개,
-// 로드맵은 연차 열·사업/기술 행. 문장·숫자는 v12와 같다. 색은 남색·파랑.
+// v14: v13 배치를 유지하고, 구글 화면에서 안 읽히거나 겹친 자리만 고친다.
+// 3년차 머리는 흰 글자가 읽히는 파랑, 마무리 숫자 카드는 서로 떨어짐,
+// 고객·팀 장의 배경 판은 앞 카드와 겹치지 않음. 문장·숫자는 v13과 같다.
 // 구성: 6회차 강의(P·S·S·T, 장 제목 필수, 줄글 대신 숫자·OX·도식). 발표용이라 목차·간지 없음(강의 6쪽 「피칭 X」).
 // 디자인: BidBox 웹 화면 색(primary #0073E6, sidebar #020B1A, slate) + Coinbase식 단일 강조색·어두운 띠 위 제품 화면
 //         + IBM Carbon식 상태 3색(초록·주황·빨강). 강의 예시의 인물·현장 사진은 넣지 않는다.
@@ -145,20 +146,21 @@ function shot(s, file, x, y, w, ratio, label, o = {}) {
   return h;
 }
 // 장 기호(P·S·T)를 오른쪽 아래에 아주 옅게 깐다(6회차 강의 슬라이드의 큰 「P」). 카드보다 먼저 넣어 뒤에 깔리게 한다.
-function watermark(s, eyebrow) {
+function watermark(s, eyebrow, o = {}) {
   const L = eyebrow.trim()[0];
   // T(팀) 장은 카드 사이로 「T」 가로획만 조각처럼 비쳐 결함처럼 보여서 깔지 않는다
   if (!"PS".includes(L)) return;
-  T(s, L, { x: 9.0, y: 2.2, w: 4.2, h: 5.2, fontSize: 340, bold: true, color: K.mark, align: "right", valign: "bottom", objectName: nm("watermark") });
+  T(s, L, { x: o.x == null ? 9.0 : o.x, y: o.y == null ? 2.2 : o.y, w: o.w == null ? 4.2 : o.w, h: o.h == null ? 5.2 : o.h,
+    fontSize: o.size == null ? 340 : o.size, bold: true, color: K.mark, align: "right", valign: "bottom", objectName: nm("watermark") });
 }
 // 제목의 [[핵심어]]만 강조색으로(6회차 강의의 2색 제목)
 function richTitle(title, accent) {
   if (!title.includes("[[")) return title;
   return title.split(/\[\[|\]\]/).map((t, i) => ({ text: t, options: i % 2 ? { color: accent } : {} })).filter((r) => r.text);
 }
-function lightSlide(section, eyebrow, title) {
+function lightSlide(section, eyebrow, title, mark) {
   const s = pres.addSlide({ masterName: "LIGHT", sectionTitle: section });
-  watermark(s, eyebrow);
+  watermark(s, eyebrow, mark);
   s.addText(eyebrow, { placeholder: "eyebrow" });
   s.addText(richTitle(title, K.blue), { placeholder: "title" });
   return s;
@@ -202,7 +204,7 @@ function note(s, text, y = 6.43, dark = false) {
 
   // ===== P1. 고객과 고객이 겪는 일 =====
   s = lightSlide("P 문제 인식", "P · 문제 인식", "고객: 중소 용역업체 입찰 담당자, [[공고마다 규칙표를 직접 찾음]]");
-  plate(s, { x: 4.7, y: 1.88, w: W - M - 4.7, h: 4.35, fill: K.slateTint, line: K.line });
+  plate(s, { x: 5.0, y: 1.88, w: W - M - 5.0, h: 4.35, fill: K.slateTint, line: K.line });
   box(s, { x: M, y: 1.95, w: 4.3, h: 4.2, fill: K.bg, line: K.line, shadow: true });
   await iconCircle(s, "FaUserTie", M + 0.3, 2.12, 0.78, K.blue, K.blueTint);
   T(s, "입찰 담당자", { x: M + 1.22, y: 2.16, w: 2.9, h: 0.4, fontSize: 20, bold: true, color: K.ink });
@@ -515,7 +517,7 @@ function note(s, text, y = 6.43, dark = false) {
     T(s, l, { x: panelX + 0.72, y: 3.37 + i * 0.52, w: 2.5, h: 0.36, fontSize: 13, color: K.onDarkMute });
   });
   T(s, "협약 중 만들 것\n· 운영 주소, 이용권 결제, 약관, 보안 점검\n· 시험 사용 기록, 지자체 원문", { x: panelX + 0.2, y: 4.9, w: 3.05, h: 0.78, fontSize: 13, color: K.onDarkMute });
-  s.addText([{ text: "특허 출원 1건 (7개월차)", options: { bold: true, color: K.skyOnDark, breakLine: true } },
+  s.addText([{ text: "특허 출원 1건 (7개월차)", options: { bold: true, color: K.white, breakLine: true } },
     { text: "규칙표 판별과 금액 범위를 거꾸로 계산하는 절차", options: { color: K.white } }],
     { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.1, x: panelX + 0.16, y: 5.78, w: 3.13, h: 0.58, fill: { color: K.navy3 }, line: { type: "none" },
       fontFace: F, fontSize: 12, valign: "middle", margin: [0.04, 0.08, 0.04, 0.1], objectName: nm("patent") });
@@ -559,11 +561,12 @@ function note(s, text, y = 6.43, dark = false) {
   pres.addSection({ title: "S 성장전략" });
 
   // ===== 16. 시장 =====
-  s = lightSlide("S 성장전략", "S · 성장전략", "목표 시장: 55.1조원에서 [[네 업종 7,494억원부터]]");
+  s = lightSlide("S 성장전략", "S · 성장전략", "목표 시장: 55.1조원에서 [[네 업종 7,494억원부터]]",
+    { x: 11.2, y: 3.6, w: 2.2, h: 3.4, size: 180 });
   // 강의 3쪽: 카드 없이 숫자 세 개가 장의 중심. 원은 크기만 비교하고 글자는 원 밖에 둔다.
   const markets = [
-    ["TAM", "전체 시장", "55.1조원", "국내 공공조달 용역 계약", "2024 · 조달청 (2025-06-27)", 1.15, K.blueTint, K.blue],
-    ["SAM", "닿을 수 있는 시장", "10.2조원", "나라장터 용역 적격심사 낙찰 20,824건", "2025 · 나라장터 낙찰결과 집계", 0.82, K.blue2, K.blueDeep],
+    ["TAM", "전체 시장", "55.1조원", "국내 공공조달 용역 계약", "2024 · 조달청 (2025-06-27)", 1.15, K.blue2, K.blue],
+    ["SAM", "닿을 수 있는 시장", "10.2조원", "나라장터 용역 적격심사 낙찰 20,824건", "2025 · 나라장터 낙찰결과 집계", 0.82, K.blue3, K.blueDeep],
     ["SOM", "처음 들어갈 시장", "7,494억원+", "네 업종 면허 적격심사 낙찰 1,869건", "2025-09-15~2026-09-14 · 하한", 0.52, K.blue, K.white],
   ];
   const mGap = 0.28, mW = (CW - 2 * mGap) / 3;
@@ -687,9 +690,9 @@ function note(s, text, y = 6.43, dark = false) {
   // 강의 52쪽: 열이 연차, 행이 사업·기술. 범위 숫자는 연차 바로 아래.
   const rd = [["1년차", "네 업종 상용화", "0.75조원", K.blueTint, K.ink],
     ["2년차", "용역 적격심사 전 업종\n물품 착수", "10.2조원", K.blue2, K.ink],
-    ["3년차", "물품 공개 · 공사 착수\n묶음 이용권", "23.4조원", K.blue3, K.ink],
-    ["4년차 (계획)", "공사 공개\n여러 사용자·API", "54.4조원", K.blue, K.white],
-    ["5년차 (계획)", "나라장터 밖\n자체조달 기관 검토", "+80.0조원", K.blueDeep, K.white]];
+    ["3년차", "물품 공개 · 공사 착수\n묶음 이용권", "23.4조원", K.blue, K.white],
+    ["4년차 (계획)", "공사 공개\n여러 사용자·API", "54.4조원", K.blueDeep, K.white],
+    ["5년차 (계획)", "나라장터 밖\n자체조달 기관 검토", "+80.0조원", K.navy, K.white]];
   const tech = ["지자체 규칙 보강\n사용 기록으로 규칙 보강", "기술용역 낙찰방법 44종 정리\n물품 규칙·모델 착수", "공사 규칙·모델 착수", "여러 사용자 계정\n프로그램 연결(API)", "자체조달 공고 연동\n기관별 검토"];
   const labW = 0.72, gap = 0.08, colW = (CW - labW - 4 * gap) / 5;
   const headY = 1.98, amtY = 2.52, bizY = 3.28, techY = 4.78;
@@ -774,7 +777,7 @@ function note(s, text, y = 6.43, dark = false) {
 
   // ===== 23. 팀 =====
   s = lightSlide("T 팀 구성", "T · 팀 구성", "대표자가 [[서비스 전체를 직접 구현]]");
-  plate(s, { x: 6.55, y: 1.88, w: W - M - 6.55, h: 4.5, fill: K.slateTint, line: K.line });
+  plate(s, { x: 6.9, y: 1.88, w: W - M - 6.9, h: 4.5, fill: K.slateTint, line: K.line });
   box(s, { x: M, y: 1.95, w: 6.2, h: 4.35, fill: K.bg, line: K.line, shadow: true });
   await iconCircle(s, "FaUserTie", M + 0.28, 2.12, 0.78, K.white, K.blue);
   T(s, "대표자", { x: M + 1.22, y: 2.16, w: 3, h: 0.4, fontSize: 22, bold: true, color: K.ink });
@@ -789,12 +792,12 @@ function note(s, text, y = 6.43, dark = false) {
     T(s, rep[i][1], { x: M + 0.86, y: y + 0.06, w: 0.7, h: 0.34, fontSize: 14, bold: true, color: K.blue });
     T(s, rep[i][2], { x: M + 1.58, y: y - 0.02, w: 4.4, h: 0.7, fontSize: 13, color: K.ink2 });
   }
-  box(s, { x: 6.72, y: 1.95, w: 6.01, h: 1.95, fill: K.white, line: K.blue, lw: 1.5, dash: "dash", shadow: true });
+  box(s, { x: 6.95, y: 1.95, w: 5.78, h: 1.95, fill: K.white, line: K.blue, lw: 1.5, dash: "dash", shadow: true });
   await iconCircle(s, "FaUserPlus", 7.28, 2.12, 0.58, K.blue, K.blueTint);
   T(s, "영업 담당 1명", { x: 8.02, y: 2.12, w: 2.3, h: 0.36, fontSize: 18, bold: true, color: K.ink });
   chip(s, "채용 예정 · 협약 5개월차", 10.35, 2.14, K.amber, K.amberTint, { w: 2.2, h: 0.32 });
   T(s, "시험 사용 회사 모집·영업, 입찰 실무 검수\n공공조달 입찰·영업 경력 2~3년 (채용 조건)", { x: 8.02, y: 2.58, w: 4.5, h: 1.05, fontSize: 14, color: K.ink2 });
-  box(s, { x: 6.72, y: 4.14, w: 6.01, h: 2.16, fill: K.white, line: K.line, shadow: true });
+  box(s, { x: 6.95, y: 4.14, w: 5.78, h: 2.16, fill: K.white, line: K.line, shadow: true });
   T(s, "협력 기관 3곳 (모두 확정 전)", { x: 7.28, y: 4.26, w: 5.2, h: 0.36, fontSize: 16, bold: true, color: K.ink });
   const prt = [["FaStamp", "변리", "상표 1건·특허 출원 1건", "7개월차"], ["FaLock", "보안 점검", "취약점 점검 1식", "3개월차"], ["FaHandshake", "입찰 대행·교육", "고객 모집 채널", "4개월까지 2곳"]];
   for (let i = 0; i < 3; i++) {
@@ -813,13 +816,14 @@ function note(s, text, y = 6.43, dark = false) {
   s.addImage({ path: LOGO(true), x: M - 0.03, y: 0.95, w: 0.5 * LOGO_R, h: 0.5, objectName: nm("logo") });
   T(s, "확인된 규칙만\n계산하는 도우미", { x: M, y: 1.7, w: 10.5, h: 1.9, fontSize: 44, bold: true, color: K.white, lineSpacingMultiple: 1.05 });
   const fin = [["206종", "공고에 맞는 계산 규칙"], ["31,305건", "최근 12개월 규칙 판정"], ["0원", "금액 없는 공고 추천"]];
+  const finW = 3.86, finGap = 0.28;
   for (const i of [0, 2, 1]) {
     const [v, l] = fin[i];
-    const x = M + i * 3.95;
+    const x = M + i * (finW + finGap);
     const y = i === 1 ? 3.9 : 4.12;
-    box(s, { x, y, w: 4.05, h: i === 1 ? 1.5 : 1.28, fill: K.navy3, line: K.navy2, radius: 0.16, shadow: true });
-    T(s, v, { x: x + 0.3, y: 4.2, w: 3.3, h: 0.65, fontSize: 30, bold: true, color: K.skyOnDark });
-    T(s, l, { x: x + 0.3, y: 4.88, w: 3.3, h: 0.35, fontSize: 14, color: K.onDarkMute });
+    box(s, { x, y, w: finW, h: i === 1 ? 1.5 : 1.28, fill: K.navy3, line: K.navy2, radius: 0.16, shadow: true });
+    T(s, v, { x: x + 0.22, y: 4.2, w: finW - 0.44, h: 0.65, fontSize: 28, bold: true, color: K.skyOnDark });
+    T(s, l, { x: x + 0.22, y: 4.88, w: finW - 0.44, h: 0.35, fontSize: 14, color: K.onDarkMute });
   }
   T(s, "감사합니다 · 질문 받겠습니다", { x: M, y: 5.9, w: 8, h: 0.5, fontSize: 22, bold: true, color: K.white });
   T(s, "Narani · 낙찰 보증 없음, 세 가지 금액은 참고 정보", { x: M, y: 6.5, w: 8, h: 0.35, fontSize: 12, color: K.onDarkMute });
