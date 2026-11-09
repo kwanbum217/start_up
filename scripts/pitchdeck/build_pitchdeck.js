@@ -1,6 +1,8 @@
 // BidBox 피치덱(.pptx) 생성기
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
+// v15 (2026-11-09): v14 배치·문장·숫자·모서리·그림자를 유지하고, 파랑은 제목 핵심어와
+// 큰 숫자에만 두고 그 밖 굵기를 뺀다. 비교 시안 시안_강조절제_20261109와 같다.
 // v14: v13 배치를 유지하고, 구글 화면에서 안 읽히거나 겹친 자리만 고친다.
 // 3년차 머리는 흰 글자가 읽히는 파랑, 마무리 숫자 카드는 서로 떨어짐,
 // 고객·팀 장의 배경 판은 앞 카드와 겹치지 않음. 문장·숫자는 v13과 같다.
@@ -23,11 +25,10 @@ const OUT = process.argv[2] || path.join(ROOT, "02_과제/피치덱/BidBox_피�
 const APPLY = process.argv[3];
 
 const F = "Malgun Gothic";
-// PITCH_FLAT=1: 비교 시안. 문장·숫자는 그대로 두고 모서리·그림자·바탕만 바꾼다.
-// PITCH_QUIET=1: 비교 시안. 문장·숫자·모서리는 그대로 두고 파랑 횟수와 굵기만 줄인다.
-// 기본 실행은 v14와 같다. 채택 전에는 이 분기를 기본값으로 두지 않는다.
+// v15부터 파랑 횟수와 굵기를 줄인 모습이 기본이다. PITCH_QUIET=0 이면 v14 모습으로 다시 만든다.
+// PITCH_FLAT=1: 채택하지 않은 비교 시안. 문장·숫자는 그대로 두고 모서리·그림자·바탕만 바꾼다.
 const FLAT = process.env.PITCH_FLAT === "1";
-const QUIET = process.env.PITCH_QUIET === "1";
+const QUIET = process.env.PITCH_QUIET !== "0";
 const THEME = {
   name: "BidBox",
   headFontFace: F,
