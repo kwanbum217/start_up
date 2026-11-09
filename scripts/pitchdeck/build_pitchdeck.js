@@ -23,6 +23,9 @@ const OUT = process.argv[2] || path.join(ROOT, "02_과제/피치덱/BidBox_피�
 const APPLY = process.argv[3];
 
 const F = "Malgun Gothic";
+// PITCH_FLAT=1: 비교 시안. 문장·숫자는 그대로 두고 모서리·그림자·바탕만 바꾼다.
+// 기본 실행은 v14와 같다. 채택 전에는 이 분기를 기본값으로 두지 않는다.
+const FLAT = process.env.PITCH_FLAT === "1";
 const THEME = {
   name: "BidBox",
   headFontFace: F,
@@ -44,6 +47,10 @@ const K = {
   // 어두운 장 위 상태 색(대비를 위해 한 단계 밝게)
   greenOnDark: "34D399", amberOnDark: "FBBF24", redOnDark: "F87171",
 };
+if (FLAT) {
+  K.page = "FFFFFF";
+  K.mark = "F4F4F4";
+}
 
 const pres = new pptxgen();
 pres.layout = "LAYOUT_WIDE"; // 13.333 x 7.5 in
@@ -64,7 +71,7 @@ const titlePh = (dark) => ({
 const eyebrowPh = (dark) => ({
   placeholder: {
     options: { name: "eyebrow", type: "body", x: M, y: 0.50, w: CW, h: 0.26, fontFace: F, fontSize: 12, bold: true,
-      color: dark ? K.skyOnDark : K.blue, valign: "top", margin: 0 },
+      color: dark ? K.skyOnDark : (FLAT ? K.mute : K.blue), valign: "top", margin: 0 },
     text: "",
   },
 });
@@ -173,6 +180,47 @@ function darkSlide(section, eyebrow, title) {
 }
 function note(s, text, y = 6.43, dark = false) {
   T(s, text, { x: M, y, w: CW, h: 0.32, fontSize: 11, color: dark ? K.onDarkMute : K.mute });
+}
+
+if (FLAT) {
+  const darkFill = (hex) => {
+    if (!hex || typeof hex !== "string" || hex.length < 6) return false;
+    const r = parseInt(hex.slice(0, 2), 16), g = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
+    return (r + g + b) / 3 < 90;
+  };
+  const flatten = (opt, wasRound) => {
+    if (!opt) return opt;
+    const o = Object.assign({}, opt);
+    delete o.rectRadius;
+    const hadShadow = !!o.shadow;
+    delete o.shadow;
+    if (wasRound || hadShadow) {
+      const noLine = !o.line || o.line.type === "none";
+      if (noLine) {
+        const fill = o.fill && o.fill.color;
+        o.line = { color: darkFill(fill) ? "334155" : "E0E0E0", width: 1 };
+      }
+    }
+    return o;
+  };
+  const origAdd = pres.addSlide.bind(pres);
+  pres.addSlide = (opts) => {
+    const s = origAdd(opts);
+    const origShape = s.addShape.bind(s);
+    s.addShape = (shape, opt) => {
+      const wasRound = shape === pres.shapes.ROUNDED_RECTANGLE;
+      const sh = wasRound ? pres.shapes.RECTANGLE : shape;
+      return origShape(sh, flatten(opt, wasRound));
+    };
+    const origText = s.addText.bind(s);
+    s.addText = (text, opt) => {
+      if (opt && opt.shape === pres.shapes.ROUNDED_RECTANGLE) {
+        opt = flatten(Object.assign({}, opt, { shape: pres.shapes.RECTANGLE }), true);
+      }
+      return origText(text, opt);
+    };
+    return s;
+  };
 }
 
 (async () => {
