@@ -24,8 +24,10 @@ const APPLY = process.argv[3];
 
 const F = "Malgun Gothic";
 // PITCH_FLAT=1: 비교 시안. 문장·숫자는 그대로 두고 모서리·그림자·바탕만 바꾼다.
+// PITCH_QUIET=1: 비교 시안. 문장·숫자·모서리는 그대로 두고 파랑 횟수와 굵기만 줄인다.
 // 기본 실행은 v14와 같다. 채택 전에는 이 분기를 기본값으로 두지 않는다.
 const FLAT = process.env.PITCH_FLAT === "1";
+const QUIET = process.env.PITCH_QUIET === "1";
 const THEME = {
   name: "BidBox",
   headFontFace: F,
@@ -63,15 +65,15 @@ const W = 13.333, M = 0.6, CW = W - 2 * M;
 // ---------- 레이아웃 ----------
 const titlePh = (dark) => ({
   placeholder: {
-    options: { name: "title", type: "title", x: M, y: 0.80, w: CW, h: 1.00, fontFace: F, fontSize: 32, bold: true,
+    options: { name: "title", type: "title", x: M, y: 0.80, w: CW, h: 1.00, fontFace: F, fontSize: 32, bold: !QUIET,
       color: dark ? C.background1 : C.text1, valign: "top", align: "left", margin: 0 },
     text: "",
   },
 });
 const eyebrowPh = (dark) => ({
   placeholder: {
-    options: { name: "eyebrow", type: "body", x: M, y: 0.50, w: CW, h: 0.26, fontFace: F, fontSize: 12, bold: true,
-      color: dark ? K.skyOnDark : (FLAT ? K.mute : K.blue), valign: "top", margin: 0 },
+    options: { name: "eyebrow", type: "body", x: M, y: 0.50, w: CW, h: 0.26, fontFace: F, fontSize: 12, bold: !QUIET,
+      color: dark ? (QUIET ? K.onDarkMute : K.skyOnDark) : (FLAT || QUIET ? K.mute : K.blue), valign: "top", margin: 0 },
     text: "",
   },
 });
@@ -98,6 +100,12 @@ function T(s, text, o) {
   s.addText(text, Object.assign({ fontFace: F, margin: 0, isTextBox: true, valign: "top", objectName: nm("text") }, o));
 }
 function box(s, o) {
+  if (QUIET) {
+    if ((o.line === K.blue || o.line === K.blueDeep) && o.fill !== K.blue && o.fill !== K.blueDeep) {
+      o = Object.assign({}, o, { line: K.line });
+    }
+    if (o.fill === K.blueTint && o.w >= 4 && o.h >= 2) o = Object.assign({}, o, { fill: K.white });
+  }
   const shape = o.radius === 0 ? pres.shapes.RECTANGLE : pres.shapes.ROUNDED_RECTANGLE;
   const opt = { x: o.x, y: o.y, w: o.w, h: o.h, fill: { color: o.fill || K.white },
     line: o.line ? { color: o.line, width: o.lw || 1, dashType: o.dash || "solid" } : { type: "none" },
@@ -112,6 +120,17 @@ function plate(s, o = {}) {
     fill: o.fill || K.white, line: o.line, radius: o.radius == null ? 0.18 : o.radius, shadow: o.shadow !== false, name: "plate" });
 }
 function chip(s, text, x, y, color, tint, o = {}) {
+  if (QUIET) {
+    const solid = tint === K.blue || tint === K.blueDeep;
+    const wash = tint === K.blueTint || tint === K.skyOnDark;
+    const textBrand = color === K.blue || color === K.blueDeep || color === K.skyOnDark || color === K.blue2 || color === K.blue3;
+    if (solid) { color = K.ink; tint = K.slateTint; }
+    else if (wash || textBrand) {
+      if (color === K.skyOnDark) color = K.onDarkMute;
+      else if (textBrand || color === K.white) color = K.ink2;
+      if (wash) tint = K.slateTint;
+    }
+  }
   const w = o.w || Math.max(0.9, text.length * 0.135 + 0.35);
   s.addText(text, { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.16, x, y, w, h: o.h || 0.32,
     fill: { color: tint }, line: { type: "none" }, fontFace: F, fontSize: o.size || 12, bold: true, color,
@@ -120,6 +139,9 @@ function chip(s, text, x, y, color, tint, o = {}) {
 }
 const iconCache = {};
 async function icon(name, color, px = 256) {
+  if (QUIET && (color === K.blue || color === K.blueDeep || color === K.blue2 || color === K.blue3 || color === K.skyOnDark)) {
+    color = color === K.skyOnDark ? K.onDarkMute : K.ink2;
+  }
   const key = name + color;
   if (!iconCache[key]) {
     const svg = RDS.renderToStaticMarkup(React.createElement(fa[name], { color: "#" + color, size: px }));
@@ -130,14 +152,31 @@ async function icon(name, color, px = 256) {
 }
 // 원 안 아이콘(모티프)
 async function iconCircle(s, name, x, y, d, fg, bg) {
+  if (QUIET) {
+    const brand = (c) => c === K.blue || c === K.blueDeep || c === K.blue2 || c === K.blue3 || c === K.blueTint || c === K.skyOnDark;
+    if (brand(fg) || brand(bg)) {
+      const onDark = bg === K.navy || bg === K.navy2 || bg === K.navy3 || fg === K.skyOnDark;
+      if (onDark && (bg === K.navy || bg === K.navy2 || bg === K.navy3)) fg = K.onDarkMute;
+      else if (onDark) { fg = K.onDarkMute; bg = K.navy3; }
+      else { fg = K.ink2; bg = K.slateTint; }
+    }
+  }
   s.addShape(pres.shapes.OVAL, { x, y, w: d, h: d, fill: { color: bg }, line: { type: "none" }, objectName: nm("icon-bg") });
   const p = d * 0.27;
   s.addImage({ data: await icon(name, fg), x: x + p, y: y + p, w: d - 2 * p, h: d - 2 * p, objectName: nm("icon") });
 }
+function toneArrow(color) {
+  if (!QUIET) return color;
+  if (color === K.skyOnDark) return K.onDarkMute;
+  if (color === K.blue || color === K.blue2 || color === K.blue3 || color === K.blueDeep) return K.mute;
+  return color;
+}
 function arrow2(s, x, y, w, color = K.blue2) {
+  color = toneArrow(color);
   s.addShape(pres.shapes.LEFT_RIGHT_ARROW, { x, y, w, h: 0.3, fill: { color }, line: { type: "none" }, objectName: nm("arrow2") });
 }
 function arrow(s, x, y, w, color = K.blue2) {
+  color = toneArrow(color);
   s.addShape(pres.shapes.RIGHT_ARROW, { x, y, w, h: 0.3, fill: { color }, line: { type: "none" }, objectName: nm("arrow") });
 }
 // 어두운 틀 위의 제품 화면. 이름표는 기본으로 아래, labelTop이면 위(겹칠 때 가리지 않음).
@@ -163,7 +202,10 @@ function watermark(s, eyebrow, o = {}) {
 // 제목의 [[핵심어]]만 강조색으로(6회차 강의의 2색 제목)
 function richTitle(title, accent) {
   if (!title.includes("[[")) return title;
-  return title.split(/\[\[|\]\]/).map((t, i) => ({ text: t, options: i % 2 ? { color: accent } : {} })).filter((r) => r.text);
+  return title.split(/\[\[|\]\]/).map((t, i) => {
+    if (i % 2) return { text: t, options: QUIET ? { color: accent, bold: true } : { color: accent } };
+    return QUIET ? { text: t, options: { bold: false } } : { text: t, options: {} };
+  }).filter((r) => r.text);
 }
 function lightSlide(section, eyebrow, title, mark) {
   const s = pres.addSlide({ masterName: "LIGHT", sectionTitle: section });
@@ -219,6 +261,105 @@ if (FLAT) {
       }
       return origText(text, opt);
     };
+    return s;
+  };
+}
+
+if (QUIET) {
+  const brandText = new Set([K.blue, K.blueDeep, K.blue2, K.blue3, K.skyOnDark]);
+  const plainOf = (text) => {
+    if (typeof text === "string") return text;
+    if (Array.isArray(text)) return text.map((t) => (typeof t === "string" ? t : (t && t.text) || "")).join("");
+    return "";
+  };
+  const heroNumber = (text, size) => {
+    const s = plainOf(text).replace(/\s+/g, "");
+    if (!size || size < 26) return false;
+    if (/^0\d$/.test(s)) return false;
+    return /\d/.test(s) && s.length <= 18;
+  };
+  const quietColor = (color, size, text) => {
+    if (!brandText.has(color)) return color;
+    if (heroNumber(text, size)) return color;
+    if (color === K.skyOnDark) return K.onDarkMute;
+    if (color === K.blue2 || color === K.blue3) return K.mute;
+    return K.ink2;
+  };
+  const quietText = (text, opt) => {
+    if (!opt) return [text, opt];
+    const o = Object.assign({}, opt);
+    if (o.placeholder === "title" && Array.isArray(text)) {
+      text = text.map((r) => {
+        if (!r || typeof r === "string") return { text: r || "", options: { bold: false } };
+        const accent = !!(r.options && r.options.color);
+        return { text: r.text, options: Object.assign({}, r.options, { bold: accent }) };
+      });
+      o.bold = false;
+      return [text, o];
+    }
+    const size = o.fontSize || 0;
+    const whole = plainOf(text);
+    const hero = heroNumber(whole, size);
+    if (o.bold && !hero) o.bold = false;
+    if (o.color) o.color = quietColor(o.color, size, whole);
+    if (o.fill && (o.fill.color === K.blue || o.fill.color === K.blueDeep) && /^[A-Z]$/.test(whole.trim())) {
+      o.fill = Object.assign({}, o.fill, { color: K.slateTint });
+      o.color = K.ink;
+    }
+    if (o.fill && o.fill.color === K.blueTint) o.fill = Object.assign({}, o.fill, { color: K.slateTint });
+    if (o.line && (o.line.color === K.blue || o.line.color === K.blueDeep) && !(o.fill && (o.fill.color === K.blue || o.fill.color === K.blueDeep))) {
+      o.line = Object.assign({}, o.line, { color: K.line });
+    }
+    if (Array.isArray(text)) {
+      text = text.map((r) => {
+        if (!r || typeof r === "string" || !r.options) return r;
+        const ro = Object.assign({}, r.options);
+        const rs = ro.fontSize || size;
+        if (ro.bold && !heroNumber(r.text || "", rs) && !hero) ro.bold = false;
+        if (ro.color) ro.color = quietColor(ro.color, rs, r.text || "");
+        return { text: r.text, options: ro };
+      });
+    }
+    return [text, o];
+  };
+  const quietShape = (opt) => {
+    if (!opt || !opt.line) return opt;
+    const c = opt.line.color;
+    if (c !== K.blue && c !== K.blue2 && c !== K.blue3 && c !== K.blueDeep) return opt;
+    const fillC = opt.fill && opt.fill.color;
+    if (fillC === c) return opt;
+    return Object.assign({}, opt, { line: Object.assign({}, opt.line, { color: K.mute }) });
+  };
+  const quietRows = (rows) => rows.map((row) => row.map((cell) => {
+    if (!cell || typeof cell !== "object") return cell;
+    const c = Object.assign({}, cell);
+    const dull = (ro, sample) => {
+      if (!ro) return ro;
+      const o = Object.assign({}, ro);
+      if (o.bold && !heroNumber(sample || "", o.fontSize || 0)) o.bold = false;
+      return o;
+    };
+    if (Array.isArray(c.text)) {
+      c.text = c.text.map((r) => {
+        if (!r || typeof r === "string" || !r.options) return r;
+        return { text: r.text, options: dull(r.options, r.text) };
+      });
+    }
+    if (c.options) c.options = dull(c.options, typeof c.text === "string" ? c.text : plainOf(c.text));
+    return c;
+  }));
+  const origAdd = pres.addSlide.bind(pres);
+  pres.addSlide = (opts) => {
+    const s = origAdd(opts);
+    const origText = s.addText.bind(s);
+    s.addText = (text, opt) => {
+      const [t, o] = quietText(text, opt);
+      return origText(t, o);
+    };
+    const origShape = s.addShape.bind(s);
+    s.addShape = (shape, opt) => origShape(shape, quietShape(opt));
+    const origTable = s.addTable.bind(s);
+    s.addTable = (rows, opt) => origTable(quietRows(rows), opt);
     return s;
   };
 }
