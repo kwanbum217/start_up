@@ -1,6 +1,8 @@
 // BidBox 피치덱(.pptx) 생성기
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
+// v16 (2026-11-09): v15의 파랑 횟수는 유지하고, 6회차 우수사례처럼 제목·카드 제목은 굵게 둔다.
+// 본문·눈썹·칩은 보통. 제출 글꼴은 맑은 고딕. 검토용 구글 슬라이드만 Noto Sans KR.
 // v15 (2026-11-09): v14 배치·문장·숫자·모서리·그림자를 유지하고, 파랑은 제목 핵심어와
 // 큰 숫자에만 두고 그 밖 굵기를 뺀다. 비교 시안 시안_강조절제_20261109와 같다.
 // v14: v13 배치를 유지하고, 구글 화면에서 안 읽히거나 겹친 자리만 고친다.
@@ -25,7 +27,8 @@ const OUT = process.argv[2] || path.join(ROOT, "02_과제/피치덱/BidBox_피�
 const APPLY = process.argv[3];
 
 const F = "Malgun Gothic";
-// v15부터 파랑 횟수와 굵기를 줄인 모습이 기본이다. PITCH_QUIET=0 이면 v14 모습으로 다시 만든다.
+// v16부터 제목·카드 제목은 굵게, 본문은 보통이다. 파랑 횟수는 v15와 같다.
+// PITCH_QUIET=0 이면 v14 모습(파랑·굵기 모두)으로 다시 만든다.
 // PITCH_FLAT=1: 채택하지 않은 비교 시안. 문장·숫자는 그대로 두고 모서리·그림자·바탕만 바꾼다.
 const FLAT = process.env.PITCH_FLAT === "1";
 const QUIET = process.env.PITCH_QUIET !== "0";
@@ -66,7 +69,7 @@ const W = 13.333, M = 0.6, CW = W - 2 * M;
 // ---------- 레이아웃 ----------
 const titlePh = (dark) => ({
   placeholder: {
-    options: { name: "title", type: "title", x: M, y: 0.80, w: CW, h: 1.00, fontFace: F, fontSize: 32, bold: !QUIET,
+    options: { name: "title", type: "title", x: M, y: 0.80, w: CW, h: 1.00, fontFace: F, fontSize: 32, bold: true,
       color: dark ? C.background1 : C.text1, valign: "top", align: "left", margin: 0 },
     text: "",
   },
@@ -204,8 +207,8 @@ function watermark(s, eyebrow, o = {}) {
 function richTitle(title, accent) {
   if (!title.includes("[[")) return title;
   return title.split(/\[\[|\]\]/).map((t, i) => {
-    if (i % 2) return { text: t, options: QUIET ? { color: accent, bold: true } : { color: accent } };
-    return QUIET ? { text: t, options: { bold: false } } : { text: t, options: {} };
+    if (i % 2) return { text: t, options: { color: accent, bold: true } };
+    return { text: t, options: QUIET ? { bold: true } : {} };
   }).filter((r) => r.text);
 }
 function lightSlide(section, eyebrow, title, mark) {
@@ -279,6 +282,12 @@ if (QUIET) {
     if (/^0\d$/.test(s)) return false;
     return /\d/.test(s) && s.length <= 18;
   };
+  // 우수사례는 제목·카드 제목이 굵고 본문은 보통이다. 16pt 미만과 워터마크는 보통으로 둔다.
+  const keepWeight = (text, size, color) => {
+    if (color === K.mark) return false;
+    if (size >= 16) return true;
+    return heroNumber(text, size);
+  };
   const quietColor = (color, size, text) => {
     if (!brandText.has(color)) return color;
     if (heroNumber(text, size)) return color;
@@ -289,19 +298,20 @@ if (QUIET) {
   const quietText = (text, opt) => {
     if (!opt) return [text, opt];
     const o = Object.assign({}, opt);
-    if (o.placeholder === "title" && Array.isArray(text)) {
-      text = text.map((r) => {
-        if (!r || typeof r === "string") return { text: r || "", options: { bold: false } };
-        const accent = !!(r.options && r.options.color);
-        return { text: r.text, options: Object.assign({}, r.options, { bold: accent }) };
-      });
-      o.bold = false;
-      return [text, o];
-    }
     const size = o.fontSize || 0;
     const whole = plainOf(text);
     const hero = heroNumber(whole, size);
-    if (o.bold && !hero) o.bold = false;
+    if (o.placeholder === "title") {
+      if (Array.isArray(text)) {
+        text = text.map((r) => {
+          if (!r || typeof r === "string") return { text: r || "", options: { bold: true } };
+          return { text: r.text, options: Object.assign({}, r.options, { bold: true }) };
+        });
+      }
+      o.bold = true;
+      return [text, o];
+    }
+    if (o.bold && !keepWeight(whole, size, o.color)) o.bold = false;
     if (o.color) o.color = quietColor(o.color, size, whole);
     if (o.fill && (o.fill.color === K.blue || o.fill.color === K.blueDeep) && /^[A-Z]$/.test(whole.trim())) {
       o.fill = Object.assign({}, o.fill, { color: K.slateTint });
@@ -316,7 +326,7 @@ if (QUIET) {
         if (!r || typeof r === "string" || !r.options) return r;
         const ro = Object.assign({}, r.options);
         const rs = ro.fontSize || size;
-        if (ro.bold && !heroNumber(r.text || "", rs) && !hero) ro.bold = false;
+        if (ro.bold && !keepWeight(r.text || "", rs, ro.color) && !hero) ro.bold = false;
         if (ro.color) ro.color = quietColor(ro.color, rs, r.text || "");
         return { text: r.text, options: ro };
       });

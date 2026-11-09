@@ -7,7 +7,7 @@
 
 키 파일 경로는 sync_gdoc.py와 같다. 키 내용은 출력하지 않는다.
 대상 슬라이드는 그 키의 client_email에 편집자로 공유돼 있어야 한다.
-제출 pptx는 바꾸지 않는다. 올리는 임시 사본만 Malgun Gothic·맑은 고딕을 Nanum Gothic으로 바꾼다.
+제출 pptx는 바꾸지 않는다. 올리는 임시 사본만 Malgun Gothic·맑은 고딕을 Noto Sans KR로 바꾼다.
 덮어쓰면 이전 장은 구글 슬라이드의 버전 기록에만 남는다.
 절차의 정본은 references/gslides.md다.
 """
@@ -19,7 +19,7 @@ import sync_gdoc as g
 DECK_ID = '1freHyZ0yO83FKwQ_UziZXhc3czPzsfHGHdEJlUq4Nvw'
 PPTX_MIME = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
 SRC_FONTS = ('Malgun Gothic', '맑은 고딕')
-OK_FONTS = ('Nanum Gothic', '나눔고딕')
+OK_FONTS = ('Noto Sans KR',)
 
 
 def services():
@@ -50,7 +50,7 @@ def pptx_meta(path):
 
 
 def variant(pptx):
-    """한글 글꼴만 Nanum Gothic으로 바꾼 임시 사본. 원본 파일은 열기만 한다."""
+    """한글 글꼴만 Noto Sans KR로 바꾼 임시 사본. 원본 파일은 열기만 한다."""
     out = os.path.join(tempfile.mkdtemp(), os.path.basename(pptx))
     replaced = 0
     with zipfile.ZipFile(pptx) as zi, zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as zo:
@@ -60,7 +60,7 @@ def variant(pptx):
                 text = data.decode('utf-8')
                 for src in SRC_FONTS:
                     old = 'typeface="%s"' % src
-                    new = 'typeface="Nanum Gothic"'
+                    new = 'typeface="Noto Sans KR"'
                     replaced += text.count(old)
                     text = text.replace(old, new)
                 data = text.encode('utf-8')
@@ -121,7 +121,7 @@ def main():
     bad = sum(got['글꼴'][name] for name in SRC_FONTS)
     good = sum(got['글꼴'][name] for name in OK_FONTS)
     font_mark = '같음' if bad == 0 and good else '다름(확인 필요)'
-    print('구글 한글 글꼴 Nanum Gothic/나눔고딕 %d, 맑은 고딕 %d: %s' % (good, bad, font_mark))
+    print('구글 한글 글꼴 Noto Sans KR %d, 맑은 고딕 %d: %s' % (good, bad, font_mark))
 
 
 if __name__ == '__main__':
