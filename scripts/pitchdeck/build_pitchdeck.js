@@ -1,6 +1,8 @@
 // BidBox 피치덱(.pptx) 생성기
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
+// v22 (2026-11-10): 시안_밝은장배경_20261110 채택. 밝은 장 16장도 제목 오른쪽 위 빈 띠에만 옅은 무늬(P 문서 윤곽,
+// S 실현·T 연결망, S 성장 동심원)를 깐다. 문장·숫자·노트·배치는 v21과 같다. v21은 덮어쓰지 않는다.
 // v21 (2026-11-10): v20에서 8·11장 연결망의 선과 점만 진하게 한다(사용자 지시). 그 밖은 v20과 같다.
 // v20 (2026-11-10): v19에 어두운 장 다섯 장(1·8·11·18·21)의 코드로 그린 추상 무늬 바탕을 기본으로 넣는다
 // (시안_추상배경_20261110 채택, 18장 동심원은 더 진하게). 문장·숫자·노트는 v19와 같다. v19는 덮어쓰지 않는다.
@@ -256,7 +258,8 @@ async function setBg(s, kind, seed) {
 // 시안(2026-11-10, PITCH_LIGHTBG=1): 밝은 장은 제목 오른쪽 위 빈 띠(본문 카드 위, y < 약 1.75인치)에만 옅은 무늬.
 // 띠 밖은 잘라 내고(clipPath), 오른쪽 위에서 멀어질수록 사라지게(mask) 해서 카드 뒤로 조각이 비치지 않게 한다.
 // P: 어긋나 겹친 문서 윤곽(판이 여러 개), S 실현·T: 작은 연결망, S 성장: 오른쪽 위 모서리에서 퍼지는 동심원.
-const LIGHTBG = process.env.PITCH_LIGHTBG === "1";
+// v22부터 기본으로 켠다. PITCH_LIGHTBG=0이면 v21 모습(밝은 장 무늬 없음).
+const LIGHTBG = process.env.PITCH_LIGHTBG !== "0";
 const lightQueue = [];
 async function lightBgImage(kind, seed) {
   const PW = 2560, PH = 1440, r = seeded(seed), blue = "#0073E6", band = 330;
