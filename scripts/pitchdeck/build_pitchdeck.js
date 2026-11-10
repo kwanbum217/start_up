@@ -177,6 +177,70 @@ async function iconCircle(s, name, x, y, d, fg, bg) {
   const p = d * 0.27;
   s.addImage({ data: await icon(name, fg), x: x + p, y: y + p, w: d - 2 * p, h: d - 2 * p, objectName: nm("icon") });
 }
+// 시안(2026-11-10, PITCH_BG=1): 어두운 장 다섯 장(표지·근거 상담·숫자·자금·마무리)에만 코드로 그린 추상 무늬 바탕.
+// 무늬는 한 언어(브랜드 파랑 계열의 옅은 점·선)로 두고 단락 뜻만 모양으로 바꾼다.
+// flow: 흩어진 점이 한 줄로 모임(공고 → 규칙 → 금액). net: 점과 선의 연결망(수집·검색·근거). rings: 바깥으로 퍼지는 동심원(확장).
+const BG = process.env.PITCH_BG === "1";
+function seeded(seed) {
+  let v = seed >>> 0;
+  return () => { v = (Math.imul(v, 1664525) + 1013904223) >>> 0; return v / 4294967296; };
+}
+async function bgImage(kind, seed = 7) {
+  const PW = 2560, PH = 1440, r = seeded(seed);
+  const sky = "#6CB4FF", blue = "#0073E6";
+  let g = "";
+  if (kind === "flow") {
+    // 오른쪽 아래에 흩어진 점, 그 점들에서 출발한 곡선이 오른쪽 한 점(공고 → 금액)으로 모인다.
+    const ex = PW - 190, ey = 1060;
+    for (let i = 0; i < 26; i++) {
+      const sx = 1180 + r() * 900, sy = 260 + r() * 1100;
+      const c1x = sx + 260 + r() * 160, c1y = sy, c2x = ex - 360, c2y = ey + (r() - 0.5) * 120;
+      g += `<path d="M${sx.toFixed(0)},${sy.toFixed(0)} C${c1x.toFixed(0)},${c1y.toFixed(0)} ${c2x.toFixed(0)},${c2y.toFixed(0)} ${ex},${ey}" fill="none" stroke="${sky}" stroke-opacity="${(0.07 + r() * 0.08).toFixed(3)}" stroke-width="2"/>`;
+      g += `<circle cx="${sx.toFixed(0)}" cy="${sy.toFixed(0)}" r="${(3 + r() * 4).toFixed(1)}" fill="${sky}" fill-opacity="${(0.22 + r() * 0.2).toFixed(2)}"/>`;
+    }
+    for (let i = 0; i < 140; i++) {
+      const x = 900 + Math.pow(r(), 0.7) * 1650, y = r() * PH;
+      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(1.5 + r() * 2).toFixed(1)}" fill="${sky}" fill-opacity="${(0.06 + r() * 0.12).toFixed(2)}"/>`;
+    }
+    // 모이는 점은 장 안쪽에 둔다(가장자리에서 잘린 반원이 되지 않게).
+    g += `<circle cx="${ex}" cy="${ey}" r="46" fill="${blue}" fill-opacity="0.14"/><circle cx="${ex}" cy="${ey}" r="10" fill="${sky}" fill-opacity="0.6"/>`;
+  } else if (kind === "net") {
+    // 가장자리 쪽에 더 많은 점과 가까운 점끼리 잇는 선. 가운데(내용 자리)는 옅게 둔다.
+    const pts = [];
+    for (let i = 0; i < 90; i++) {
+      let x = r() * PW, y = r() * PH;
+      const cx = Math.abs(x - PW / 2) / (PW / 2), cy = Math.abs(y - PH / 2) / (PH / 2);
+      if (Math.max(cx, cy) < 0.55 && r() < 0.7) { x = r() < 0.5 ? r() * PW * 0.12 : PW - r() * PW * 0.12; }
+      pts.push([x, y]);
+    }
+    pts.forEach(([x, y], i) => {
+      const near = pts.map(([a, b], j) => [Math.hypot(a - x, b - y), j]).filter(([d, j]) => j !== i).sort((a, b) => a[0] - b[0]).slice(0, 2);
+      for (const [d, j] of near) if (d < 360) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${sky}" stroke-opacity="0.08" stroke-width="1.6"/>`;
+    });
+    pts.forEach(([x, y], i) => {
+      const hot = i % 11 === 0;
+      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="16" fill="${blue}" fill-opacity="0.12"/>`;
+      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 5 : 3}" fill="${hot ? blue : sky}" fill-opacity="${hot ? 0.55 : 0.22}"/>`;
+    });
+  } else if (kind === "rings") {
+    // 오른쪽 아래에서 바깥으로 퍼지는 동심원과 원 위의 점(용역 → 물품 → 공사).
+    const cx = PW - 120, cy = PH + 80;
+    for (let k = 1; k <= 14; k++) {
+      const rad = 150 * k, op = Math.max(0.035, 0.16 - k * 0.009);
+      g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${sky}" stroke-opacity="${op.toFixed(3)}" stroke-width="${k % 3 === 0 ? 2.4 : 1.4}"/>`;
+      if (k % 3 === 0) {
+        const a = Math.PI + 0.25 + r() * 1.1;
+        g += `<circle cx="${(cx + rad * Math.cos(a)).toFixed(0)}" cy="${(cy + rad * Math.sin(a)).toFixed(0)}" r="6" fill="${blue}" fill-opacity="0.5"/>`;
+      }
+    }
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PW}" height="${PH}"><rect width="100%" height="100%" fill="#${K.navy}"/>${g}</svg>`;
+  const buf = await sharp(Buffer.from(svg)).png().toBuffer();
+  return "image/png;base64," + buf.toString("base64");
+}
+async function setBg(s, kind, seed) {
+  if (BG) s.background = { data: await bgImage(kind, seed) };
+}
 function toneArrow(color) {
   if (!QUIET) return color;
   if (color === K.skyOnDark) return K.onDarkMute;
@@ -389,6 +453,7 @@ if (QUIET) {
   // ===== 1. 표지 =====
   pres.addSection({ title: "표지" });
   let s = pres.addSlide({ masterName: "COVER", sectionTitle: "표지" });
+  await setBg(s, "flow", 11);
   T(s, "2026 예비창업패키지 · 피치덱", { x: M, y: 1.0, w: 6, h: 0.4, fontSize: 14, bold: true, color: K.skyOnDark });
   T(s, "공공기관 용역 입찰\n도우미 웹 서비스", { x: M, y: 1.5, w: 6.2, h: 1.9, fontSize: 40, bold: true,
     color: K.white, lineSpacingMultiple: 1.08 });
@@ -614,6 +679,7 @@ if (QUIET) {
 
   // ===== RAG 인텔리전스 (실제 화면 포함) =====
   s = darkSlide("S 실현 가능성", "S · 실현 가능성", "근거 상담(RAG): [[없으면 답하지 않음]]");
+  await setBg(s, "net", 23);
   // 왼쪽: AI 어드바이저 실제 화면(2026-11-05 로컬 실행 캡처, 사용자 이름이 보이는 사이드바는 잘라 냄)
   const advW = 7.35, advH = advW / (1015 / 468), advY = 1.92;
   box(s, { x: M - 0.08, y: advY - 0.08, w: advW + 0.16, h: advH + 0.16, fill: K.navy3, radius: 0.12, shadow: true, name: "adv-frame" });
@@ -697,6 +763,7 @@ if (QUIET) {
 
   // ===== 13. 개발 현황 =====
   s = darkSlide("S 실현 가능성", "S · 실현 가능성", "만든 것은 [[숫자로]]");
+  await setBg(s, "net", 41);
   const tiles = [["206종", "규칙 ID", "기관·시행일별 계산 규칙"], ["21,394건", "자동 적용", "31,305건 중 (2026-10-19)"],
     ["505,271건", "공고 색인", "최근 1년 (2026-09-09)"], ["1.1885%p", "낙찰률 평균 오차", "3,000건 (2026-09-15)"],
     ["90.25%", "예측 범위 포함률", "3,589건 (2026-08-30)"], ["144/144", "상담 숫자 정답", "96개 요청 평가"]];
@@ -927,6 +994,7 @@ if (QUIET) {
 
   // ===== 20. 자금 =====
   s = darkSlide("S 성장전략", "S · 성장전략", "정부지원 [[4,000만 원]]");
+  await setBg(s, "rings", 5);
   // 누적 막대도 도형으로(구글 변환 때 차트 숫자 형식이 빠짐). 단위 만원, 합계 각 2,000.
   // 밝은 칸 글자는 남색. 1E3A5F는 남색 바탕에서 사라지므로 어두운 장 토큰으로 바꾼다.
   T(s, "정부지원사업비 집행계획 (만원)", { x: M, y: 1.95, w: 7.6, h: 0.36, fontSize: 16, bold: true, color: K.white });
@@ -1024,6 +1092,7 @@ if (QUIET) {
   // ===== 24. 마무리 =====
   pres.addSection({ title: "마무리" });
   s = pres.addSlide({ masterName: "COVER", sectionTitle: "마무리" });
+  await setBg(s, "flow", 29);
   s.addImage({ path: LOGO(true), x: M - 0.03, y: 0.95, w: 0.5 * LOGO_R, h: 0.5, objectName: nm("logo") });
   T(s, "확인된 규칙만\n계산하는 도우미", { x: M, y: 1.7, w: 10.5, h: 1.9, fontSize: 44, bold: true, color: K.white, lineSpacingMultiple: 1.05 });
   const fin = [["206종", "공고에 맞는 계산 규칙"], ["31,305건", "최근 12개월 규칙 판정"], ["0원", "금액 없는 공고 추천"]];
