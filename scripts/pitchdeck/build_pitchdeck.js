@@ -1,6 +1,9 @@
 // BidBox 피치덱(.pptx) 생성기
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
+// v19 (2026-11-10): 문장·숫자·노트는 v18과 같고 디자인만 정리한다. 워터마크·카드 뒤 판(plate)을 걷어
+// 잘린 조각과 어긋난 겹침을 없애고, 카드를 한 격자에 맞춘다. 시장(넓이 비례 겹친 원, 같은 출발선 막대),
+// 자금(오른쪽 숫자 칸), 검증(협약 중 확보 칸), 개발 현황(숫자 원 높이)을 다시 그리고, 문제 근거·마무리는 상자 없이 선으로 나눈다.
 // v18 (2026-11-10): 장 화면은 v17과 같고, 발표자 노트만 7회차 강의와 10분 발표에 맞춘다.
 // 장마다 말할 문장(합계 약 1,950자, 분당 250~300자로 7~8분, 장 넘김 포함 9분 안팎)을 앞에, 뺀 설명은 「■ 질의응답 참고」 뒤에 둔다. 첫 인사·마무리에 회사 이름과
 // 「[이름]」 자리(저장소가 공개라 실명 없음), 장 사이 연결 말, 10장 작성 메모 삭제. 새 숫자 없음. v17은 덮어쓰지 않는다.
@@ -201,7 +204,9 @@ function shot(s, file, x, y, w, ratio, label, o = {}) {
   return h;
 }
 // 장 기호(P·S·T)를 오른쪽 아래에 아주 옅게 깐다(6회차 강의 슬라이드의 큰 「P」). 카드보다 먼저 넣어 뒤에 깔리게 한다.
+// v19: 카드 뒤에서 반원·화살촉 조각처럼 잘려 보여 그리지 않는다. PITCH_MARK=1이면 v18까지 모습.
 function watermark(s, eyebrow, o = {}) {
+  if (process.env.PITCH_MARK !== "1") return;
   const L = eyebrow.trim()[0];
   // T(팀) 장은 카드 사이로 「T」 가로획만 조각처럼 비쳐 결함처럼 보여서 깔지 않는다
   if (!"PS".includes(L)) return;
@@ -409,7 +414,8 @@ if (QUIET) {
 
   // ===== P1. 고객과 고객이 겪는 일 =====
   s = lightSlide("P 문제 인식", "P · 문제 인식", "고객은 입찰 담당자, [[규칙표를 직접 찾음]]");
-  plate(s, { x: 5.0, y: 1.88, w: W - M - 5.0, h: 4.35, fill: K.slateTint, line: K.line });
+  // v19: 오른쪽 판은 왼쪽 카드와 같은 위·아래 선(1.95~6.15)에 맞춘다.
+  plate(s, { x: 5.2, y: 1.95, w: W - M - 5.2, h: 4.2, fill: K.slateTint, line: K.line, shadow: false });
   box(s, { x: M, y: 1.95, w: 4.3, h: 4.2, fill: K.bg, line: K.line, shadow: true });
   await iconCircle(s, "FaUserTie", M + 0.28, 2.15, 0.72, K.blue, K.blueTint);
   T(s, "입찰 담당자", { x: M + 1.16, y: 2.28, w: 2.9, h: 0.46, fontSize: 22, bold: true, color: K.ink });
@@ -425,56 +431,64 @@ if (QUIET) {
     ["FaPaperclip", "맞는 판을 직접 고름"],
     ["FaTriangleExclamation", "틀리면 탈락"]];
   for (let i = 0; i < 4; i++) {
-    const y = 2.08 + i * 0.68, red = i === 3;
-    T(s, `0${i + 1}`, { x: 5.25, y, w: 0.85, h: 0.58, fontSize: 28, bold: true, color: red ? K.red : K.blue, valign: "middle" });
-    await iconCircle(s, steps[i][0], 6.15, y + 0.08, 0.44, red ? K.white : K.blue, red ? K.red : K.blueTint);
-    T(s, steps[i][1], { x: 6.75, y, w: 5.9, h: 0.58, fontSize: 20, bold: true, color: red ? K.red : K.ink, valign: "middle" });
+    const y = 2.1 + i * 0.64, red = i === 3;
+    T(s, `0${i + 1}`, { x: 5.45, y, w: 0.85, h: 0.56, fontSize: 28, bold: true, color: red ? K.red : K.blue, valign: "middle" });
+    await iconCircle(s, steps[i][0], 6.3, y + 0.06, 0.44, red ? K.white : K.blue, red ? K.red : K.blueTint);
+    T(s, steps[i][1], { x: 6.9, y, w: 5.6, h: 0.56, fontSize: 20, bold: true, color: red ? K.red : K.ink, valign: "middle" });
   }
-  box(s, { x: 5.2, y: 4.85, w: W - M - 5.2, h: 1.28, fill: K.white, line: K.line });
-  T(s, "실제 예 · 인천광역시", { x: 5.4, y: 4.98, w: 2.3, h: 0.32, fontSize: 14, bold: true, color: K.ink });
-  for (const [x, t] of [[7.55, "2017-04-11본"], [10.2, "2017-12-13 개정본"]]) {
-    box(s, { x, y: 5.05, w: 2.4, h: 0.88, fill: K.bg, line: K.line, name: "doc" });
-    s.addImage({ data: await icon("FaFileLines", K.mute), x: x + 0.12, y: 5.22, w: 0.36, h: 0.48, objectName: nm("doc-icon") });
-    T(s, t, { x: x + 0.54, y: 5.22, w: 1.75, h: 0.52, fontSize: 14, bold: true, color: K.ink, valign: "middle" });
+  // 실제 예 칸은 판 안쪽 0.2인치 여백에 맞춘다(판 오른쪽 끝과 붙지 않게).
+  const exX = 5.4, exW = W - M - 0.2 - 5.4;
+  box(s, { x: exX, y: 4.8, w: exW, h: 1.15, fill: K.white, line: K.line });
+  T(s, "실제 예\n인천광역시", { x: exX + 0.2, y: 4.8, w: 1.5, h: 1.15, fontSize: 14, bold: true, color: K.ink, valign: "middle" });
+  const docW = 2.3, docX2 = exX + exW - 0.18 - docW, docX1 = docX2 - 0.42 - docW;
+  for (const [x, t] of [[docX1, "2017-04-11본"], [docX2, "2017-12-13 개정본"]]) {
+    box(s, { x, y: 4.94, w: docW, h: 0.86, fill: K.bg, line: K.line, name: "doc" });
+    s.addImage({ data: await icon("FaFileLines", K.mute), x: x + 0.12, y: 5.13, w: 0.36, h: 0.48, objectName: nm("doc-icon") });
+    T(s, t, { x: x + 0.54, y: 5.11, w: docW - 0.62, h: 0.52, fontSize: 14, bold: true, color: K.ink, valign: "middle" });
   }
-  s.addImage({ data: await icon("FaCircleQuestion", K.amber), x: 9.95, y: 5.36, w: 0.26, h: 0.26, objectName: nm("q") });
+  s.addImage({ data: await icon("FaCircleQuestion", K.amber), x: docX1 + docW + 0.12, y: 5.24, w: 0.26, h: 0.26, objectName: nm("q") });
   note(s, "옛 판과 고친 판이 함께 있음 · 면허 다른 업종은 제외");
   s.addNotes("입찰 공고를 열면, 본문에는 점수 규칙이 없습니다. 규칙표는 첨부 파일에만 있고, 기관과 날짜마다 다르며, 옛 판과 고친 판이 함께 있습니다. 네 업종 중소 용역업체의 입찰 담당자가 이것을 직접 고르고, 잘못 고르면 탈락할 수 있습니다. ■ 질의응답 참고(발표 때 읽지 않음): 실제 예는 인천광역시 계약정보의 2017-04-11본과 2017-12-13 개정본. 돈을 내는 사람은 회사 대표 또는 입찰 비용 결재자. 이름이 비슷해도 허가가 다른 업종은 제외. 고객 인터뷰와 지불 의사는 아직 확인 전.");
 
   // ===== P2. 문제의 근거: 뉴스·통계 =====
   s = lightSlide("P 문제 인식", "P · 문제 인식", "1년 새 하한율, [[세 번 · 2%p씩]]");
-  plate(s, { fill: K.slateTint, line: K.line, h: 4.42 });
-  box(s, { x: M, y: 1.95, w: 4.55, h: 1.72, fill: K.white, line: K.line, shadow: true });
-  T(s, "87.995%", { x: M + 0.22, y: 2.08, w: 4.1, h: 0.42, fontSize: 20, bold: true, color: K.mute, align: "center" });
-  T(s, "89.995%", { x: M + 0.22, y: 2.48, w: 4.1, h: 0.72, fontSize: 40, bold: true, color: K.blue, align: "center" });
-  T(s, "청소·경비 · 9년 만", { x: M + 0.22, y: 3.22, w: 4.1, h: 0.32, fontSize: 16, bold: true, color: K.ink, align: "center" });
-  box(s, { x: M + 4.75, y: 1.95, w: CW - 4.75, h: 1.72, fill: K.white, line: K.line, shadow: true });
-  s.addShape(pres.shapes.LINE, { x: M + 5.15, y: 2.55, w: CW - 5.55, h: 0, line: { color: K.blue2, width: 3 }, objectName: nm("tl") });
+  // v19: 상자 없이 큰 숫자·선·막대만. 위아래는 가로선, 좌우는 세로선으로 나눈다.
+  const rule = (x, y, w, h) => s.addShape(pres.shapes.LINE, { x, y, w, h, line: { color: K.line, width: 1.25 }, objectName: nm("rule") });
+  const leftW = 4.55, rightX = M + leftW + 0.4;
+  T(s, "87.995%", { x: M, y: 2.0, w: leftW, h: 0.42, fontSize: 20, bold: true, color: K.mute });
+  T(s, "89.995%", { x: M, y: 2.4, w: leftW, h: 0.8, fontSize: 48, bold: true, color: K.blue });
+  T(s, "청소·경비 · 9년 만", { x: M, y: 3.22, w: leftW, h: 0.34, fontSize: 16, bold: true, color: K.ink });
+  rule(M + leftW + 0.2, 2.0, 0, 1.6);
+  s.addShape(pres.shapes.LINE, { x: rightX + 0.3, y: 2.55, w: W - M - rightX - 0.6, h: 0, line: { color: K.blue2, width: 3 }, objectName: nm("tl") });
   const evs = [["2025-07-01", "지방계약 공사"], ["2026-01-30", "국가 시설공사"], ["2026-05-26", "일반용역"]];
+  const tlW = W - M - rightX;
   evs.forEach(([d, t], i) => {
-    const cx2 = M + 4.75 + (CW - 4.75) * (i * 2 + 1) / 6, hot = i === 2;
+    const cx2 = rightX + tlW * (i * 2 + 1) / 6, hot = i === 2;
     s.addShape(pres.shapes.OVAL, { x: cx2 - 0.13, y: 2.42, w: 0.26, h: 0.26, fill: { color: hot ? K.blue : K.amber }, line: { type: "none" }, objectName: nm("ev") });
-    T(s, d, { x: cx2 - 1.15, y: 2.74, w: 2.3, h: 0.28, fontSize: 13, bold: true, color: hot ? K.blue : K.amber, align: "center" });
-    T(s, t, { x: cx2 - 1.15, y: 3.02, w: 2.3, h: 0.32, fontSize: 14, bold: true, color: K.ink, align: "center" });
+    T(s, d, { x: cx2 - 1.15, y: 2.78, w: 2.3, h: 0.28, fontSize: 13, bold: true, color: hot ? K.blue : K.amber, align: "center" });
+    T(s, t, { x: cx2 - 1.15, y: 3.08, w: 2.3, h: 0.32, fontSize: 14, bold: true, color: K.ink, align: "center" });
   });
-  box(s, { x: M, y: 3.85, w: 6.2, h: 2.42, fill: K.white, line: K.line });
-  T(s, "분야마다 다른 하한율", { x: M + 0.28, y: 3.96, w: 5.7, h: 0.32, fontSize: 16, bold: true, color: K.ink });
+  rule(M, 3.82, CW, 0);
+  const barTop = 3.98, botLW = 6.2;
+  T(s, "분야마다 다른 하한율", { x: M, y: barTop, w: botLW, h: 0.32, fontSize: 16, bold: true, color: K.ink });
   const lows = [["시설(청소·경비)", 89.995], ["소프트웨어", 87.995], ["학술연구", 82.495], ["보험", 47.994]];
   lows.forEach(([n, v], i) => {
-    const y = 4.36 + i * 0.42, w = 2.6 * v / 100;
-    T(s, n, { x: M + 0.28, y, w: 2.35, h: 0.32, fontSize: 13, color: K.ink2, valign: "middle" });
-    box(s, { x: M + 2.65, y: y + 0.04, w, h: 0.24, fill: i === 0 ? K.blue : K.blue2, radius: 0.05, name: "low-bar" });
-    T(s, `${v}%`, { x: M + 2.72 + w, y, w: 0.95, h: 0.32, fontSize: 13, bold: true, color: K.ink, valign: "middle" });
+    const y = barTop + 0.46 + i * 0.44, w = 2.9 * v / 100;
+    T(s, n, { x: M, y, w: 2.2, h: 0.32, fontSize: 13, color: K.ink2, valign: "middle" });
+    box(s, { x: M + 2.25, y: y + 0.05, w, h: 0.24, fill: i === 0 ? K.blue : K.blue2, radius: 0.05, name: "low-bar" });
+    T(s, `${v}%`, { x: M + 2.33 + w, y, w: 0.95, h: 0.32, fontSize: 13, bold: true, color: K.ink, valign: "middle" });
   });
+  const fx0 = M + botLW + 0.4;
+  rule(fx0 - 0.2, barTop, 0, 2.2);
   const facts = [["142.1조원", "중소기업 수주 63.1%", "조달청 2025-06-27", K.blue],
     ["1.5%", "사람 자문 성공보수", "비드큐", K.red]];
   facts.forEach(([v, l, src, c], i) => {
-    const y = 3.85 + i * 1.21;
-    box(s, { x: M + 6.4, y, w: 5.73, h: 1.1, fill: K.white, line: K.line, shadow: true });
-    T(s, v, { x: M + 6.58, y: y + 0.12, w: 5.4, h: 0.52, fontSize: 32, bold: true, color: c });
-    T(s, `${l}  ·  ${src}`, { x: M + 6.62, y: y + 0.66, w: 5.3, h: 0.3, fontSize: 14, color: K.ink2 });
+    const y = barTop + i * 1.15;
+    T(s, v, { x: fx0 + 0.1, y, w: W - M - fx0 - 0.1, h: 0.6, fontSize: 36, bold: true, color: c });
+    T(s, `${l}  ·  ${src}`, { x: fx0 + 0.12, y: y + 0.62, w: W - M - fx0 - 0.12, h: 0.3, fontSize: 14, color: K.ink2 });
   });
-  note(s, "출처: 조달경제신문(2026-04-17·2026-05-23), 조달청 공고 제2026-260호, 조달청 보도자료(2025-06-27) · 이 장의 숫자는 외부 자료이며 BidBox 측정값 아님");
+  rule(fx0 + 0.1, barTop + 1.06, W - M - fx0 - 0.1, 0);
+  note(s, "출처: 조달경제신문(2026-04-17·2026-05-23), 조달청 공고 제2026-260호, 조달청 보도자료(2025-06-27) · 이 장의 숫자는 외부 자료이며 BidBox 측정값 아님", 6.43);
   s.addNotes("게다가 규칙은 계속 바뀝니다. 낙찰하한율이 1년 새 세 번, 2%포인트씩 올랐고, 청소·경비는 9년 만에 87.995%에서 89.995%가 됐습니다. ■ 질의응답 참고(발표 때 읽지 않음): 2025-07-01 지방계약 공사, 2026-01-30 국가계약 시설공사, 2026-05-26 공고부터 일반용역. 같은 고시 안에서도 분야마다 하한율이 다름. 중소기업 수주 142.1조원(63.1%, 조달청 2025-06-27). 사람 자문 성공보수 1.5%(비드큐).");
 
   pres.addSection({ title: "S 실현 가능성" });
@@ -528,7 +542,6 @@ if (QUIET) {
   // 근거: 제품 저장소 docker-compose.yml, src/tasks/scheduled_tasks.py, retrain_task.py (2026-11-06).
   // 매일 02:00 수집은 기본 실행에서 켜짐. 주간 재학습은 개발 실행·용역만, 승격은 수동. 운영 재학습은 꺼짐.
   s = lightSlide("S 실현 가능성", "S · 실현 가능성", "가져온 공고가 [[화면까지]]");
-  plate(s, { y: 2.32, h: 3.88, fill: K.white, line: K.line });
   chip(s, "매일 새벽 2시 · 켜 둠", M, 1.95, K.blue, K.blueTint, { w: 2.7, size: 13 });
   const daily = [
     ["FaCloudArrowDown", "나라장터에서 가져옴", "새 공고와 낙찰 결과"],
@@ -572,21 +585,21 @@ if (QUIET) {
     ["FaTree", "LightGBM", K.blue, K.blueTint, "예측 나무", "90.25%", "범위 안에 든 비율"],
     ["FaRobot", "RAG", K.blueDeep, K.blueTint, "근거 상담", "24/24", "없으면 거절"],
   ];
+  // v19: 세 카드는 같은 크기·같은 줄. 가운데 강조는 파란 테두리로만.
   const tw = (CW - 2 * 0.3) / 3;
-  const hug = 0.18;
-  for (const i of [0, 2, 1]) {
+  for (const i of [0, 1, 2]) {
     const [ic, tag, c, tint, t, num, out] = tools[i];
     const mid = i === 1;
-    const x = M + i * (tw + 0.3) - (mid ? 0.3 + hug : 0);
-    const y = mid ? 1.88 : 2.08;
-    const w = tw + (mid ? 2 * (0.3 + hug) : 0);
-    const h = mid ? 3.98 : 3.72;
+    const x = M + i * (tw + 0.3);
+    const y = 1.95;
+    const w = tw;
+    const h = 3.85;
     box(s, { x, y, w, h, fill: K.white, line: mid ? K.blue : K.line, lw: mid ? 1.5 : 1, shadow: true });
     await iconCircle(s, ic, x + 0.28, y + 0.22, 0.7, K.white, c);
     const chipW = Math.min(tag.length * 0.14 + 0.4, w - 1.3);
     chip(s, tag, x + w - 0.22 - chipW, y + 0.32, c, tint, { w: chipW });
     T(s, t, { x: x + 0.28, y: y + 1.08, w: w - 0.56, h: 0.4, fontSize: 18, bold: true, color: K.ink });
-    T(s, num, { x: x + 0.24, y: y + 1.55, w: w - 0.48, h: 0.95, fontSize: mid ? 44 : 36, bold: true, color: i === 0 ? K.ink : K.blue });
+    T(s, num, { x: x + 0.24, y: y + 1.55, w: w - 0.48, h: 0.95, fontSize: 40, bold: true, color: i === 0 ? K.ink : K.blue });
     s.addText(out, { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.1, x: x + 0.22, y: y + h - 0.78, w: w - 0.44, h: 0.52,
       fill: { color: tint }, line: { type: "none" }, fontFace: F, fontSize: 14, bold: true, color: i === 0 ? K.ink2 : K.blueDeep,
       align: "center", valign: "middle", margin: 0, objectName: nm("tool-out") });
@@ -595,7 +608,7 @@ if (QUIET) {
     { text: "규칙", options: { bold: true, color: K.ink } }, { text: "  →  ", options: { color: K.mute } },
     { text: "금액", options: { bold: true, color: K.blue } }, { text: "  →  ", options: { color: K.mute } },
     { text: "설명", options: { bold: true, color: K.blueDeep } },
-  ], { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.12, x: M, y: 6.08, w: CW, h: 0.52, fill: { color: K.slateTint }, line: { type: "none" },
+  ], { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.12, x: M, y: 6.1, w: CW, h: 0.52, fill: { color: K.slateTint }, line: { type: "none" },
     fontFace: F, fontSize: 20, align: "center", valign: "middle", margin: 0, objectName: nm("tools-sum") });
   s.addNotes("여기에 쓰는 도구는 세 가지입니다. 규칙 사전은 AI가 아니라 사람이 정리한 규칙표 206종입니다. 예측 나무는 지난 낙찰을 배운 머신러닝 LightGBM이고, 근거 상담은 근거를 먼저 찾고 그 근거로만 답하는 RAG입니다. ■ 질의응답 참고(발표 때 읽지 않음): 맞는 규칙이 없으면 직접 입력. 예측 범위 안에 실제 값이 든 비율 90.25%(3,589건, 2026-08-30). RAG는 딥러닝 언어 모델과 검색을 함께 씀. 예측 모델은 딥러닝이 아님.");
 
@@ -603,28 +616,28 @@ if (QUIET) {
   s = darkSlide("S 실현 가능성", "S · 실현 가능성", "근거 상담(RAG): [[없으면 답하지 않음]]");
   // 왼쪽: AI 어드바이저 실제 화면(2026-11-05 로컬 실행 캡처, 사용자 이름이 보이는 사이드바는 잘라 냄)
   const advW = 7.35, advH = advW / (1015 / 468), advY = 1.92;
-  plate(s, { x: M + advW - 0.28, y: 1.88, w: CW - advW + 0.28, h: advH + 0.16, fill: K.navy2, shadow: false });
   box(s, { x: M - 0.08, y: advY - 0.08, w: advW + 0.16, h: advH + 0.16, fill: K.navy3, radius: 0.12, shadow: true, name: "adv-frame" });
   s.addImage({ path: CAP("ai_advisor_rag.jpg"), x: M, y: advY, w: advW, h: advH, objectName: nm("adv-shot") });
   const rag = [["FaComments", "질문"], ["FaListCheck", "뜻 파악"], ["FaMagnifyingGlass", "세 길로 찾기"],
     ["FaDatabase", "근거 모으기"], ["FaRobot", "근거로 답"]];
-  const fx = M + advW + 0.18, fw = CW - advW - 0.18;
+  const fx = M + advW + 0.3, fw = CW - advW - 0.3;
+  const stepH = 0.52, stepGap = (advH - 5 * stepH) / 4;
   for (let i = 0; i < 5; i++) {
-    const y = 1.95 + i * 0.58, hot = i === 4;
-    box(s, { x: fx, y, w: fw, h: 0.5, fill: hot ? K.blue : K.navy2, line: hot ? K.blue : K.navy3, radius: 0.1 });
-    await iconCircle(s, rag[i][0], fx + 0.08, y + 0.07, 0.36, hot ? K.blue : K.skyOnDark, hot ? K.white : K.navy3);
-    T(s, `${i + 1}  ${rag[i][1]}`, { x: fx + 0.52, y, w: fw - 0.62, h: 0.5, fontSize: 15, bold: true, color: K.white, valign: "middle" });
+    const y = advY + i * (stepH + stepGap), hot = i === 4;
+    box(s, { x: fx, y, w: fw, h: stepH, fill: hot ? K.blue : K.navy2, line: hot ? K.blue : K.navy3, radius: 0.1 });
+    await iconCircle(s, rag[i][0], fx + 0.08, y + 0.08, 0.36, hot ? K.blue : K.skyOnDark, hot ? K.white : K.navy3);
+    T(s, `${i + 1}  ${rag[i][1]}`, { x: fx + 0.52, y, w: fw - 0.62, h: stepH, fontSize: 15, bold: true, color: K.white, valign: "middle" });
   }
   // 품질 숫자. 칸 너비 약 1.9인치라 32pt 「144/144」은 넘친다. 칸이 담는 최대인 28pt.
   const rq = [["144/144", "숫자 정답"], ["1.0", "근거를 다시 찾음"], ["72/72", "출처 인용"], ["24/24", "거절해야 할 질문"], ["0건", "근거 없는 답"], ["2.66초", "가장 느린 쪽 첫 글자"]];
   const qGap = 0.14, qw = (CW - 5 * qGap) / 6;
   rq.forEach(([v, l], i) => {
     const x = M + i * (qw + qGap);
-    box(s, { x, y: 5.42, w: qw, h: 0.86, fill: K.navy2, line: K.navy3, radius: 0.1 });
-    T(s, v, { x: x + 0.04, y: 5.44, w: qw - 0.08, h: 0.44, fontSize: 20, bold: true, color: K.skyOnDark, align: "center" });
-    T(s, l, { x: x + 0.04, y: 5.86, w: qw - 0.08, h: 0.34, fontSize: 11, color: K.onDarkMute, align: "center" });
+    box(s, { x, y: 5.55, w: qw, h: 0.8, fill: K.navy2, line: K.navy3, radius: 0.1 });
+    T(s, v, { x: x + 0.04, y: 5.58, w: qw - 0.08, h: 0.42, fontSize: 20, bold: true, color: K.skyOnDark, align: "center" });
+    T(s, l, { x: x + 0.04, y: 5.99, w: qw - 0.08, h: 0.3, fontSize: 11, color: K.onDarkMute, align: "center" });
   });
-  note(s, "96요청 평가 · 첫 글자 2,664.19ms · 화면 2026-11-05 · 서비스 안 모델", 6.4, true);
+  note(s, "96요청 평가 · 첫 글자 2,664.19ms · 화면 2026-11-05 · 서비스 안 모델", 6.45, true);
   s.addNotes("근거 상담은 근거가 없으면 답하지 않습니다. 왼쪽 화면처럼, 찾은 문서에 내용이 없자 지어내지 않고 답할 수 없다고 했습니다. 96개 요청 평가에서 숫자 정답 144/144를 지켰습니다. ■ 질의응답 참고(발표 때 읽지 않음): 뜻으로·제목 글자로 찾고 숫자는 데이터베이스에서 바로 조회. 서비스 안 언어 모델이 출처를 달아 답함. 출처 인용 72/72, 거절해야 할 질문 24/24, 근거 없는 답 0건, 가장 느린 쪽 첫 글자 2,664.19ms.");
 
   // ===== 11. 세 가지 금액 + 확인된 규칙만 =====
@@ -648,9 +661,10 @@ if (QUIET) {
   box(s, { x: rx - 0.08, y: 1.87, w: rw + 0.16, h: rw / rr + 0.16, fill: K.navy3, radius: 0.12, shadow: true, name: "rule-frame" });
   s.addImage({ path: CAP("detail_rule.jpg"), x: rx, y: 1.95, w: rw, h: rw / rr, objectName: nm("rule-shot") });
   const ruleBottom = 1.95 + rw / rr;
-  box(s, { x: rx, y: ruleBottom + 0.16, w: rw, h: 1.05, fill: K.white, line: K.line, radius: 0.12, shadow: true });
-  T(s, "금액을 비우고 직접 입력", { x: rx + 0.2, y: ruleBottom + 0.26, w: rw - 0.4, h: 0.34, fontSize: 16, bold: true, color: K.red });
-  T(s, "0원 추천 없음   ·   비예가 계산 안 함   ·   협상은 분포만", { x: rx + 0.2, y: ruleBottom + 0.64, w: rw - 0.4, h: 0.36, fontSize: 14, color: K.ink2 });
+  const redY = ruleBottom + 0.38, redH = 1.95 + 4.35 - redY;
+  box(s, { x: rx - 0.08, y: redY, w: rw + 0.16, h: redH, fill: K.white, line: K.line, radius: 0.12, shadow: true });
+  T(s, "금액을 비우고 직접 입력", { x: rx + 0.14, y: redY + 0.12, w: rw - 0.28, h: 0.34, fontSize: 16, bold: true, color: K.red });
+  T(s, "0원 추천 없음   ·   비예가 계산 안 함   ·   협상은 분포만", { x: rx + 0.14, y: redY + 0.5, w: rw - 0.28, h: 0.34, fontSize: 14, color: K.ink2 });
   s.addNotes("금액도 같은 원칙입니다. 확인된 규칙이 있을 때만 계산하고, 없으면 금액을 비워 직접 입력하게 합니다. ■ 질의응답 참고(발표 때 읽지 않음): 금액이 없는 공고에 0원 추천 없음. 비예가는 가격점수 계산 안 함. 협상에 의한 계약은 평가비율과 낙찰률 참고 분포만.");
 
   // ===== 12. 경쟁 비교 OX =====
@@ -704,7 +718,7 @@ if (QUIET) {
   stat.forEach(([n, l, c, t], i) => {
     s.addText(String(n), { shape: pres.shapes.OVAL, x: panelX + 0.2, y: 3.35 + i * 0.52, w: 0.4, h: 0.4, fill: { color: t }, line: { type: "none" },
       fontFace: F, fontSize: 14, bold: true, color: c, align: "center", valign: "middle", margin: 0, objectName: nm("count") });
-    T(s, l, { x: panelX + 0.72, y: 3.37 + i * 0.52, w: 2.5, h: 0.36, fontSize: 13, color: K.onDarkMute });
+    T(s, l, { x: panelX + 0.72, y: 3.35 + i * 0.52, w: 2.5, h: 0.4, fontSize: 13, color: K.onDarkMute, valign: "middle" });
   });
   T(s, "협약 중\n운영 주소 · 결제 · 약관\n보안 · 시험 기록 · 지자체", { x: panelX + 0.2, y: 4.95, w: 3.05, h: 0.78, fontSize: 14, color: K.onDarkMute });
   s.addText([{ text: "특허 1건 · 7개월차", options: { bold: true, color: K.white } }],
@@ -714,7 +728,7 @@ if (QUIET) {
 
   // ===== 14. 협약 8개월 일정 =====
   s = lightSlide("S 실현 가능성", "S · 실현 가능성", "8개월, [[유료 전환까지]]");
-  plate(s, { y: 2.58, h: 2.78, fill: K.white, line: K.line });
+  plate(s, { y: 2.62, h: 2.02, fill: K.white, line: K.line, shadow: false });
   const half = (CW - 0.3) / 2;
   s.addText([{ text: "1단계 · 1~4개월   ", options: { bold: true, color: K.blue } }, { text: "2,000만 원", options: { bold: true, color: K.ink } }],
     { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.12, x: M, y: 1.95, w: half, h: 0.58, fill: { color: K.blueTint }, line: { type: "none" },
@@ -747,34 +761,43 @@ if (QUIET) {
   // ===== 16. 시장 =====
   s = lightSlide("S 성장전략", "S · 성장전략", "[[7,494억원]]부터",
     { x: 11.2, y: 3.6, w: 2.2, h: 3.4, size: 180 });
-  // 강의 3쪽: 카드 없이 숫자 세 개가 장의 중심. 원은 크기만 비교하고 글자는 원 밖에 둔다.
+  // v19: 왼쪽은 넓이가 금액에 비례하는 겹친 원(아래 맞춤), 오른쪽은 TAM·SAM·SOM 줄과 같은 출발선의 업종 막대.
+  // 지름 비율 = √(금액 비율). SAM/TAM 10.2/55.1, SOM/TAM 0.7494/55.1.
+  const dT = 3.6, cx0 = M + 2.05, base = 5.72;
+  const circ = [["TAM", dT, "DCEBFB", K.ink2], ["SAM", dT * Math.sqrt(10.2 / 55.1), K.blue2, K.ink], ["SOM", dT * Math.sqrt(0.7494 / 55.1), K.blue, K.white]];
+  circ.forEach(([k, d, fill, ink]) => {
+    s.addShape(pres.shapes.OVAL, { x: cx0 - d / 2, y: base - d, w: d, h: d, fill: { color: fill }, line: { color: K.white, width: 1.5 }, objectName: nm(k) });
+    if (k !== "SOM") T(s, k, { x: cx0 - 0.6, y: base - d + 0.16, w: 1.2, h: 0.3, fontSize: 13, bold: true, color: ink, align: "center" });
+  });
+  const dS = circ[2][1];
+  T(s, "SOM", { x: cx0 + dS / 2 + 0.08, y: base - dS / 2 - 0.15, w: 0.8, h: 0.3, fontSize: 12, bold: true, color: K.blue, valign: "middle" });
+  T(s, "원 넓이는 금액 비율", { x: M, y: 5.8, w: 4.1, h: 0.28, fontSize: 11, color: K.mute, align: "center" });
+  const mx = M + 4.6, mW2 = W - M - mx;
   const markets = [
-    ["TAM", "전체 시장", "55.1조원", "국내 공공조달 용역 계약", "2024 · 조달청 (2025-06-27)", 1.15, K.blue2, K.blue],
-    ["SAM", "닿을 수 있는 시장", "10.2조원", "나라장터 용역 적격심사 낙찰 20,824건", "2025 · 나라장터 낙찰결과 집계", 0.82, K.blue3, K.blueDeep],
-    ["SOM", "처음 들어갈 시장", "7,494억원+", "네 업종 면허 적격심사 낙찰 1,869건", "2025-09-15~2026-09-14 · 하한", 0.52, K.blue, K.white],
+    ["TAM", "전체 시장", "55.1조원", "국내 공공조달 용역 계약", "2024 · 조달청 (2025-06-27)"],
+    ["SAM", "닿을 수 있는 시장", "10.2조원", "나라장터 용역 적격심사 낙찰 20,824건", "2025 · 나라장터 낙찰결과 집계"],
+    ["SOM", "처음 들어갈 시장", "7,494억원+", "네 업종 면허 적격심사 낙찰 1,869건", "2025-09-15~2026-09-14 · 하한"],
   ];
-  const mGap = 0.28, mW = (CW - 2 * mGap) / 3;
-  markets.forEach(([k, role, num, what, src, d, fill, numColor], i) => {
-    const x = M + i * (mW + mGap);
-    s.addShape(pres.shapes.OVAL, { x: x + 0.02, y: 2.68 - d / 2, w: d, h: d, fill: { color: fill }, line: { type: "none" }, objectName: nm(k) });
-    T(s, k, { x: x + d + 0.12, y: 2.28, w: mW - d - 0.16, h: 0.26, fontSize: 13, bold: true, color: K.blue });
-    T(s, role, { x: x + d + 0.12, y: 2.54, w: mW - d - 0.16, h: 0.28, fontSize: 13, color: K.mute });
-    T(s, num, { x, y: 3.32, w: mW, h: 0.58, fontSize: i === 2 ? 28 : 32, bold: true, color: i === 2 ? K.blue : K.ink });
-    T(s, what, { x, y: 3.92, w: mW - 0.08, h: 0.52, fontSize: 14, color: K.ink2 });
-    T(s, src, { x, y: 4.44, w: mW - 0.08, h: 0.36, fontSize: 12, color: K.mute });
+  markets.forEach(([k, role, num, what, src], i) => {
+    const y = 1.95 + i * 0.86, som = i === 2;
+    T(s, k, { x: mx, y: y + 0.04, w: 1.55, h: 0.3, fontSize: 14, bold: true, color: som ? K.blue : K.ink2 });
+    T(s, role, { x: mx, y: y + 0.36, w: 1.55, h: 0.3, fontSize: 12, color: K.mute });
+    T(s, num, { x: mx + 1.6, y, w: 2.4, h: 0.66, fontSize: 30, bold: true, color: som ? K.blue : K.ink, valign: "middle" });
+    T(s, what, { x: mx + 4.05, y: y + 0.04, w: mW2 - 4.05, h: 0.3, fontSize: 12, color: K.ink2 });
+    T(s, src, { x: mx + 4.05, y: y + 0.36, w: mW2 - 4.05, h: 0.3, fontSize: 11, color: K.mute });
+    if (i < 2) s.addShape(pres.shapes.LINE, { x: mx, y: y + 0.78, w: mW2, h: 0, line: { color: K.line, width: 1 }, objectName: nm("mkt-rule") });
   });
-  s.addShape(pres.shapes.LINE, { x: M, y: 4.9, w: CW, h: 0, line: { color: K.line, width: 1.25 }, objectName: nm("mkt-rule") });
-  T(s, "SOM 업종별 낙찰 (억원)", { x: M, y: 5.0, w: 4.2, h: 0.28, fontSize: 14, bold: true, color: K.ink });
+  T(s, "SOM 업종별 낙찰 (억원)", { x: mx, y: 4.62, w: 4.2, h: 0.3, fontSize: 14, bold: true, color: K.ink });
   const som = [["위생관리", 5316, "1,319건"], ["경비업", 3471, "651건"], ["파견", 642, "220건"]];
+  const barX = mx + 1.3, barMax = mW2 - 1.3 - 1.9;
   som.forEach(([n, v, c], i) => {
-    const x = M + i * (mW + mGap);
-    const barW = Math.max(0.35, (mW - 1.15) * v / 5316);
-    T(s, n, { x, y: 5.32, w: 1.35, h: 0.26, fontSize: 14, bold: true, color: K.ink2 });
-    T(s, c, { x: x + 1.38, y: 5.32, w: 1.15, h: 0.26, fontSize: 12, color: K.mute });
-    box(s, { x, y: 5.64, w: barW, h: 0.32, fill: i === 0 ? K.blue : K.blue3, radius: 0.06, name: "som-bar" });
-    T(s, v.toLocaleString("en-US"), { x: x + barW + 0.08, y: 5.6, w: 0.95, h: 0.38, fontSize: 16, bold: true, color: K.ink, valign: "middle" });
+    const y = 5.0 + i * 0.4, bw2 = barMax * v / 5316;
+    T(s, n, { x: mx, y, w: 1.25, h: 0.32, fontSize: 13, bold: true, color: K.ink2, valign: "middle" });
+    box(s, { x: barX, y: y + 0.04, w: bw2, h: 0.24, fill: i === 0 ? K.blue : K.blue3, radius: 0.05, name: "som-bar" });
+    T(s, [{ text: v.toLocaleString("en-US"), options: { bold: true, color: K.ink } }, { text: "  " + c, options: { color: K.mute, fontSize: 12 } }],
+      { x: barX + bw2 + 0.1, y, w: 1.8, h: 0.32, fontSize: 14, valign: "middle" });
   });
-  T(s, "고객 계약액(매출 아님) · SOM은 하한(면허 56%, 업종 중복) · 직업소개 20건·39억, 낙찰 0건", { x: M, y: 6.12, w: CW, h: 0.32, fontSize: 13, color: K.mute });
+  T(s, "고객 계약액(매출 아님) · SOM은 하한(면허 56%, 업종 중복) · 직업소개 20건·39억, 낙찰 0건", { x: M, y: 6.25, w: CW, h: 0.32, fontSize: 13, color: K.mute });
   s.addNotes("시장은 공공조달 용역 55.1조원, 그중 나라장터 용역 적격심사 10.2조원이고, 처음 들어갈 네 업종은 7,494억원 이상입니다. 모두 고객이 따는 계약 금액이고 저희 매출이 아닙니다. ■ 질의응답 참고(발표 때 읽지 않음): TAM 2024년, 조달청 2025-06-27. SAM 2025년 20,824건. SOM 2025-09-15~2026-09-14, 1,869건. SOM은 하한(면허 정보가 있는 공고가 금액의 56%, 업종 중복). 위생관리 5,316억원, 경비업 3,471억원, 파견 642억원. 직업소개 20건·39억원, 적격심사 낙찰 0건.");
 
   // ===== 17. 비즈니스 모델 =====
@@ -806,11 +829,11 @@ if (QUIET) {
   // ===== 영업·홍보 전략 (강의 38~40쪽) =====
   s = lightSlide("S 성장전략", "S · 성장전략", "무료로 써 보고, [[시험 사용]]");
   const saleW = (CW - 0.3) / 2, saleH = 3.95;
-  plate(s, { h: 4.05, fill: K.slateTint, line: K.line });
   box(s, { x: M, y: 1.95, w: saleW, h: saleH, fill: K.navy, radius: 0.14, shadow: true });
   chip(s, "01 온라인", M + 0.22, 2.1, K.white, K.blue, { w: 1.35, h: 0.34, size: 12 });
   T(s, "첫 접점", { x: M + 1.7, y: 2.08, w: saleW - 1.95, h: 0.38, fontSize: 16, bold: true, color: K.white, valign: "middle" });
-  const webW = saleW - 0.15, webH = webW / (1530 / 661);
+  // v19: 화면이 남색 카드 오른쪽 끝을 넘지 않게 좌우 0.28인치 안에 둔다.
+  const webW = saleW - 0.56, webH = webW / (1530 / 661);
   const webX = M + 0.28;
   const onl = [["FaGift", "무료 입구 · 지금", "검색·대시보드"], ["FaMagnifyingGlass", "소개 180만 · 모집 300만", "4개월차"]];
   for (let i = 0; i < 2; i++) {
@@ -846,27 +869,31 @@ if (QUIET) {
 
   // ===== 18. 고객 검증·진입 =====
   s = lightSlide("S 성장전략", "S · 성장전략", "지불 의사는 [[시험 사용으로]]");
-  plate(s, { x: 7.15, y: 1.88, w: W - M - 7.15, h: 4.48, fill: K.white, line: K.line });
-  const fun = [["무료 입구", "지금", 6.6, K.blueTint, K.ink], ["10사", "4개월차", 5.5, K.blue2, K.ink],
-    ["20사", "6개월차 · 가설", 4.4, K.blue, K.white], ["8사", "8개월차 · 가설", 3.3, K.blueDeep, K.white]];
+  // v19: 깔때기는 왼쪽 칸(폭 6.25) 가운데에, 오른쪽 카드와 0.3인치 띄운다.
+  const funColW = 7.15 - 0.3 - M;
+  const fun = [["무료 입구", "지금", funColW, K.blueTint, K.ink], ["10사", "4개월차", funColW - 1.1, K.blue2, K.ink],
+    ["20사", "6개월차 · 가설", funColW - 2.2, K.blue, K.white], ["8사", "8개월차 · 가설", funColW - 3.3, K.blueDeep, K.white]];
   fun.forEach(([a, b, w, f, c], i) => {
-    const y = 1.95 + i * 1.08, x = M + (6.55 - w) / 2;
+    const y = 1.95 + i * 1.08, x = M + (funColW - w) / 2;
     s.addText([{ text: a, options: { bold: true, fontSize: 26, breakLine: true } }, { text: b, options: { fontSize: 14 } }],
       { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.14, x, y, w, h: 0.96, fill: { color: f }, line: { type: "none" },
         fontFace: F, color: c, align: "center", valign: "middle", margin: 0, objectName: nm("funnel") });
   });
   box(s, { x: 7.15, y: 1.95, w: 5.55, h: 2.15, fill: K.greenTint, radius: 0.14, shadow: true });
   T(s, "지금 있는 근거", { x: 7.35, y: 2.08, w: 5.15, h: 0.32, fontSize: 14, bold: true, color: K.green });
-  T(s, "505,271", { x: 7.35, y: 2.38, w: 5.15, h: 0.48, fontSize: 32, bold: true, color: K.ink });
-  T(s, "공고 색인", { x: 7.35, y: 2.86, w: 5.15, h: 0.26, fontSize: 14, color: K.ink2 });
-  T(s, "31,305", { x: 7.35, y: 3.16, w: 5.15, h: 0.44, fontSize: 28, bold: true, color: K.ink });
-  T(s, "규칙 판정", { x: 7.35, y: 3.6, w: 5.15, h: 0.26, fontSize: 14, color: K.ink2 });
+  T(s, "505,271", { x: 7.35, y: 2.36, w: 5.15, h: 0.52, fontSize: 32, bold: true, color: K.ink });
+  T(s, "공고 색인", { x: 7.35, y: 2.94, w: 5.15, h: 0.26, fontSize: 14, color: K.ink2 });
+  T(s, "31,305", { x: 7.35, y: 3.22, w: 5.15, h: 0.48, fontSize: 28, bold: true, color: K.ink });
+  T(s, "규칙 판정", { x: 7.35, y: 3.76, w: 5.15, h: 0.26, fontSize: 14, color: K.ink2 });
   box(s, { x: 7.15, y: 4.28, w: 5.55, h: 2.0, fill: K.amberTint, radius: 0.14, shadow: true });
   T(s, "협약 중 확보", { x: 7.35, y: 4.42, w: 5.15, h: 0.32, fontSize: 14, bold: true, color: K.amber });
-  T(s, "거래처", { x: 7.4, y: 4.9, w: 1.7, h: 0.4, fontSize: 18, bold: true, color: K.ink, align: "center" });
-  T(s, "인터뷰", { x: 9.1, y: 4.9, w: 1.7, h: 0.4, fontSize: 18, bold: true, color: K.ink, align: "center" });
-  T(s, "지불 의사", { x: 10.7, y: 4.9, w: 1.8, h: 0.4, fontSize: 18, bold: true, color: K.ink, align: "center" });
-  T(s, "2곳", { x: 7.35, y: 5.45, w: 5.15, h: 0.55, fontSize: 28, bold: true, color: K.amber, align: "center" });
+  // v19: 「2곳」이 인터뷰 밑에 놓여 「인터뷰 2곳」으로 읽혀서, 줄마다 이름과 값을 붙인다(값은 장·노트에 있던 사실).
+  const sec = [["거래처", "대행·교육 기관 2곳"], ["인터뷰", "확인 전"], ["지불 의사", "유료 8사 · 가설"]];
+  sec.forEach(([k, v], i) => {
+    const y = 4.82 + i * 0.44;
+    T(s, k, { x: 7.35, y, w: 1.6, h: 0.38, fontSize: 16, bold: true, color: K.ink, valign: "middle" });
+    T(s, v, { x: 8.95, y, w: 3.55, h: 0.38, fontSize: 16, bold: i === 0, color: i === 0 ? K.amber : K.ink2, valign: "middle", align: "right" });
+  });
   note(s, "낙찰 대행은 목표 아님 · 없는 횟수는 가설");
   s.addNotes("아직 매출과 고객이 없습니다. 고객 인터뷰와 지불 의사도 확인 전이라, 시험 사용 10사, 20사, 유료 8사 순서로 직접 확인하겠습니다. ■ 질의응답 참고(발표 때 읽지 않음): 10사는 4개월차, 사용 기록과 이용권 구매 의사. 20사는 6개월차, 비수도권 10사 이상(가설). 유료 8사는 8개월차(가설). 지금 근거는 공고 505,271건 색인과 31,305건 규칙 판정. 입찰 횟수·검토 시간·비용은 시험 사용에서 잼.");
 
@@ -900,7 +927,6 @@ if (QUIET) {
 
   // ===== 20. 자금 =====
   s = darkSlide("S 성장전략", "S · 성장전략", "정부지원 [[4,000만 원]]");
-  plate(s, { x: 8.22, y: 1.88, w: 4.5, h: 4.22, fill: K.navy2, shadow: false });
   // 누적 막대도 도형으로(구글 변환 때 차트 숫자 형식이 빠짐). 단위 만원, 합계 각 2,000.
   // 밝은 칸 글자는 남색. 1E3A5F는 남색 바탕에서 사라지므로 어두운 장 토큰으로 바꾼다.
   T(s, "정부지원사업비 집행계획 (만원)", { x: M, y: 1.95, w: 7.6, h: 0.36, fontSize: 16, bold: true, color: K.white });
@@ -909,29 +935,31 @@ if (QUIET) {
     ["2단계", [["인건비(영업 담당)", 1000, "1,000"], ["지급수수료", 579.836, "580"], ["무형자산(상표·특허)", 300, "300"], ["광고선전비", 120.164, "120"]]]];
   const bw0 = 6.55, bx1 = M + 1.05;
   stages.forEach(([n, segs], i) => {
-    const y = 2.48 + i * 1.35;
-    T(s, n, { x: M, y, w: 0.95, h: 1.15, fontSize: 16, bold: true, color: K.white, valign: "middle" });
+    const y = 2.55 + i * 1.15;
+    T(s, n, { x: M, y, w: 0.95, h: 0.8, fontSize: 16, bold: true, color: K.white, valign: "middle" });
     let xx = bx1;
     for (const [k, v, lab] of segs) {
       const w = bw0 * v / 2000;
-      s.addText(lab, { shape: pres.shapes.RECTANGLE, x: xx, y, w, h: 1.15, fill: { color: BC[k] }, line: { color: K.navy, width: 1.25 },
+      s.addText(lab, { shape: pres.shapes.RECTANGLE, x: xx, y, w, h: 0.8, fill: { color: BC[k] }, line: { color: K.navy, width: 1.25 },
         fontFace: F, fontSize: w < 0.55 ? 11 : 14, bold: true, color: K.navy, align: "center", valign: "middle", margin: 0, objectName: nm("budget-seg") });
       xx += w;
     }
   });
   Object.entries(BC).forEach(([k, c], i) => {
-    const x = M + (i % 3) * 2.55, y = 5.3 + Math.floor(i / 3) * 0.38;
+    const x = M + 1.05 + (i % 3) * 2.2, y = 4.95 + Math.floor(i / 3) * 0.4;
     s.addShape(pres.shapes.RECTANGLE, { x, y: y + 0.08, w: 0.22, h: 0.22, fill: { color: c }, line: { type: "none" }, objectName: nm("legend-key") });
-    T(s, k, { x: x + 0.32, y, w: 2.15, h: 0.36, fontSize: 12, color: K.white });
+    T(s, k, { x: x + 0.32, y, w: 1.85, h: 0.36, fontSize: 12, color: K.white, valign: "middle" });
   });
   const fund = [["정부지원 1단계", "2,000만 원", "1~4개월", K.skyOnDark], ["정부지원 2단계", "2,000만 원", "중간평가 후", K.skyOnDark],
     ["매출", "연 80만 원", "8사 × 100이용권 · 가설", K.amberOnDark], ["엔젤·시드", "미확인", "일정 없음", K.onDarkMute]];
+  // v19: 이름·설명은 한 줄(작은 글자), 금액은 그 아래 한 줄. 칸 높이 안에서 줄이 겹치지 않게 띄운다.
+  const fx1 = 8.5, fw1 = W - M - fx1, fh = 0.98, fg = 0.12;
   fund.forEach(([a, v, d, c], i) => {
-    const y = 1.95 + i * 1.02;
-    box(s, { x: 8.5, y, w: 4.23, h: 0.92, fill: K.navy3, radius: 0.12 });
-    T(s, a, { x: 8.66, y: y + 0.04, w: 3.92, h: 0.24, fontSize: 13, bold: true, color: K.white });
-    T(s, v, { x: 8.66, y: y + 0.26, w: 3.92, h: 0.4, fontSize: 26, bold: true, color: c });
-    T(s, d, { x: 8.66, y: y + 0.64, w: 3.92, h: 0.24, fontSize: 12, color: K.onDarkMute });
+    const y = 1.95 + i * (fh + fg);
+    box(s, { x: fx1, y, w: fw1, h: fh, fill: K.navy3, radius: 0.12 });
+    T(s, [{ text: a, options: { bold: true, color: K.white } }, { text: "  ·  " + d, options: { color: K.onDarkMute } }],
+      { x: fx1 + 0.18, y: y + 0.1, w: fw1 - 0.36, h: 0.3, fontSize: 12, valign: "middle" });
+    T(s, v, { x: fx1 + 0.18, y: y + 0.42, w: fw1 - 0.36, h: 0.5, fontSize: 26, bold: true, color: c, valign: "middle" });
   });
   T(s, "대표자 인건비 없음 · 현물 출자 없음 · 월 운영비 3,468,720원", { x: M, y: 6.28, w: CW, h: 0.3, fontSize: 13, color: K.onDarkMute });
   s.addNotes("필요한 돈은 정부지원 1단계와 2단계 각 2,000만 원이고, 2단계는 중간평가를 통과한 뒤에만 씁니다. 대표자 인건비는 넣지 않았습니다. ■ 질의응답 참고(발표 때 읽지 않음): 1단계 외주용역 800만, 지급수수료 720만, 광고선전비 480만. 2단계 영업 담당 인건비 1,000만, 지급수수료 5,798,360원, 상표·특허 300만, 광고선전비 1,201,640원. 현물 출자 없음. 엔젤·시드 일정 없음. 월 운영비 3,468,720원은 3차 회의 견적.");
@@ -945,7 +973,6 @@ if (QUIET) {
   for (let i = 0; i < 3; i++) {
     const [L, ic, t, d, g, when] = esg[i], x = M + i * (ew + 0.3);
     box(s, { x, y: 1.95, w: ew, h: 4.2, fill: K.white, line: K.line, shadow: true });
-    T(s, L, { x: x + ew - 1.85, y: 2.15, w: 1.7, h: 1.55, fontSize: 88, bold: true, color: "E4EAF2", align: "right" });
     s.addText(L, { shape: pres.shapes.OVAL, x: x + 0.25, y: 2.15, w: 0.52, h: 0.52, fill: { color: L === "G" ? K.navy3 : K.blue }, line: { type: "none" },
       fontFace: F, fontSize: 18, bold: true, color: K.white, align: "center", valign: "middle", margin: 0, objectName: nm("esg-letter") });
     s.addImage({ data: await icon(ic, K.blue2), x: x + ew - 0.78, y: 2.15, w: 0.5, h: 0.5, objectName: nm("esg-icon") });
@@ -962,7 +989,6 @@ if (QUIET) {
 
   // ===== 23. 팀 =====
   s = lightSlide("T 팀 구성", "T · 팀 구성", "대표자가 [[직접 구현]]");
-  plate(s, { x: 6.9, y: 1.88, w: W - M - 6.9, h: 4.5, fill: K.slateTint, line: K.line });
   box(s, { x: M, y: 1.95, w: 6.2, h: 4.35, fill: K.bg, line: K.line, shadow: true });
   await iconCircle(s, "FaUserTie", M + 0.28, 2.12, 0.78, K.white, K.blue);
   T(s, "대표자", { x: M + 1.22, y: 2.16, w: 3, h: 0.4, fontSize: 22, bold: true, color: K.ink });
@@ -1002,13 +1028,13 @@ if (QUIET) {
   T(s, "확인된 규칙만\n계산하는 도우미", { x: M, y: 1.7, w: 10.5, h: 1.9, fontSize: 44, bold: true, color: K.white, lineSpacingMultiple: 1.05 });
   const fin = [["206종", "공고에 맞는 계산 규칙"], ["31,305건", "최근 12개월 규칙 판정"], ["0원", "금액 없는 공고 추천"]];
   const finW = 3.86, finGap = 0.28;
-  for (const i of [0, 2, 1]) {
+  // v19: 가운데만 떠 있던 카드를 없애고, 세 숫자를 같은 줄에 윗선으로 나눈다.
+  for (let i = 0; i < 3; i++) {
     const [v, l] = fin[i];
     const x = M + i * (finW + finGap);
-    const y = i === 1 ? 3.9 : 4.12;
-    box(s, { x, y, w: finW, h: i === 1 ? 1.5 : 1.28, fill: K.navy3, line: K.navy2, radius: 0.16, shadow: true });
-    T(s, v, { x: x + 0.22, y: 4.2, w: finW - 0.44, h: 0.65, fontSize: 28, bold: true, color: K.skyOnDark });
-    T(s, l, { x: x + 0.22, y: 4.88, w: finW - 0.44, h: 0.35, fontSize: 14, color: K.onDarkMute });
+    s.addShape(pres.shapes.LINE, { x, y: 4.05, w: finW, h: 0, line: { color: K.navy3, width: 2 }, objectName: nm("fin-rule") });
+    T(s, v, { x, y: 4.2, w: finW, h: 0.7, fontSize: 36, bold: true, color: K.skyOnDark });
+    T(s, l, { x, y: 4.92, w: finW, h: 0.35, fontSize: 14, color: K.onDarkMute });
   }
   T(s, "감사합니다 · 질문 받겠습니다", { x: M, y: 5.9, w: 8, h: 0.5, fontSize: 22, bold: true, color: K.white });
   T(s, "Narani · 낙찰 보증 없음, 세 가지 금액은 참고 정보", { x: M, y: 6.5, w: 8, h: 0.35, fontSize: 12, color: K.onDarkMute });
