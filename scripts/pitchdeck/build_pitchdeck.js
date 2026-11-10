@@ -1,6 +1,7 @@
 // BidBox 피치덱(.pptx) 생성기
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
+// v21 (2026-11-10): v20에서 8·11장 연결망의 선과 점만 진하게 한다(사용자 지시). 그 밖은 v20과 같다.
 // v20 (2026-11-10): v19에 어두운 장 다섯 장(1·8·11·18·21)의 코드로 그린 추상 무늬 바탕을 기본으로 넣는다
 // (시안_추상배경_20261110 채택, 18장 동심원은 더 진하게). 문장·숫자·노트는 v19와 같다. v19는 덮어쓰지 않는다.
 // v19 (2026-11-10): 문장·숫자·노트는 v18과 같고 디자인만 정리한다. 워터마크·카드 뒤 판(plate)을 걷어
@@ -214,16 +215,23 @@ async function bgImage(kind, seed = 7) {
       let x = r() * PW, y = r() * PH;
       const cx = Math.abs(x - PW / 2) / (PW / 2), cy = Math.abs(y - PH / 2) / (PH / 2);
       if (Math.max(cx, cy) < 0.55 && r() < 0.7) { x = r() < 0.5 ? r() * PW * 0.12 : PW - r() * PW * 0.12; }
+      // v21: 눈썹·제목 자리(왼쪽 위)와 꼬리말 로고 자리(왼쪽 아래)에는 점을 두지 않고 오른쪽 띠로 옮긴다.
+      if ((x < 1750 && y < 370) || (x < 560 && y > 1300)) { x = PW - 60 - r() * PW * 0.14; }
+      // 쪽 번호 자리(오른쪽 아래)도 비운다. 그 점과 이어지는 선이 숫자 위를 지나지 않게 위로 올린다.
+      if (x > 2200 && y > 1180) { y = 1180 - r() * 260; }
+      // 가장자리에서 잘린 반원이 되지 않게 안쪽 40px에 둔다.
+      x = Math.min(PW - 40, Math.max(40, x)); y = Math.min(PH - 40, Math.max(40, y));
       pts.push([x, y]);
     }
     pts.forEach(([x, y], i) => {
       const near = pts.map(([a, b], j) => [Math.hypot(a - x, b - y), j]).filter(([d, j]) => j !== i).sort((a, b) => a[0] - b[0]).slice(0, 2);
-      for (const [d, j] of near) if (d < 360) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${sky}" stroke-opacity="0.08" stroke-width="1.6"/>`;
+      for (const [d, j] of near) if (d < 360) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${sky}" stroke-opacity="0.17" stroke-width="2.2"/>`; // v21: 0.08→0.17
     });
     pts.forEach(([x, y], i) => {
       const hot = i % 11 === 0;
-      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="16" fill="${blue}" fill-opacity="0.12"/>`;
-      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 5 : 3}" fill="${hot ? blue : sky}" fill-opacity="${hot ? 0.55 : 0.22}"/>`;
+      // v21: 점도 진하게(사용자 지시). 보통 점 0.22→0.40, 강조 점 0.55→0.85.
+      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="18" fill="${blue}" fill-opacity="0.22"/>`;
+      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6 : 3.6}" fill="${hot ? sky : sky}" fill-opacity="${hot ? 0.85 : 0.40}"/>`;
     });
   } else if (kind === "rings") {
     // 오른쪽 아래에서 바깥으로 퍼지는 동심원과 원 위의 점(용역 → 물품 → 공사).
