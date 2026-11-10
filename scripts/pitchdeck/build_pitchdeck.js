@@ -253,6 +253,58 @@ async function bgImage(kind, seed = 7) {
 async function setBg(s, kind, seed) {
   if (BG) s.background = { data: await bgImage(kind, seed) };
 }
+// 시안(2026-11-10, PITCH_LIGHTBG=1): 밝은 장은 제목 오른쪽 위 빈 띠(본문 카드 위, y < 약 1.75인치)에만 옅은 무늬.
+// 띠 밖은 잘라 내고(clipPath), 오른쪽 위에서 멀어질수록 사라지게(mask) 해서 카드 뒤로 조각이 비치지 않게 한다.
+// P: 어긋나 겹친 문서 윤곽(판이 여러 개), S 실현·T: 작은 연결망, S 성장: 오른쪽 위 모서리에서 퍼지는 동심원.
+const LIGHTBG = process.env.PITCH_LIGHTBG === "1";
+const lightQueue = [];
+async function lightBgImage(kind, seed) {
+  const PW = 2560, PH = 1440, r = seeded(seed), blue = "#0073E6", band = 330;
+  let g = "";
+  if (kind === "docs") {
+    for (let i = 0; i < 8; i++) {
+      const x = 1700 + i * 105 + r() * 40, y = 34 + r() * 80, rot = (r() - 0.5) * 22; // 위 끝에서 잘리지 않게 띠 안쪽
+      g += `<g transform="rotate(${rot.toFixed(1)} ${x + 70} ${y + 95})"><rect x="${x}" y="${y}" width="140" height="190" rx="12" fill="#FFFFFF" fill-opacity="0.55" stroke="${blue}" stroke-opacity="0.22" stroke-width="2.4"/>`;
+      for (let k = 0; k < 4; k++) g += `<line x1="${x + 22}" y1="${y + 40 + k * 32}" x2="${x + 118 - (k === 3 ? 40 : 0)}" y2="${y + 40 + k * 32}" stroke="${blue}" stroke-opacity="0.16" stroke-width="3"/>`;
+      g += `</g>`;
+    }
+  } else if (kind === "net") {
+    const pts = [];
+    for (let i = 0; i < 30; i++) pts.push([1650 + r() * 870, 30 + r() * (band - 50)]);
+    pts.forEach(([x, y], i) => {
+      const near = pts.map(([a, b], j) => [Math.hypot(a - x, b - y), j]).filter(([d, j]) => j !== i).sort((a, b) => a[0] - b[0]).slice(0, 2);
+      for (const [d, j] of near) if (d < 260) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${blue}" stroke-opacity="0.20" stroke-width="2"/>`;
+    });
+    pts.forEach(([x, y], i) => {
+      const hot = i % 7 === 0;
+      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="14" fill="${blue}" fill-opacity="0.10"/>`;
+      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6 : 4}" fill="${blue}" fill-opacity="${hot ? 0.55 : 0.30}"/>`;
+    });
+  } else if (kind === "rings") {
+    const cx = PW + 40, cy = -60;
+    for (let k = 1; k <= 9; k++) {
+      const rad = 120 * k;
+      g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${blue}" stroke-opacity="${Math.max(0.08, 0.26 - k * 0.02).toFixed(3)}" stroke-width="${k % 3 === 0 ? 3 : 2}"/>`;
+      if (k % 3 === 0) {
+        const a = Math.PI / 2 + 0.35 + r() * 0.6;
+        const px = cx + rad * Math.cos(a), py = cy + rad * Math.sin(a);
+        if (py > 20 && py < band - 20) g += `<circle cx="${px.toFixed(0)}" cy="${py.toFixed(0)}" r="7" fill="${blue}" fill-opacity="0.55"/>`;
+      }
+    }
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PW}" height="${PH}">
+    <defs>
+      <clipPath id="band"><rect x="1500" y="0" width="${PW - 1500}" height="${band}"/></clipPath>
+      <radialGradient id="fade" cx="${PW}" cy="0" r="1150" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="0.55" stop-color="#fff" stop-opacity="0.85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+      <mask id="m"><rect width="100%" height="100%" fill="url(#fade)"/></mask>
+    </defs>
+    <rect width="100%" height="100%" fill="#${K.page}"/>
+    <g clip-path="url(#band)" mask="url(#m)">${g}</g></svg>`;
+  const buf = await sharp(Buffer.from(svg)).png().toBuffer();
+  return "image/png;base64," + buf.toString("base64");
+}
 function toneArrow(color) {
   if (!QUIET) return color;
   if (color === K.skyOnDark) return K.onDarkMute;
@@ -299,6 +351,7 @@ function richTitle(title, accent) {
 }
 function lightSlide(section, eyebrow, title, mark) {
   const s = pres.addSlide({ masterName: "LIGHT", sectionTitle: section });
+  if (LIGHTBG) lightQueue.push([s, section.startsWith("P") ? "docs" : section.includes("성장") ? "rings" : "net", 100 + lightQueue.length * 13]);
   watermark(s, eyebrow, mark);
   s.addText(eyebrow, { placeholder: "eyebrow" });
   s.addText(richTitle(title, K.blue), { placeholder: "title" });
@@ -1121,6 +1174,7 @@ if (QUIET) {
   T(s, "Narani · 낙찰 보증 없음, 세 가지 금액은 참고 정보", { x: M, y: 6.5, w: 8, h: 0.35, fontSize: 12, color: K.onDarkMute });
   s.addNotes("정리하면, 저희는 확인된 규칙만 계산하고 모르면 금액을 비웁니다. 네 업종에서 시작해 물품과 공사로 넓히고, 협약 8개월 동안 유료 8사라는 가설을 확인하겠습니다. 중소 용역업체도 같은 정보로 입찰하게 하는 것이 저희 목표입니다. Narani 대표 [이름]이었습니다. 감사합니다. 질문 받겠습니다.");
 
+  for (const [ls, kind, seed] of lightQueue) ls.background = { data: await lightBgImage(kind, seed) };
   await pres.writeFile({ fileName: OUT });
   if (APPLY) { const { applyTheme } = require(APPLY); await applyTheme(OUT, THEME); }
   console.log("wrote", OUT);
