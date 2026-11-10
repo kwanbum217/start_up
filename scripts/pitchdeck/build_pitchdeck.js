@@ -1,6 +1,7 @@
 // BidBox 피치덱(.pptx) 생성기
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
+// v23 (2026-11-10): 밝은 장 띠 무늬만 진하게 한다(사용자 지시). 그 밖은 v22와 같다.
 // v22 (2026-11-10): 시안_밝은장배경_20261110 채택. 밝은 장 16장도 제목 오른쪽 위 빈 띠에만 옅은 무늬(P 문서 윤곽,
 // S 실현·T 연결망, S 성장 동심원)를 깐다. 문장·숫자·노트·배치는 v21과 같다. v21은 덮어쓰지 않는다.
 // v21 (2026-11-10): v20에서 8·11장 연결망의 선과 점만 진하게 한다(사용자 지시). 그 밖은 v20과 같다.
@@ -262,13 +263,14 @@ async function setBg(s, kind, seed) {
 const LIGHTBG = process.env.PITCH_LIGHTBG !== "0";
 const lightQueue = [];
 async function lightBgImage(kind, seed) {
+  // v23: v22보다 진하게(사용자 지시). 선·점 불투명도를 약 1.5~1.7배.
   const PW = 2560, PH = 1440, r = seeded(seed), blue = "#0073E6", band = 330;
   let g = "";
   if (kind === "docs") {
     for (let i = 0; i < 8; i++) {
       const x = 1700 + i * 105 + r() * 40, y = 34 + r() * 80, rot = (r() - 0.5) * 22; // 위 끝에서 잘리지 않게 띠 안쪽
-      g += `<g transform="rotate(${rot.toFixed(1)} ${x + 70} ${y + 95})"><rect x="${x}" y="${y}" width="140" height="190" rx="12" fill="#FFFFFF" fill-opacity="0.55" stroke="${blue}" stroke-opacity="0.22" stroke-width="2.4"/>`;
-      for (let k = 0; k < 4; k++) g += `<line x1="${x + 22}" y1="${y + 40 + k * 32}" x2="${x + 118 - (k === 3 ? 40 : 0)}" y2="${y + 40 + k * 32}" stroke="${blue}" stroke-opacity="0.16" stroke-width="3"/>`;
+      g += `<g transform="rotate(${rot.toFixed(1)} ${x + 70} ${y + 95})"><rect x="${x}" y="${y}" width="140" height="190" rx="12" fill="#FFFFFF" fill-opacity="0.75" stroke="${blue}" stroke-opacity="0.38" stroke-width="2.6"/>`;
+      for (let k = 0; k < 4; k++) g += `<line x1="${x + 22}" y1="${y + 40 + k * 32}" x2="${x + 118 - (k === 3 ? 40 : 0)}" y2="${y + 40 + k * 32}" stroke="${blue}" stroke-opacity="0.28" stroke-width="3"/>`;
       g += `</g>`;
     }
   } else if (kind === "net") {
@@ -276,22 +278,22 @@ async function lightBgImage(kind, seed) {
     for (let i = 0; i < 30; i++) pts.push([1650 + r() * 870, 30 + r() * (band - 50)]);
     pts.forEach(([x, y], i) => {
       const near = pts.map(([a, b], j) => [Math.hypot(a - x, b - y), j]).filter(([d, j]) => j !== i).sort((a, b) => a[0] - b[0]).slice(0, 2);
-      for (const [d, j] of near) if (d < 260) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${blue}" stroke-opacity="0.20" stroke-width="2"/>`;
+      for (const [d, j] of near) if (d < 260) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${blue}" stroke-opacity="0.32" stroke-width="2.2"/>`;
     });
     pts.forEach(([x, y], i) => {
       const hot = i % 7 === 0;
-      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="14" fill="${blue}" fill-opacity="0.10"/>`;
-      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6 : 4}" fill="${blue}" fill-opacity="${hot ? 0.55 : 0.30}"/>`;
+      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="14" fill="${blue}" fill-opacity="0.16"/>`;
+      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6 : 4}" fill="${blue}" fill-opacity="${hot ? 0.8 : 0.48}"/>`;
     });
   } else if (kind === "rings") {
     const cx = PW + 40, cy = -60;
     for (let k = 1; k <= 9; k++) {
       const rad = 120 * k;
-      g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${blue}" stroke-opacity="${Math.max(0.08, 0.26 - k * 0.02).toFixed(3)}" stroke-width="${k % 3 === 0 ? 3 : 2}"/>`;
+      g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${blue}" stroke-opacity="${Math.max(0.13, 0.40 - k * 0.03).toFixed(3)}" stroke-width="${k % 3 === 0 ? 3.2 : 2.2}"/>`;
       if (k % 3 === 0) {
         const a = Math.PI / 2 + 0.35 + r() * 0.6;
         const px = cx + rad * Math.cos(a), py = cy + rad * Math.sin(a);
-        if (py > 20 && py < band - 20) g += `<circle cx="${px.toFixed(0)}" cy="${py.toFixed(0)}" r="7" fill="${blue}" fill-opacity="0.55"/>`;
+        if (py > 20 && py < band - 20) g += `<circle cx="${px.toFixed(0)}" cy="${py.toFixed(0)}" r="8" fill="${blue}" fill-opacity="0.8"/>`;
       }
     }
   }
