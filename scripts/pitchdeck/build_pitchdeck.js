@@ -1,6 +1,8 @@
 // BidBox 피치덱(.pptx) 생성기
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
+// v20 (2026-11-10): v19에 어두운 장 다섯 장(1·8·11·18·21)의 코드로 그린 추상 무늬 바탕을 기본으로 넣는다
+// (시안_추상배경_20261110 채택, 18장 동심원은 더 진하게). 문장·숫자·노트는 v19와 같다. v19는 덮어쓰지 않는다.
 // v19 (2026-11-10): 문장·숫자·노트는 v18과 같고 디자인만 정리한다. 워터마크·카드 뒤 판(plate)을 걷어
 // 잘린 조각과 어긋난 겹침을 없애고, 카드를 한 격자에 맞춘다. 시장(넓이 비례 겹친 원, 같은 출발선 막대),
 // 자금(오른쪽 숫자 칸), 검증(협약 중 확보 칸), 개발 현황(숫자 원 높이)을 다시 그리고, 문제 근거·마무리는 상자 없이 선으로 나눈다.
@@ -180,7 +182,8 @@ async function iconCircle(s, name, x, y, d, fg, bg) {
 // 시안(2026-11-10, PITCH_BG=1): 어두운 장 다섯 장(표지·근거 상담·숫자·자금·마무리)에만 코드로 그린 추상 무늬 바탕.
 // 무늬는 한 언어(브랜드 파랑 계열의 옅은 점·선)로 두고 단락 뜻만 모양으로 바꾼다.
 // flow: 흩어진 점이 한 줄로 모임(공고 → 규칙 → 금액). net: 점과 선의 연결망(수집·검색·근거). rings: 바깥으로 퍼지는 동심원(확장).
-const BG = process.env.PITCH_BG === "1";
+// v20부터 기본으로 켠다. PITCH_BG=0이면 v19 모습(바탕 무늬 없음).
+const BG = process.env.PITCH_BG !== "0";
 function seeded(seed) {
   let v = seed >>> 0;
   return () => { v = (Math.imul(v, 1664525) + 1013904223) >>> 0; return v / 4294967296; };
@@ -226,11 +229,12 @@ async function bgImage(kind, seed = 7) {
     // 오른쪽 아래에서 바깥으로 퍼지는 동심원과 원 위의 점(용역 → 물품 → 공사).
     const cx = PW - 120, cy = PH + 80;
     for (let k = 1; k <= 14; k++) {
-      const rad = 150 * k, op = Math.max(0.035, 0.16 - k * 0.009);
-      g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${sky}" stroke-opacity="${op.toFixed(3)}" stroke-width="${k % 3 === 0 ? 2.4 : 1.4}"/>`;
+      // v20: 시안보다 진하게(사용자 지시). 안쪽 0.30에서 바깥 0.08까지.
+      const rad = 150 * k, op = Math.max(0.08, 0.30 - k * 0.016);
+      g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${sky}" stroke-opacity="${op.toFixed(3)}" stroke-width="${k % 3 === 0 ? 3.2 : 2}"/>`;
       if (k % 3 === 0) {
         const a = Math.PI + 0.25 + r() * 1.1;
-        g += `<circle cx="${(cx + rad * Math.cos(a)).toFixed(0)}" cy="${(cy + rad * Math.sin(a)).toFixed(0)}" r="6" fill="${blue}" fill-opacity="0.5"/>`;
+        g += `<circle cx="${(cx + rad * Math.cos(a)).toFixed(0)}" cy="${(cy + rad * Math.sin(a)).toFixed(0)}" r="8" fill="${sky}" fill-opacity="0.7"/>`;
       }
     }
   }
