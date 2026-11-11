@@ -1,6 +1,8 @@
 // BidBox 피치덱(.pptx) 생성기
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
+// v25 (2026-11-11): 바탕 그라데이션의 마젠타를 줄이고 비비드 퍼플을 늘린다. 표지의 네 업종 아이콘은 뺀다.
+// v23까지의 바탕 무늬(문서 윤곽·연결망·동심원·모이는 곡선)를 같은 보라로 다시 깐다. v24는 덮어쓰지 않는다.
 // v24 (2026-11-11): 10분 발표에 맞춰 21장→10장. 문제 인식은 한 장(사실 라벨+관계선+그림).
 // 실현은 한 화면·세 가지·OX·8개월 네 장. 성장은 이용권 수익 한 장과 확장·자금 한 장.
 // 배색은 나이키 보메로 플러스 HV8150-500(비비드 퍼플·다크 콩코드·일렉트로 퍼플·메탈릭 실버)의
@@ -377,33 +379,100 @@ function darkSlide(section, eyebrow, title) {
 function note(s, text, y = 6.43, dark = false) {
   T(s, text, { x: M, y, w: CW, h: 0.32, fontSize: 11, color: dark ? K.onDarkMute : K.mute });
 }
-// v24: 상품 페이지처럼 밝은 라벤더 바탕에, 갑피 퍼플과 중창 마젠타를 옅게 섞은 그라데이션.
-async function washImage() {
-  const PW = 2560, PH = 1440;
+// v25: 밝은 바탕은 마젠타보다 비비드 퍼플이 더 돈다. kind가 있으면 v23 무늬를 같은 보라로 얹는다.
+// docs·net·rings는 제목 오른쪽 위 띠만(카드 뒤로 비치지 않음). flow는 표지·마무리의 오른쪽 빈 곳.
+async function washImage(kind, seed = 7) {
+  const PW = 2560, PH = 1440, r = seeded(seed);
+  const violet = "#5C4596", deep = "#3E2A78", band = 360;
+  let g = "";
+  if (kind === "docs") {
+    for (let i = 0; i < 8; i++) {
+      const x = 1680 + i * 108 + r() * 36, y = 28 + r() * 70, rot = (r() - 0.5) * 22;
+      g += `<g transform="rotate(${rot.toFixed(1)} ${x + 70} ${y + 95})"><rect x="${x}" y="${y}" width="140" height="190" rx="12" fill="#FFFFFF" fill-opacity="0.55" stroke="${violet}" stroke-opacity="0.55" stroke-width="2.8"/>`;
+      for (let k = 0; k < 4; k++) g += `<line x1="${x + 22}" y1="${y + 40 + k * 32}" x2="${x + 118 - (k === 3 ? 40 : 0)}" y2="${y + 40 + k * 32}" stroke="${violet}" stroke-opacity="0.40" stroke-width="3"/>`;
+      g += `</g>`;
+    }
+  } else if (kind === "net") {
+    const pts = [];
+    for (let i = 0; i < 32; i++) pts.push([1620 + r() * 880, 28 + r() * (band - 56)]);
+    pts.forEach(([x, y], i) => {
+      const near = pts.map(([a, b], j) => [Math.hypot(a - x, b - y), j]).filter(([d, j]) => j !== i).sort((a, b) => a[0] - b[0]).slice(0, 2);
+      for (const [d, j] of near) if (d < 280) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${violet}" stroke-opacity="0.42" stroke-width="2.4"/>`;
+    });
+    pts.forEach(([x, y], i) => {
+      const hot = i % 7 === 0;
+      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="16" fill="${deep}" fill-opacity="0.18"/>`;
+      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6.5 : 4.2}" fill="${violet}" fill-opacity="${hot ? 0.88 : 0.55}"/>`;
+    });
+  } else if (kind === "rings") {
+    const cx = PW + 40, cy = -60;
+    for (let k = 1; k <= 9; k++) {
+      const rad = 120 * k;
+      g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${violet}" stroke-opacity="${Math.max(0.16, 0.48 - k * 0.034).toFixed(3)}" stroke-width="${k % 3 === 0 ? 3.4 : 2.3}"/>`;
+      if (k % 3 === 0) {
+        const a = Math.PI / 2 + 0.35 + r() * 0.6;
+        const px = cx + rad * Math.cos(a), py = cy + rad * Math.sin(a);
+        if (py > 20 && py < band - 16) g += `<circle cx="${px.toFixed(0)}" cy="${py.toFixed(0)}" r="8" fill="${violet}" fill-opacity="0.85"/>`;
+      }
+    }
+  } else if (kind === "flow") {
+    // 표지는 오른쪽 아래 한 점으로 모음. 마무리는 숫자 칸(0원)을 피해 위·아래로 나눔.
+    const clusters = seed === 11
+      ? [
+          { ex: PW - 240, ey: 210, n: 16, x0: 1480, x1: 2460, y0: 24, y1: 500 },
+          { ex: PW - 200, ey: PH - 170, n: 12, x0: 1960, x1: 2500, y0: 1100, y1: 1380 },
+        ]
+      : [{ ex: PW - 220, ey: PH - 280, n: 22, x0: 1280, x1: 2260, y0: 80, y1: PH - 120 }];
+    for (const c of clusters) {
+      for (let i = 0; i < c.n; i++) {
+        const sx = c.x0 + r() * (c.x1 - c.x0), sy = c.y0 + r() * (c.y1 - c.y0);
+        const c1x = sx - 80 + r() * 200, c1y = sy - 80 + r() * 80, c2x = c.ex - 280, c2y = c.ey + (r() - 0.5) * 140;
+        g += `<path d="M${sx.toFixed(0)},${sy.toFixed(0)} C${c1x.toFixed(0)},${c1y.toFixed(0)} ${c2x.toFixed(0)},${c2y.toFixed(0)} ${c.ex},${c.ey}" fill="none" stroke="${violet}" stroke-opacity="${(0.22 + r() * 0.16).toFixed(3)}" stroke-width="2.4"/>`;
+        g += `<circle cx="${sx.toFixed(0)}" cy="${sy.toFixed(0)}" r="${(4 + r() * 5).toFixed(1)}" fill="${violet}" fill-opacity="${(0.32 + r() * 0.28).toFixed(2)}"/>`;
+      }
+      g += `<circle cx="${c.ex}" cy="${c.ey}" r="54" fill="${deep}" fill-opacity="0.16"/><circle cx="${c.ex}" cy="${c.ey}" r="11" fill="${violet}" fill-opacity="0.72"/>`;
+    }
+  }
+  const clipped = kind && kind !== "flow";
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PW}" height="${PH}">
     <defs>
       <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#F8F6FC"/>
-        <stop offset="0.42" stop-color="#F4EFF8"/>
-        <stop offset="1" stop-color="#F7E9F3"/>
+        <stop offset="0" stop-color="#F4F0FC"/>
+        <stop offset="0.48" stop-color="#E6DBF6"/>
+        <stop offset="1" stop-color="#D9CBF2"/>
       </linearGradient>
-      <radialGradient id="a" cx="92%" cy="0%" r="62%">
-        <stop offset="0" stop-color="#5C4596" stop-opacity="0.20"/>
+      <radialGradient id="a" cx="88%" cy="6%" r="58%">
+        <stop offset="0" stop-color="#5C4596" stop-opacity="0.30"/>
         <stop offset="1" stop-color="#5C4596" stop-opacity="0"/>
       </radialGradient>
-      <radialGradient id="b" cx="0%" cy="100%" r="58%">
-        <stop offset="0" stop-color="#B02E88" stop-opacity="0.16"/>
-        <stop offset="1" stop-color="#B02E88" stop-opacity="0"/>
+      <radialGradient id="b" cx="8%" cy="96%" r="52%">
+        <stop offset="0" stop-color="#3E2A78" stop-opacity="0.20"/>
+        <stop offset="1" stop-color="#3E2A78" stop-opacity="0"/>
       </radialGradient>
-      <radialGradient id="c" cx="78%" cy="88%" r="36%">
-        <stop offset="0" stop-color="#C5C2C8" stop-opacity="0.45"/>
-        <stop offset="1" stop-color="#C5C2C8" stop-opacity="0"/>
+      <radialGradient id="c" cx="70%" cy="78%" r="40%">
+        <stop offset="0" stop-color="#8E74C4" stop-opacity="0.22"/>
+        <stop offset="1" stop-color="#8E74C4" stop-opacity="0"/>
       </radialGradient>
+      <clipPath id="band"><rect x="1480" y="0" width="${PW - 1480}" height="${band}"/></clipPath>
+      <radialGradient id="fade" cx="${PW - 80}" cy="40" r="980" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+        <stop offset="0.62" stop-color="#fff" stop-opacity="0.9"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+      <mask id="mf"><rect width="100%" height="100%" fill="url(#fade)"/></mask>
+      <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+        <stop offset="0.42" stop-color="#fff" stop-opacity="0.15"/>
+        <stop offset="0.62" stop-color="#fff" stop-opacity="1"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="1"/>
+      </linearGradient>
+      <mask id="me"><rect width="100%" height="100%" fill="url(#edge)"/></mask>
     </defs>
     <rect width="100%" height="100%" fill="url(#g)"/>
     <rect width="100%" height="100%" fill="url(#a)"/>
     <rect width="100%" height="100%" fill="url(#b)"/>
     <rect width="100%" height="100%" fill="url(#c)"/>
+    ${clipped ? `<g clip-path="url(#band)" mask="url(#mf)">${g}</g>` : `<g mask="url(#me)">${g}</g>`}
   </svg>`;
   const buf = await sharp(Buffer.from(svg)).png().toBuffer();
   return "image/png;base64," + buf.toString("base64");
@@ -568,8 +637,13 @@ if (QUIET) {
 }
 
 (async () => {
-  const wash = await washImage();
   const PROB = (f) => path.join(__dirname, "assets/problem", f);
+  const bgCache = new Map();
+  async function bg(kind, seed) {
+    const key = kind + ":" + seed;
+    if (!bgCache.has(key)) bgCache.set(key, await washImage(kind, seed));
+    return bgCache.get(key);
+  }
 
   async function problemCard(s, x, y, w, h, img, title, lines) {
     box(s, { x, y, w, h, fill: K.white, line: "E7D0E4", radius: 0.18, shadow: true, name: "prob" });
@@ -588,7 +662,7 @@ if (QUIET) {
   // ===== 1. 표지 =====
   pres.addSection({ title: "표지" });
   let s = pres.addSlide({ masterName: "COVER", sectionTitle: "표지" });
-  s.background = { data: wash };
+  s.background = { data: await bg("flow", 3) };
   T(s, "2026 예비창업패키지 · 피치덱", { x: M, y: 0.72, w: 6.4, h: 0.32, fontSize: 14, bold: true, color: K.electro });
   T(s, "공공기관 용역 입찰\n도우미 웹 서비스", { x: M, y: 1.15, w: 6.3, h: 1.7, fontSize: 40, bold: true, color: K.ink, lineSpacingMultiple: 1.05 });
   T(s, "공고마다 다른 점수 규칙, 찾아서 금액 범위까지", { x: M, y: 3.0, w: 6.3, h: 0.4, fontSize: 16, color: K.ink2 });
@@ -596,14 +670,8 @@ if (QUIET) {
   T(s, "(가칭)", { x: M + 0.7 * LOGO_R + 0.08, y: 3.78, w: 1.2, h: 0.32, fontSize: 14, color: K.mute });
   s.addImage({ data: await icon("FaScaleBalanced", K.green), x: M, y: 4.5, w: 0.28, h: 0.28, objectName: nm("esg-icon") });
   T(s, "조달 정보 차이를 줄이는 도구", { x: M + 0.4, y: 4.46, w: 5.4, h: 0.34, fontSize: 16, bold: true, color: K.green });
-  let cx = M;
-  for (const [ic, t] of [["FaBroom", "청소"], ["FaShieldHalved", "경비"], ["FaPeopleGroup", "파견"], ["FaHandshake", "직업소개"]]) {
-    await iconCircle(s, ic, cx, 5.05, 0.46, K.electro, K.electroTint);
-    T(s, t, { x: cx + 0.54, y: 5.12, w: 1.05, h: 0.32, fontSize: 14, color: K.ink });
-    cx += t.length > 2 ? 1.7 : 1.35;
-  }
-  T(s, "Narani", { x: M, y: 5.85, w: 1.5, h: 0.36, fontSize: 16, bold: true, color: K.ink });
-  chip(s, "회사 대상 이용권형(SaaS)", M + 1.6, 5.86, K.electro, K.electroTint, { w: 2.7, h: 0.34, size: 12 });
+  T(s, "Narani", { x: M, y: 5.15, w: 1.5, h: 0.36, fontSize: 16, bold: true, color: K.ink });
+  chip(s, "회사 대상 이용권형(SaaS)", M + 1.6, 5.16, K.electro, K.electroTint, { w: 2.7, h: 0.34, size: 12 });
   shot(s, "detail_top.jpg", 6.85, 0.42, 5.9, 1568 / 661, "공고 상세", { labelTop: true });
   shot(s, "dashboard.jpg", 7.55, 2.55, 5.1, 1530 / 661, "대시보드");
   s.addNotes("공공기관 용역 입찰에서 공고마다 다른 점수 규칙을 찾아, 써 낼 금액의 범위까지 알려 주는 BidBox입니다. 이 서비스를 만든 Narani 대표 [이름]입니다. 오른쪽은 지금 동작하는 시제품입니다. 청소, 경비, 파견, 직업소개 네 업종 회사가 쓰는 이용권형 웹 서비스이고, 조달 정보 차이를 줄이는 도구입니다. ■ 질의응답 참고(발표 때 읽지 않음): 청소·경비·파견·직업소개 네 업종 회사가 이용권을 사서 쓰는 웹 서비스. 조달 정보 차이를 줄이는 것이 사회적 의미.");
@@ -860,7 +928,7 @@ if (QUIET) {
   // ===== 10. 마무리 =====
   pres.addSection({ title: "마무리" });
   s = pres.addSlide({ masterName: "COVER", sectionTitle: "마무리" });
-  s.background = { data: wash };
+  s.background = { data: await bg("flow", 11) };
   s.addImage({ path: LOGO(false), x: M - 0.02, y: 0.55, w: 0.46 * LOGO_R, h: 0.46, objectName: nm("logo") });
   T(s, "확인된 규칙만\n계산하는 도우미", { x: M, y: 1.2, w: 11, h: 1.7, fontSize: 40, bold: true, color: K.ink, lineSpacingMultiple: 1.02 });
   const fin = [["206종", "공고에 맞는 계산 규칙"], ["31,305건", "최근 12개월 규칙 판정"], ["0원", "추천하지 않음"]];
@@ -875,7 +943,7 @@ if (QUIET) {
   T(s, "Narani  ·  낙찰 보증 없음. 세 가지 금액은 참고 정보", { x: M, y: 6.1, w: 10, h: 0.32, fontSize: 14, color: K.mute });
   s.addNotes("정리하면, 확인된 규칙 206종만 계산하고, 최근 12개월 31,305건에서 규칙을 확인한 공고만 금액을 냅니다. 금액이 없는 공고에는 0원을 추천하지 않습니다. 네 업종에서 시작해, 8개월 안에 유료 8사라는 가설을 확인하겠습니다. 중소 용역업체도 같은 정보로 입찰하게 하는 것이 목표입니다. 낙찰은 보증하지 않습니다. Narani 대표 [이름]이었습니다. 감사합니다. 질문 받겠습니다.");
 
-  for (const [ls] of lightQueue) ls.background = { data: wash };
+  for (const [ls, kind, seed] of lightQueue) ls.background = { data: await bg(kind, seed) };
   await pres.writeFile({ fileName: OUT });
   if (APPLY) { const { applyTheme } = require(APPLY); await applyTheme(OUT, THEME); }
   console.log("wrote", OUT);
