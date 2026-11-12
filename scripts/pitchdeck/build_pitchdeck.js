@@ -1,6 +1,11 @@
 // BidBox 피치덱(.pptx) 생성기
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
+// v26 (2026-11-12): v23 검토에서 10장에 남은 자리만 고친다. 문장·숫자는 v25와 같다. v25는 덮어쓰지 않는다.
+// 5장 OX는 기호 열과 글자 열을 나눠 기호를 한 세로줄에 둔다. 6장 10·20·8사 카드는 4·6·8개월 점 아래에 둔다.
+// 문서 무늬는 장 안에서 끝나고, 성장 장 동심원은 시드마다 다르며, 이웃이 하나뿐인 연결망 선은 그리지 않는다.
+// 원칙 알약은 테두리만 두고, 「미정」「미공개」는 금액보다 작고 흐리게 둔다. 4장 안내 줄은 상자를 빼 문장만 둔다.
+// 8장 범위 막대는 0.75조·10.2조·23.4조·54.4조만 길이에 맞추고, +80.0조는 글자로 둔다.
 // v25 (2026-11-11): 바탕 그라데이션의 마젠타를 줄이고 비비드 퍼플을 늘린다. 표지의 네 업종 아이콘은 뺀다.
 // v23까지의 바탕 무늬(문서 윤곽·연결망·동심원·모이는 곡선)를 같은 보라로 다시 깐다. v24는 덮어쓰지 않는다.
 // v24 (2026-11-11): 10분 발표에 맞춰 21장→10장. 문제 인식은 한 장(사실 라벨+관계선+그림).
@@ -159,7 +164,8 @@ function chip(s, text, x, y, color, tint, o = {}) {
   }
   const w = o.w || Math.max(0.9, text.length * 0.135 + 0.35);
   s.addText(text, { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.16, x, y, w, h: o.h || 0.32,
-    fill: { color: tint }, line: { type: "none" }, fontFace: F, fontSize: o.size || 12, bold: true, color,
+    fill: { color: tint }, line: o.line ? { color: o.line, width: o.lw || 1.5 } : { type: "none" },
+    fontFace: F, fontSize: o.size || 12, bold: true, color,
     align: "center", valign: "middle", margin: 0, objectName: nm("chip") });
   return w;
 }
@@ -386,33 +392,73 @@ async function washImage(kind, seed = 7) {
   const violet = "#5C4596", deep = "#3E2A78", band = 360;
   let g = "";
   if (kind === "docs") {
+    // 회전한 종이의 모서리가 장 끝에서 잘리지 않게 오른쪽·위 여백 안에 둔다.
+    const docW = 140, docH = 190, rotMax = 14;
+    const bleed = Math.ceil((docH / 2) * Math.sin((rotMax * Math.PI) / 180) + 10);
+    const maxX = PW - 32 - docW - bleed;
+    const minX = 1780;
+    const step = (maxX - minX) / 7;
     for (let i = 0; i < 8; i++) {
-      const x = 1680 + i * 108 + r() * 36, y = 28 + r() * 70, rot = (r() - 0.5) * 22;
-      g += `<g transform="rotate(${rot.toFixed(1)} ${x + 70} ${y + 95})"><rect x="${x}" y="${y}" width="140" height="190" rx="12" fill="#FFFFFF" fill-opacity="0.55" stroke="${violet}" stroke-opacity="0.55" stroke-width="2.8"/>`;
+      const x = Math.min(maxX, minX + i * step + r() * Math.min(16, step * 0.3));
+      const y = 36 + r() * 40;
+      const rot = (r() - 0.5) * rotMax;
+      g += `<g transform="rotate(${rot.toFixed(1)} ${x + 70} ${y + 95})"><rect x="${x}" y="${y}" width="${docW}" height="${docH}" rx="12" fill="#FFFFFF" fill-opacity="0.55" stroke="${violet}" stroke-opacity="0.55" stroke-width="2.8"/>`;
       for (let k = 0; k < 4; k++) g += `<line x1="${x + 22}" y1="${y + 40 + k * 32}" x2="${x + 118 - (k === 3 ? 40 : 0)}" y2="${y + 40 + k * 32}" stroke="${violet}" stroke-opacity="0.40" stroke-width="3"/>`;
       g += `</g>`;
     }
   } else if (kind === "net") {
     const pts = [];
     for (let i = 0; i < 32; i++) pts.push([1620 + r() * 880, 28 + r() * (band - 56)]);
+    const seen = new Set();
+    let edges = [];
     pts.forEach(([x, y], i) => {
       const near = pts.map(([a, b], j) => [Math.hypot(a - x, b - y), j]).filter(([d, j]) => j !== i).sort((a, b) => a[0] - b[0]).slice(0, 2);
-      for (const [d, j] of near) if (d < 280) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${violet}" stroke-opacity="0.42" stroke-width="2.4"/>`;
+      for (const [d, j] of near) {
+        if (d >= 280) continue;
+        const a = Math.min(i, j), b = Math.max(i, j), key = a + ":" + b;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        edges.push([a, b]);
+      }
+    });
+    // 이웃이 하나뿐인 점의 선은 외딴 세로선이 된다. 그런 잎은 남지 않을 때까지 뺀다.
+    let changed = true;
+    while (changed) {
+      const deg = new Array(pts.length).fill(0);
+      edges.forEach(([a, b]) => { deg[a]++; deg[b]++; });
+      const next = edges.filter(([a, b]) => deg[a] >= 2 && deg[b] >= 2);
+      changed = next.length !== edges.length;
+      edges = next;
+    }
+    const deg = new Array(pts.length).fill(0);
+    edges.forEach(([a, b]) => {
+      deg[a]++; deg[b]++;
+      g += `<line x1="${pts[a][0].toFixed(0)}" y1="${pts[a][1].toFixed(0)}" x2="${pts[b][0].toFixed(0)}" y2="${pts[b][1].toFixed(0)}" stroke="${violet}" stroke-opacity="0.42" stroke-width="2.4"/>`;
     });
     pts.forEach(([x, y], i) => {
+      if (deg[i] < 2) return;
       const hot = i % 7 === 0;
       if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="16" fill="${deep}" fill-opacity="0.18"/>`;
       g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6.5 : 4.2}" fill="${violet}" fill-opacity="${hot ? 0.88 : 0.55}"/>`;
     });
   } else if (kind === "rings") {
-    const cx = PW + 40, cy = -60;
-    for (let k = 1; k <= 9; k++) {
-      const rad = 120 * k;
-      g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${violet}" stroke-opacity="${Math.max(0.16, 0.48 - k * 0.034).toFixed(3)}" stroke-width="${k % 3 === 0 ? 3.4 : 2.3}"/>`;
-      if (k % 3 === 0) {
-        const a = Math.PI / 2 + 0.35 + r() * 0.6;
-        const px = cx + rad * Math.cos(a), py = cy + rad * Math.sin(a);
-        if (py > 20 && py < band - 16) g += `<circle cx="${px.toFixed(0)}" cy="${py.toFixed(0)}" r="8" fill="${violet}" fill-opacity="0.85"/>`;
+    // 시드마다 중심·간격·점 자리가 달라 성장 장이 같은 도장으로 보이지 않게 한다. 점은 띠 안에 둔다.
+    const cx = PW - 40 - r() * 280;
+    const cy = -20 - r() * 150;
+    const n = 7 + Math.floor(r() * 3);
+    const gap = 62 + r() * 46;
+    for (let k = 1; k <= n; k++) {
+      const rad = gap * k;
+      g += `<circle cx="${cx.toFixed(0)}" cy="${cy.toFixed(0)}" r="${rad.toFixed(0)}" fill="none" stroke="${violet}" stroke-opacity="${Math.max(0.16, 0.55 - k * 0.045).toFixed(3)}" stroke-width="${k % 3 === 0 ? 3.4 : 2.3}"/>`;
+      if (k % 2 === 0) {
+        const py = 46 + r() * (band - 100);
+        const dy = py - cy;
+        const disc = rad * rad - dy * dy;
+        if (disc <= 0) continue;
+        const px = cx - Math.sqrt(disc);
+        if (px > 1540 && px < PW - 36 && py > 28 && py < band - 24) {
+          g += `<circle cx="${px.toFixed(0)}" cy="${py.toFixed(0)}" r="8" fill="${violet}" fill-opacity="0.85"/>`;
+        }
       }
     }
   } else if (kind === "flow") {
@@ -725,7 +771,7 @@ if (QUIET) {
   s.addImage({ path: CAP("detail_top.jpg"), x: solveX, y: imgY, w: solveW, h: imgH, objectName: nm("solve-shot") });
   T(s, "지금 동작하는 시제품", { x: solveX + 0.2, y: imgY + imgH + 0.16, w: 3.3, h: 0.32, fontSize: 14, bold: true, color: K.white });
   T(s, "최저 · 예측 · 최상", { x: solveX + 0.2, y: imgY + imgH + 0.48, w: 3.2, h: 0.4, fontSize: 20, bold: true, color: K.white });
-  chip(s, "낙찰 보증 없음", solveX + solveW - 2.15, imgY + imgH + 0.22, K.white, K.red, { w: 1.95, h: 0.34, size: 13 });
+  chip(s, "낙찰 보증 없음", solveX + solveW - 2.15, imgY + imgH + 0.22, K.white, K.navy, { w: 1.95, h: 0.34, size: 13, line: K.electro, lw: 1.5 });
   s.addNotes("그래서 이 불편을 한 화면에 모았습니다. 어느 판인지 모르면 날짜에 맞는 규칙표를 고르고, 금액을 직접 계산하던 자리는 최저가와 최상가입니다. 지난 낙찰을 따라가던 자리는 AI 예측가이고, 공고를 매일 고르던 일은 네 업종이 목록 기본값입니다. 지금 화면은 실제로 동작하는 시제품입니다. 최저가와 최상가는 회사 신용 점수와 평판 점수를 반영합니다. 세 금액은 참고이고, 낙찰은 보증하지 않습니다. ■ 질의응답 참고(발표 때 읽지 않음): 최저·최상가는 회사 신용 점수와 평판 점수를 반영. 네 업종이 목록 기본값. 규칙을 확인하지 못하면 직접 입력. 공고 모으기부터 근거 상담까지 한 흐름.");
 
   // ===== 4. 수집 + 세 가지 + 확인된 규칙 =====
@@ -747,25 +793,35 @@ if (QUIET) {
     T(s, num, { x: x + 0.16, y: 3.4, w: tw - 0.32, h: 0.85, fontSize: 36, bold: true, color: c });
     T(s, out, { x: x + 0.18, y: 4.45, w: tw - 0.36, h: 0.4, fontSize: 15, bold: true, color: K.ink });
   });
-  s.addText([
+  T(s, [
     { text: "확인된 규칙만 계산", options: { bold: true, color: K.ink } },
     { text: "   ·   없으면 직접 입력   ·   0원 추천 없음   ·   금액 없는 공고는 비움", options: { color: K.ink2 } },
-  ], { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.1, x: M, y: 5.38, w: CW, h: 0.48, fill: { color: K.slateTint }, line: { type: "none" },
-    fontFace: F, fontSize: 15, align: "center", valign: "middle", margin: 0, objectName: nm("rulebar") });
+  ], { x: M, y: 5.38, w: CW, h: 0.48, fontSize: 15, align: "center", valign: "middle" });
   note(s, "206종 · 자동 21,394/31,305건(2026-10-19) · 색인 505,271건 · 오차 1.1885%p · 포함률 90.25%(3,589건) · 상담 144/144 · 놓친 날은 다시 켤 때 한 번");
   s.addNotes("자료는 나라장터에서 매일 새벽 2시에 가져오고, 방금 들어온 것만 검색과 상담에 더합니다. 505,271건 전체를 다시 만들지는 않습니다. 도구는 세 가지입니다. 규칙표 206종은 사람이 정리한 것이고 AI가 아닙니다. 예측은 지난 낙찰을 배운 LightGBM이고, 범위 안에 든 비율은 90.25%, 3,589건입니다. 상담은 근거가 있을 때만 답하는 RAG이고, 거절해야 할 질문 24개를 모두 거절했습니다. 확인된 규칙이 없으면 금액을 비우고 직접 입력하게 합니다. 0원을 추천하지 않고, 기준 금액이 없는 공고는 가격점수를 계산하지 않습니다. 다시 배우는 일은 개발에서만, 매주 월요일 새벽 3시, 용역 모델만 하고, 모델을 바꾸는 것은 사람입니다. 운영은 알림만 합니다. ■ 질의응답 참고(발표 때 읽지 않음): 505,271건 전체를 다시 만들지 않음. 다시 배움은 개발 실행, 매주 월요일 새벽 3시, 용역 모델만. 배울 때와 보여 줄 때 계산이 같음. 더 맞으면 교체를 권하고, 바꾸는 것은 사람. 운영은 배움을 끄고 알림만. 예측 범위 포함률 90.25%(3,589건, 2026-08-30). 거절해야 할 질문 24/24. 0원 추천 없음. 비예가는 가격점수를 계산하지 않음. 협상 계약은 분포만.");
 
   // ===== 5. 비교 OX =====
   s = lightSlide("S 실현 가능성", "S · 실현 가능성", "비교는 [[OX로]]");
   const sym = { "○": K.green, "△": K.amber, "✕": K.red, "—": "94A3B8" };
-  const cell = (v, bid) => {
-    const m = v[0], rest = v.slice(1).trim();
-    const runs = [{ text: m, options: { color: sym[m] || K.ink, bold: true, fontSize: 20 } }];
-    if (rest) runs.push({ text: "  " + rest, options: { color: bid ? K.ink : K.ink2, bold: !!bid, fontSize: 13 } });
-    return { text: runs, options: { fill: { color: bid ? K.electroTint : K.white } } };
+  const edge = { type: "solid", pt: 0.75, color: K.line };
+  const open = { type: "none" };
+  // 기호와 글자를 칸으로 나눠, 글자 길이와 상관없이 기호가 한 세로줄에 있게 한다. 맞닿은 변은 선을 빼 한 칸처럼 보인다.
+  const pair = (v, bid) => {
+    const mark = v[0], rest = v.slice(1).trim();
+    const fill = bid ? K.electroTint : K.white;
+    return [
+      { text: mark, options: { color: sym[mark] || K.ink, bold: true, fontSize: 20, align: "center", valign: "middle",
+        fill: { color: fill }, border: [edge, open, edge, edge], margin: [0.02, 0.02, 0.02, 0.02] } },
+      { text: rest, options: { color: bid ? K.ink : K.ink2, bold: !!bid && !!rest, fontSize: 13, align: "left", valign: "middle",
+        fill: { color: fill }, border: [edge, edge, edge, open], margin: [0.04, 0.08, 0.04, 0.02] } },
+    ];
   };
-  const hdr = ["항목", "나라장터", "계산기", "사람 자문", "BidBox"].map((h, i) => ({ text: h,
-    options: { bold: true, fontSize: 14, color: i === 4 ? K.white : K.ink, fill: { color: i === 4 ? K.blue : K.slateTint }, align: i ? "center" : "left" } }));
+  const head = (text, bid) => ({ text, options: { bold: true, fontSize: 14, align: "center", valign: "middle", colspan: 2,
+    color: bid ? K.white : K.ink, fill: { color: bid ? K.blue : K.slateTint } } });
+  const hdr = [
+    { text: "항목", options: { bold: true, fontSize: 14, color: K.ink, fill: { color: K.slateTint }, align: "left" } },
+    head("나라장터", false), head("계산기", false), head("사람 자문", false), head("BidBox", true),
+  ];
   const rowsD = [["규칙표 고르기", "—", "✕", "—", "○ 자동 · 206종"],
     ["기준 없을 때", "—", "✕", "—", "○ 직접 입력"],
     ["세 가지 금액", "△", "△", "○", "○ 한 화면"],
@@ -773,11 +829,11 @@ if (QUIET) {
     ["옛 판·지금 판", "—", "△", "—", "○ 날짜 기준"],
     ["금액 비공개", "—", "—", "—", "○ 0원 없음"],
     ["요금", "—", "△ 구독", "✕ 1.5%", "○ 1,000원"]];
-  const rows = [hdr].concat(rowsD.map((r) => r.map((v, i) => i === 0
-    ? { text: v, options: { bold: true, fontSize: 14, color: K.ink, fill: { color: K.bg } } }
-    : cell(v, i === 4))));
-  rows.slice(1).forEach((r) => r.slice(1).forEach((c) => (c.options.align = "center")));
-  s.addTable(rows, { x: M, y: 1.95, w: CW, colW: [2.35, 2.15, 2.45, 2.15, 3.033], rowH: 0.52, fontFace: F, valign: "middle",
+  const rows = [hdr].concat(rowsD.map((r) => {
+    const item = { text: r[0], options: { bold: true, fontSize: 14, color: K.ink, fill: { color: K.bg }, align: "left", valign: "middle" } };
+    return [item].concat(r.slice(1).flatMap((v, i) => pair(v, i === 3)));
+  }));
+  s.addTable(rows, { x: M, y: 1.95, w: CW, colW: [2.10, 0.42, 2.353, 0.42, 1.90, 0.42, 1.70, 0.42, 2.40], rowH: 0.52, fontFace: F, valign: "middle",
     border: { type: "solid", pt: 0.75, color: K.line }, margin: [0.04, 0.06, 0.04, 0.08], objectName: nm("compare") });
   note(s, "○ 지원  △ 부분  ✕ 미지원  — 미확인 · 성공보수 1.5%는 비드큐 · 1,000원은 가설");
   s.addNotes("다른 도구는 넣은 숫자로 점수를 냅니다. 저희는 공고 날짜에 맞는 규칙표를 먼저 찾고, 없으면 계산하지 않습니다. 나라장터에서 규칙표를 골라 주는지는 확인하지 못해 빈칸으로 뒀습니다. 계산기는 기준이 없어도 그대로 계산합니다. 사람 자문은 세 가지 금액을 알려 주지만 성공보수가 1.5%입니다. 근거 상담은 출처를 달고, 없으면 거절합니다. 이용권은 1개 1,000원이고 가설입니다. ■ 질의응답 참고(발표 때 읽지 않음): 나라장터의 규칙표 고르기는 확인하지 못함. 계산기는 기준이 없어도 그대로 계산. 확인하지 못한 칸은 미확인(—). 근거 상담은 출처를 달고, 없으면 거절.");
@@ -801,12 +857,16 @@ if (QUIET) {
     T(s, `${i + 1}개월`, { x: cxm - 0.7, y: 2.58, w: 1.4, h: 0.28, fontSize: 12, color: K.mute, align: "center" });
     T(s, t, { x: cxm - 0.72, y: 3.58, w: 1.44, h: 0.55, fontSize: 14, bold: true, color: K.ink, align: "center" });
   });
-  const goals = [["시험 사용", "10사", "4개월차"], ["시험 사용", "20사", "6개월차 · 가설"], ["유료 전환", "8사", "8개월차 · 가설"]];
-  goals.forEach(([a, b, c], i) => {
-    const gw = (CW - 0.36) / 3, x = M + i * (gw + 0.18);
+  const goals = [["시험 사용", "10사", "4개월차", 3], ["시험 사용", "20사", "6개월차 · 가설", 5], ["유료 전환", "8사", "8개월차 · 가설", 7]];
+  const gw = 2.15;
+  goals.forEach(([a, b, c, mi], i) => {
+    const cxm = M + step * mi + step / 2;
+    const x = Math.max(M, Math.min(cxm - gw / 2, W - M - gw));
+    s.addShape(pres.shapes.RECTANGLE, { x: cxm - 0.02, y: 4.16, w: 0.04, h: 0.2, fill: { color: K.electro }, line: { type: "none" }, objectName: nm("stem") });
     box(s, { x, y: 4.35, w: gw, h: 1.15, fill: K.white, line: i === 2 ? K.electro : K.line, shadow: true });
-    T(s, b, { x: x + 0.1, y: 4.42, w: gw - 0.2, h: 0.58, fontSize: 32, bold: true, color: K.electro, align: "center" });
-    T(s, `${a} · ${c}`, { x: x + 0.1, y: 5.02, w: gw - 0.2, h: 0.32, fontSize: 13, color: K.ink2, align: "center" });
+    T(s, b, { x: x + 0.08, y: 4.42, w: gw - 0.16, h: 0.5, fontSize: 28, bold: true, color: K.electro, align: "center" });
+    T(s, a, { x: x + 0.08, y: 4.94, w: gw - 0.16, h: 0.24, fontSize: 13, color: K.ink2, align: "center" });
+    T(s, c, { x: x + 0.08, y: 5.16, w: gw - 0.16, h: 0.24, fontSize: 13, color: K.ink2, align: "center" });
   });
   note(s, "구현 7 · 부분 1 · 협약 중 2(운영 주소·결제·약관, 보안·시험 기록·지자체) · 특허 1건 · 7개월차 · 없는 회사 수는 가설", 5.68);
   s.addNotes("협약 8개월은 두 단계입니다. 1단계 4개월, 2,000만 원으로 운영을 열고 회사 점수를 붙인 뒤, 3개월에 이용권 결제를 엽니다. 4개월에 시험 사용 10사로 중간평가를 받습니다. 2단계는 중간평가 뒤에만 2,000만 원을 씁니다. 5개월에 지자체 규칙과 영업 담당 채용, 6개월에 시험 20사, 7개월에 특허 출원 1건, 8개월에 유료 전환입니다. 10사, 20사, 8사는 아직 없는 회사 수를 보는 목표이고, 20사와 8사는 가설입니다. 규칙은 206종, 31,305건 중 21,394건에 자동 적용했습니다. ■ 질의응답 참고(발표 때 읽지 않음): 1개월 운영 공개. 2개월 회사 점수. 3개월 이용권 1,000원 가설, 보안 점검. 4개월 시험 10사, 중간평가. 5개월 지자체 규칙, 영업 담당 채용. 6개월 시험 20사 가설, 비수도권 10사 이상. 7개월 단가, 상표 1건, 특허 출원 1건. 8개월 유료 전환. 개발 10항목 중 구현 7, 부분 1, 협약 중 2.");
@@ -824,10 +884,11 @@ if (QUIET) {
   const bmGap = 0.28, bmW = (CW - 3 * bmGap) / 4;
   for (let i = 0; i < 4; i++) {
     const [tag, hero, when, what, main] = bm[i];
+    const pending = hero === "미정" || hero === "미공개";
     const x = M + i * (bmW + bmGap);
     box(s, { x, y: 1.92, w: bmW, h: 2.55, fill: main ? K.electro : K.white, line: main ? K.electro : K.line, shadow: true });
     T(s, tag, { x: x + 0.12, y: 2.04, w: bmW - 0.24, h: 0.32, fontSize: 14, bold: true, color: main ? K.white : K.ink2, align: "center" });
-    T(s, hero, { x: x + 0.08, y: 2.4, w: bmW - 0.16, h: 0.72, fontSize: main ? 32 : 28, bold: true, color: main ? K.white : K.electro, align: "center" });
+    T(s, hero, { x: x + 0.08, y: 2.4, w: bmW - 0.16, h: 0.72, fontSize: main ? 32 : pending ? 22 : 28, bold: true, color: main ? K.white : pending ? K.mute : K.electro, align: "center" });
     T(s, when, { x: x + 0.12, y: 3.16, w: bmW - 0.24, h: 0.32, fontSize: 14, bold: true, color: main ? K.white : K.ink, align: "center" });
     T(s, what, { x: x + 0.14, y: 3.52, w: bmW - 0.28, h: 0.7, fontSize: 14, color: main ? K.white : K.ink2, align: "center" });
     if (i < 3) arrow(s, x + bmW + 0.02, 2.95, bmGap - 0.04, K.blue2);
@@ -835,7 +896,7 @@ if (QUIET) {
   box(s, { x: M, y: 4.62, w: 8.15, h: 0.95, fill: K.white, line: K.electro, lw: 1.5, shadow: true });
   T(s, "연 80만 원", { x: M + 0.22, y: 4.72, w: 3.15, h: 0.74, fontSize: 32, bold: true, color: K.electro, valign: "middle" });
   T(s, "유료 8사 × 1년 100이용권 × 1,000원\n지불 의사를 보는 가설 · 손익 아님", { x: M + 3.45, y: 4.74, w: 4.5, h: 0.72, fontSize: 14, color: K.ink2, valign: "middle" });
-  chip(s, "성공보수 없음", 9.05, 4.82, K.white, K.red, { w: 3.65, h: 0.55, size: 16 });
+  chip(s, "성공보수 없음", 9.05, 4.82, K.ink, K.white, { w: 3.65, h: 0.55, size: 16, line: K.electro, lw: 1.5 });
   const fun = [["무료", "지금"], ["10사", "4개월"], ["20사", "6개월 · 가설"], ["8사", "8개월 · 가설"]];
   fun.forEach(([a, b], i) => {
     const fw = (CW - 0.54) / 4, x = M + i * (fw + 0.18), hot = i === 3;
@@ -848,26 +909,32 @@ if (QUIET) {
 
   // ===== 8. 확장 + 자금 =====
   s = lightSlide("S 성장전략", "S · 성장전략", "용역에서 [[공사로]], 자금은 4,000만");
-  const rd = [["1년차", "네 업종", "0.75조", K.electroTint, K.ink],
-    ["2년차", "용역 확대", "10.2조", K.blue2, K.ink],
-    ["3년차", "물품 · 공사", "23.4조", K.blue, K.white],
-    ["4년차", "공사 · API", "54.4조", K.blueDeep, K.white],
-    ["5년차", "자체조달", "+80.0조", K.navy, K.white]];
+  const rd = [["1년차", "네 업종", "0.75조", 0.75, K.electroTint, K.ink],
+    ["2년차", "용역 확대", "10.2조", 10.2, K.blue2, K.ink],
+    ["3년차", "물품 · 공사", "23.4조", 23.4, K.blue, K.white],
+    ["4년차", "공사 · API", "54.4조", 54.4, K.blueDeep, K.white],
+    ["5년차", "자체조달", "+80.0조", null, K.navy, K.white]];
   const tech = ["지자체 규칙", "낙찰방법 44종", "공사 규칙", "계정 · API", "공고 연동"];
   const labW = 0.7, rgap = 0.08, colW = (CW - labW - 4 * rgap) / 5;
-  rd.forEach(([year, biz, amt, fill, ink], i) => {
+  const scaleMax = 54.4;
+  rd.forEach(([year, biz, amt, bar, fill, ink], i) => {
     const x = M + labW + i * (colW + rgap);
     box(s, { x, y: 1.9, w: colW, h: 0.4, fill, radius: 0.08, name: "year" });
     T(s, year, { x, y: 1.9, w: colW, h: 0.4, fontSize: 13, bold: true, color: ink, align: "center", valign: "middle" });
-    T(s, amt, { x, y: 2.34, w: colW, h: 0.4, fontSize: 18, bold: true, color: i >= 3 ? K.blue : K.electro, align: "center" });
-    box(s, { x, y: 2.78, w: colW, h: 0.7, fill: K.white, line: K.line, radius: 0.08 });
-    T(s, biz, { x: x + 0.06, y: 2.78, w: colW - 0.12, h: 0.7, fontSize: 14, bold: true, color: K.ink, align: "center", valign: "middle" });
-    box(s, { x, y: 3.54, w: colW, h: 0.58, fill: K.slateTint, radius: 0.08 });
-    T(s, tech[i], { x: x + 0.04, y: 3.54, w: colW - 0.08, h: 0.58, fontSize: 13, color: K.ink2, align: "center", valign: "middle" });
+    T(s, amt, { x, y: 2.32, w: colW, h: 0.3, fontSize: 16, bold: true, color: i >= 3 ? K.blue : K.electro, align: "center" });
+    if (bar != null) {
+      const bw = Math.max(0.12, (colW - 0.04) * (bar / scaleMax));
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 2.64, w: colW, h: 0.1, fill: { color: K.slateTint }, line: { type: "none" }, rectRadius: 0.04, objectName: nm("range-track") });
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 2.64, w: bw, h: 0.1, fill: { color: K.electro }, line: { type: "none" }, rectRadius: 0.04, objectName: nm("range-bar") });
+    }
+    box(s, { x, y: 2.82, w: colW, h: 0.64, fill: K.white, line: K.line, radius: 0.08 });
+    T(s, biz, { x: x + 0.06, y: 2.82, w: colW - 0.12, h: 0.64, fontSize: 14, bold: true, color: K.ink, align: "center", valign: "middle" });
+    box(s, { x, y: 3.52, w: colW, h: 0.56, fill: K.slateTint, radius: 0.08 });
+    T(s, tech[i], { x: x + 0.04, y: 3.52, w: colW - 0.08, h: 0.56, fontSize: 13, color: K.ink2, align: "center", valign: "middle" });
   });
-  T(s, "범위", { x: M, y: 2.34, w: labW, h: 0.4, fontSize: 12, bold: true, color: K.electro, valign: "middle" });
-  T(s, "사업", { x: M, y: 2.78, w: labW, h: 0.7, fontSize: 12, bold: true, color: K.ink, valign: "middle" });
-  T(s, "기술", { x: M, y: 3.54, w: labW, h: 0.58, fontSize: 12, bold: true, color: K.ink2, valign: "middle" });
+  T(s, "범위", { x: M, y: 2.32, w: labW, h: 0.42, fontSize: 12, bold: true, color: K.electro, valign: "middle" });
+  T(s, "사업", { x: M, y: 2.82, w: labW, h: 0.64, fontSize: 12, bold: true, color: K.ink, valign: "middle" });
+  T(s, "기술", { x: M, y: 3.52, w: labW, h: 0.56, fontSize: 12, bold: true, color: K.ink2, valign: "middle" });
   T(s, "정부지원사업비 (만원, 단계마다 2,000)", { x: M, y: 4.28, w: 6.5, h: 0.28, fontSize: 13, bold: true, color: K.ink });
   const BC = [["외주 800", 800, K.blue3], ["수수료 720", 720, K.blue2], ["광고 480", 480, "A39EAE"], ["인건비 1,000", 1000, K.electro], ["수수료 580", 580, K.blue2], ["상표·특허 300", 300, K.amber], ["120", 120.164, "5C5868"]];
   const stages = [["1단계", BC.slice(0, 3)], ["2단계", BC.slice(3)]];
