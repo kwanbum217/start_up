@@ -1,4 +1,5 @@
 // BidBox 피치덱(.pptx) 생성기
+// v27 (2026-11-14): 표면·1~5장·6~10장의 디자인 마감을 합친다. 카드 모서리 0.05·그림자 없음·바탕 무늬는 더 옅게, 일렉트로 퍼플은 장마다 한 곳. 문장·숫자는 v26과 같다. v26 pptx는 덮어쓰지 않는다.
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
 // v26 (2026-11-12): v23 검토에서 10장에 남은 자리만 고친다. 문장·숫자는 v25와 같다. v25는 덮어쓰지 않는다.
@@ -104,7 +105,7 @@ const titlePh = (dark) => ({
 const eyebrowPh = (dark) => ({
   placeholder: {
     options: { name: "eyebrow", type: "body", x: M, y: 0.50, w: CW, h: 0.26, fontFace: F, fontSize: 12, bold: !QUIET,
-      color: dark ? (QUIET ? K.onDarkMute : K.skyOnDark) : (FLAT || QUIET ? K.mute : K.blue), valign: "top", margin: 0 },
+      color: dark ? K.onDarkMute : K.mute, valign: "top", margin: 0 },
     text: "",
   },
 });
@@ -141,14 +142,13 @@ function box(s, o) {
   const opt = { x: o.x, y: o.y, w: o.w, h: o.h, fill: { color: o.fill || K.white },
     line: o.line ? { color: o.line, width: o.lw || 1, dashType: o.dash || "solid" } : { type: "none" },
     objectName: nm(o.name || "card") };
-  if (shape === pres.shapes.ROUNDED_RECTANGLE) opt.rectRadius = o.radius == null ? 0.14 : o.radius;
-  if (o.shadow) opt.shadow = { type: "outer", color: "000000", opacity: 0.12, blur: 8, offset: 2, angle: 90 };
+  if (shape === pres.shapes.ROUNDED_RECTANGLE) opt.rectRadius = o.radius == null ? 0.05 : o.radius;
   s.addShape(shape, opt);
 }
 // v12. 카드보다 먼저 깔아, 카드와 화면이 판 가장자리에 겹치게 한다.
 function plate(s, o = {}) {
   box(s, { x: o.x == null ? M : o.x, y: o.y == null ? 1.88 : o.y, w: o.w == null ? CW : o.w, h: o.h == null ? 4.55 : o.h,
-    fill: o.fill || K.white, line: o.line, radius: o.radius == null ? 0.18 : o.radius, shadow: o.shadow !== false, name: "plate" });
+    fill: o.fill || K.white, line: o.line, radius: o.radius == null ? 0.05 : o.radius, name: "plate" });
 }
 function chip(s, text, x, y, color, tint, o = {}) {
   if (QUIET) {
@@ -163,8 +163,8 @@ function chip(s, text, x, y, color, tint, o = {}) {
     }
   }
   const w = o.w || Math.max(0.9, text.length * 0.135 + 0.35);
-  s.addText(text, { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.16, x, y, w, h: o.h || 0.32,
-    fill: { color: tint }, line: o.line ? { color: o.line, width: o.lw || 1.5 } : { type: "none" },
+  s.addText(text, { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: o.radius == null ? 0.05 : o.radius, x, y, w, h: o.h || 0.32,
+    fill: { color: tint }, line: o.line ? { color: o.line, width: o.lw || 1 } : { type: "none" },
     fontFace: F, fontSize: o.size || 12, bold: true, color,
     align: "center", valign: "middle", margin: 0, objectName: nm("chip") });
   return w;
@@ -216,15 +216,15 @@ async function bgImage(kind, seed = 7) {
     for (let i = 0; i < 26; i++) {
       const sx = 1180 + r() * 900, sy = 260 + r() * 1100;
       const c1x = sx + 260 + r() * 160, c1y = sy, c2x = ex - 360, c2y = ey + (r() - 0.5) * 120;
-      g += `<path d="M${sx.toFixed(0)},${sy.toFixed(0)} C${c1x.toFixed(0)},${c1y.toFixed(0)} ${c2x.toFixed(0)},${c2y.toFixed(0)} ${ex},${ey}" fill="none" stroke="${sky}" stroke-opacity="${(0.07 + r() * 0.08).toFixed(3)}" stroke-width="2"/>`;
-      g += `<circle cx="${sx.toFixed(0)}" cy="${sy.toFixed(0)}" r="${(3 + r() * 4).toFixed(1)}" fill="${sky}" fill-opacity="${(0.22 + r() * 0.2).toFixed(2)}"/>`;
+      g += `<path d="M${sx.toFixed(0)},${sy.toFixed(0)} C${c1x.toFixed(0)},${c1y.toFixed(0)} ${c2x.toFixed(0)},${c2y.toFixed(0)} ${ex},${ey}" fill="none" stroke="${sky}" stroke-opacity="${(0.05 + r() * 0.055).toFixed(3)}" stroke-width="2"/>`;
+      g += `<circle cx="${sx.toFixed(0)}" cy="${sy.toFixed(0)}" r="${(3 + r() * 4).toFixed(1)}" fill="${sky}" fill-opacity="${(0.16 + r() * 0.14).toFixed(2)}"/>`;
     }
     for (let i = 0; i < 140; i++) {
       const x = 900 + Math.pow(r(), 0.7) * 1650, y = r() * PH;
-      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(1.5 + r() * 2).toFixed(1)}" fill="${sky}" fill-opacity="${(0.06 + r() * 0.12).toFixed(2)}"/>`;
+      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(1.5 + r() * 2).toFixed(1)}" fill="${sky}" fill-opacity="${(0.04 + r() * 0.08).toFixed(2)}"/>`;
     }
     // 모이는 점은 장 안쪽에 둔다(가장자리에서 잘린 반원이 되지 않게).
-    g += `<circle cx="${ex}" cy="${ey}" r="46" fill="${blue}" fill-opacity="0.14"/><circle cx="${ex}" cy="${ey}" r="10" fill="${sky}" fill-opacity="0.6"/>`;
+    g += `<circle cx="${ex}" cy="${ey}" r="46" fill="${blue}" fill-opacity="0.10"/><circle cx="${ex}" cy="${ey}" r="10" fill="${sky}" fill-opacity="0.45"/>`;
   } else if (kind === "net") {
     // 가장자리 쪽에 더 많은 점과 가까운 점끼리 잇는 선. 가운데(내용 자리)는 옅게 둔다.
     const pts = [];
@@ -242,24 +242,24 @@ async function bgImage(kind, seed = 7) {
     }
     pts.forEach(([x, y], i) => {
       const near = pts.map(([a, b], j) => [Math.hypot(a - x, b - y), j]).filter(([d, j]) => j !== i).sort((a, b) => a[0] - b[0]).slice(0, 2);
-      for (const [d, j] of near) if (d < 360) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${sky}" stroke-opacity="0.17" stroke-width="2.2"/>`; // v21: 0.08→0.17
+      for (const [d, j] of near) if (d < 360) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${sky}" stroke-opacity="0.12" stroke-width="2.2"/>`; // v27a: 0.17→0.12
     });
     pts.forEach(([x, y], i) => {
       const hot = i % 11 === 0;
       // v21: 점도 진하게(사용자 지시). 보통 점 0.22→0.40, 강조 점 0.55→0.85.
-      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="18" fill="${blue}" fill-opacity="0.22"/>`;
-      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6 : 3.6}" fill="${hot ? sky : sky}" fill-opacity="${hot ? 0.85 : 0.40}"/>`;
+      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="18" fill="${blue}" fill-opacity="0.16"/>`;
+      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6 : 3.6}" fill="${hot ? sky : sky}" fill-opacity="${hot ? 0.62 : 0.30}"/>`;
     });
   } else if (kind === "rings") {
     // 오른쪽 아래에서 바깥으로 퍼지는 동심원과 원 위의 점(용역 → 물품 → 공사).
     const cx = PW - 120, cy = PH + 80;
     for (let k = 1; k <= 14; k++) {
       // v20: 시안보다 진하게(사용자 지시). 안쪽 0.30에서 바깥 0.08까지.
-      const rad = 150 * k, op = Math.max(0.08, 0.30 - k * 0.016);
+      const rad = 150 * k, op = Math.max(0.05, 0.20 - k * 0.011);
       g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${sky}" stroke-opacity="${op.toFixed(3)}" stroke-width="${k % 3 === 0 ? 3.2 : 2}"/>`;
       if (k % 3 === 0) {
         const a = Math.PI + 0.25 + r() * 1.1;
-        g += `<circle cx="${(cx + rad * Math.cos(a)).toFixed(0)}" cy="${(cy + rad * Math.sin(a)).toFixed(0)}" r="8" fill="${sky}" fill-opacity="0.7"/>`;
+        g += `<circle cx="${(cx + rad * Math.cos(a)).toFixed(0)}" cy="${(cy + rad * Math.sin(a)).toFixed(0)}" r="8" fill="${sky}" fill-opacity="0.5"/>`;
       }
     }
   }
@@ -282,9 +282,9 @@ async function lightBgImage(kind, seed) {
   let g = "";
   if (kind === "docs") {
     for (let i = 0; i < 8; i++) {
-      const x = 1700 + i * 105 + r() * 40, y = 34 + r() * 80, rot = (r() - 0.5) * 22; // 위 끝에서 잘리지 않게 띠 안쪽
-      g += `<g transform="rotate(${rot.toFixed(1)} ${x + 70} ${y + 95})"><rect x="${x}" y="${y}" width="140" height="190" rx="12" fill="#FFFFFF" fill-opacity="0.75" stroke="${blue}" stroke-opacity="0.38" stroke-width="2.6"/>`;
-      for (let k = 0; k < 4; k++) g += `<line x1="${x + 22}" y1="${y + 40 + k * 32}" x2="${x + 118 - (k === 3 ? 40 : 0)}" y2="${y + 40 + k * 32}" stroke="${blue}" stroke-opacity="0.28" stroke-width="3"/>`;
+      const x = Math.min(1700 + i * 105 + r() * 40, PW - 200), y = 34 + r() * 60, rot = (r() - 0.5) * 22; // 위·오른쪽 끝에서 잘리지 않게 띠 안쪽
+      g += `<g transform="rotate(${rot.toFixed(1)} ${x + 70} ${y + 95})"><rect x="${x}" y="${y}" width="140" height="190" rx="12" fill="#FFFFFF" fill-opacity="0.60" stroke="${blue}" stroke-opacity="0.28" stroke-width="2.6"/>`;
+      for (let k = 0; k < 4; k++) g += `<line x1="${x + 22}" y1="${y + 40 + k * 32}" x2="${x + 118 - (k === 3 ? 40 : 0)}" y2="${y + 40 + k * 32}" stroke="${blue}" stroke-opacity="0.20" stroke-width="3"/>`;
       g += `</g>`;
     }
   } else if (kind === "net") {
@@ -292,22 +292,22 @@ async function lightBgImage(kind, seed) {
     for (let i = 0; i < 30; i++) pts.push([1650 + r() * 870, 30 + r() * (band - 50)]);
     pts.forEach(([x, y], i) => {
       const near = pts.map(([a, b], j) => [Math.hypot(a - x, b - y), j]).filter(([d, j]) => j !== i).sort((a, b) => a[0] - b[0]).slice(0, 2);
-      for (const [d, j] of near) if (d < 260) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${blue}" stroke-opacity="0.32" stroke-width="2.2"/>`;
+      for (const [d, j] of near) if (d < 260) g += `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${pts[j][0].toFixed(0)}" y2="${pts[j][1].toFixed(0)}" stroke="${blue}" stroke-opacity="0.24" stroke-width="2.2"/>`;
     });
     pts.forEach(([x, y], i) => {
       const hot = i % 7 === 0;
-      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="14" fill="${blue}" fill-opacity="0.16"/>`;
-      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6 : 4}" fill="${blue}" fill-opacity="${hot ? 0.8 : 0.48}"/>`;
+      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="14" fill="${blue}" fill-opacity="0.12"/>`;
+      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6 : 4}" fill="${blue}" fill-opacity="${hot ? 0.6 : 0.35}"/>`;
     });
   } else if (kind === "rings") {
     const cx = PW + 40, cy = -60;
     for (let k = 1; k <= 9; k++) {
       const rad = 120 * k;
-      g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${blue}" stroke-opacity="${Math.max(0.13, 0.40 - k * 0.03).toFixed(3)}" stroke-width="${k % 3 === 0 ? 3.2 : 2.2}"/>`;
+      g += `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="${blue}" stroke-opacity="${Math.max(0.09, 0.28 - k * 0.021).toFixed(3)}" stroke-width="${k % 3 === 0 ? 3.2 : 2.2}"/>`;
       if (k % 3 === 0) {
         const a = Math.PI / 2 + 0.35 + r() * 0.6;
         const px = cx + rad * Math.cos(a), py = cy + rad * Math.sin(a);
-        if (py > 20 && py < band - 20) g += `<circle cx="${px.toFixed(0)}" cy="${py.toFixed(0)}" r="8" fill="${blue}" fill-opacity="0.8"/>`;
+        if (py > 20 && py < band - 20) g += `<circle cx="${px.toFixed(0)}" cy="${py.toFixed(0)}" r="8" fill="${blue}" fill-opacity="0.6"/>`;
       }
     }
   }
@@ -402,8 +402,8 @@ async function washImage(kind, seed = 7) {
       const x = Math.min(maxX, minX + i * step + r() * Math.min(16, step * 0.3));
       const y = 36 + r() * 40;
       const rot = (r() - 0.5) * rotMax;
-      g += `<g transform="rotate(${rot.toFixed(1)} ${x + 70} ${y + 95})"><rect x="${x}" y="${y}" width="${docW}" height="${docH}" rx="12" fill="#FFFFFF" fill-opacity="0.55" stroke="${violet}" stroke-opacity="0.55" stroke-width="2.8"/>`;
-      for (let k = 0; k < 4; k++) g += `<line x1="${x + 22}" y1="${y + 40 + k * 32}" x2="${x + 118 - (k === 3 ? 40 : 0)}" y2="${y + 40 + k * 32}" stroke="${violet}" stroke-opacity="0.40" stroke-width="3"/>`;
+      g += `<g transform="rotate(${rot.toFixed(1)} ${x + 70} ${y + 95})"><rect x="${x}" y="${y}" width="${docW}" height="${docH}" rx="12" fill="#FFFFFF" fill-opacity="0.42" stroke="${violet}" stroke-opacity="0.40" stroke-width="2.8"/>`;
+      for (let k = 0; k < 4; k++) g += `<line x1="${x + 22}" y1="${y + 40 + k * 32}" x2="${x + 118 - (k === 3 ? 40 : 0)}" y2="${y + 40 + k * 32}" stroke="${violet}" stroke-opacity="0.28" stroke-width="3"/>`;
       g += `</g>`;
     }
   } else if (kind === "net") {
@@ -433,13 +433,13 @@ async function washImage(kind, seed = 7) {
     const deg = new Array(pts.length).fill(0);
     edges.forEach(([a, b]) => {
       deg[a]++; deg[b]++;
-      g += `<line x1="${pts[a][0].toFixed(0)}" y1="${pts[a][1].toFixed(0)}" x2="${pts[b][0].toFixed(0)}" y2="${pts[b][1].toFixed(0)}" stroke="${violet}" stroke-opacity="0.42" stroke-width="2.4"/>`;
+      g += `<line x1="${pts[a][0].toFixed(0)}" y1="${pts[a][1].toFixed(0)}" x2="${pts[b][0].toFixed(0)}" y2="${pts[b][1].toFixed(0)}" stroke="${violet}" stroke-opacity="0.30" stroke-width="2.4"/>`;
     });
     pts.forEach(([x, y], i) => {
       if (deg[i] < 2) return;
       const hot = i % 7 === 0;
-      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="16" fill="${deep}" fill-opacity="0.18"/>`;
-      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6.5 : 4.2}" fill="${violet}" fill-opacity="${hot ? 0.88 : 0.55}"/>`;
+      if (hot) g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="16" fill="${deep}" fill-opacity="0.13"/>`;
+      g += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${hot ? 6.5 : 4.2}" fill="${violet}" fill-opacity="${hot ? 0.66 : 0.40}"/>`;
     });
   } else if (kind === "rings") {
     // 시드마다 중심·간격·점 자리가 달라 성장 장이 같은 도장으로 보이지 않게 한다. 점은 띠 안에 둔다.
@@ -449,7 +449,7 @@ async function washImage(kind, seed = 7) {
     const gap = 62 + r() * 46;
     for (let k = 1; k <= n; k++) {
       const rad = gap * k;
-      g += `<circle cx="${cx.toFixed(0)}" cy="${cy.toFixed(0)}" r="${rad.toFixed(0)}" fill="none" stroke="${violet}" stroke-opacity="${Math.max(0.16, 0.55 - k * 0.045).toFixed(3)}" stroke-width="${k % 3 === 0 ? 3.4 : 2.3}"/>`;
+      g += `<circle cx="${cx.toFixed(0)}" cy="${cy.toFixed(0)}" r="${rad.toFixed(0)}" fill="none" stroke="${violet}" stroke-opacity="${Math.max(0.12, 0.40 - k * 0.033).toFixed(3)}" stroke-width="${k % 3 === 0 ? 3.4 : 2.3}"/>`;
       if (k % 2 === 0) {
         const py = 46 + r() * (band - 100);
         const dy = py - cy;
@@ -457,7 +457,7 @@ async function washImage(kind, seed = 7) {
         if (disc <= 0) continue;
         const px = cx - Math.sqrt(disc);
         if (px > 1540 && px < PW - 36 && py > 28 && py < band - 24) {
-          g += `<circle cx="${px.toFixed(0)}" cy="${py.toFixed(0)}" r="8" fill="${violet}" fill-opacity="0.85"/>`;
+          g += `<circle cx="${px.toFixed(0)}" cy="${py.toFixed(0)}" r="8" fill="${violet}" fill-opacity="0.62"/>`;
         }
       }
     }
@@ -473,10 +473,10 @@ async function washImage(kind, seed = 7) {
       for (let i = 0; i < c.n; i++) {
         const sx = c.x0 + r() * (c.x1 - c.x0), sy = c.y0 + r() * (c.y1 - c.y0);
         const c1x = sx - 80 + r() * 200, c1y = sy - 80 + r() * 80, c2x = c.ex - 280, c2y = c.ey + (r() - 0.5) * 140;
-        g += `<path d="M${sx.toFixed(0)},${sy.toFixed(0)} C${c1x.toFixed(0)},${c1y.toFixed(0)} ${c2x.toFixed(0)},${c2y.toFixed(0)} ${c.ex},${c.ey}" fill="none" stroke="${violet}" stroke-opacity="${(0.22 + r() * 0.16).toFixed(3)}" stroke-width="2.4"/>`;
-        g += `<circle cx="${sx.toFixed(0)}" cy="${sy.toFixed(0)}" r="${(4 + r() * 5).toFixed(1)}" fill="${violet}" fill-opacity="${(0.32 + r() * 0.28).toFixed(2)}"/>`;
+        g += `<path d="M${sx.toFixed(0)},${sy.toFixed(0)} C${c1x.toFixed(0)},${c1y.toFixed(0)} ${c2x.toFixed(0)},${c2y.toFixed(0)} ${c.ex},${c.ey}" fill="none" stroke="${violet}" stroke-opacity="${(0.15 + r() * 0.11).toFixed(3)}" stroke-width="2.4"/>`;
+        g += `<circle cx="${sx.toFixed(0)}" cy="${sy.toFixed(0)}" r="${(4 + r() * 5).toFixed(1)}" fill="${violet}" fill-opacity="${(0.22 + r() * 0.20).toFixed(2)}"/>`;
       }
-      g += `<circle cx="${c.ex}" cy="${c.ey}" r="54" fill="${deep}" fill-opacity="0.16"/><circle cx="${c.ex}" cy="${c.ey}" r="11" fill="${violet}" fill-opacity="0.72"/>`;
+      g += `<circle cx="${c.ex}" cy="${c.ey}" r="54" fill="${deep}" fill-opacity="0.12"/><circle cx="${c.ex}" cy="${c.ey}" r="11" fill="${violet}" fill-opacity="0.55"/>`;
     }
   }
   const clipped = kind && kind !== "flow";
@@ -692,7 +692,7 @@ if (QUIET) {
   }
 
   async function problemCard(s, x, y, w, h, img, title, lines) {
-    box(s, { x, y, w, h, fill: K.white, line: "E7D0E4", radius: 0.18, shadow: true, name: "prob" });
+    box(s, { x, y, w, h, fill: K.white, line: K.line, radius: 0.05, shadow: false, name: "prob" });
     const d = 1.38;
     s.addImage({ path: img, x: x + 0.14, y: y + (h - d) / 2, w: d, h: d, rounding: true, objectName: nm("pimg") });
     const tx = x + d + 0.28, tw = w - d - 0.44;
@@ -700,7 +700,7 @@ if (QUIET) {
     let ty = y + 0.54;
     lines.forEach((ln, i) => {
       const lh = i === 0 ? 0.38 : 0.30;
-      T(s, ln, { x: tx, y: ty, w: tw, h: lh, fontSize: i === 0 ? 16 : 13, bold: true, color: i === 0 ? K.electro : K.ink2 });
+      T(s, ln, { x: tx, y: ty, w: tw, h: lh, fontSize: i === 0 ? 16 : 13, bold: true, color: i === 0 ? K.ink : K.ink2 });
       ty += lh;
     });
   }
@@ -709,17 +709,17 @@ if (QUIET) {
   pres.addSection({ title: "표지" });
   let s = pres.addSlide({ masterName: "COVER", sectionTitle: "표지" });
   s.background = { data: await bg("flow", 3) };
-  T(s, "2026 예비창업패키지 · 피치덱", { x: M, y: 0.72, w: 6.4, h: 0.32, fontSize: 14, bold: true, color: K.electro });
-  T(s, "공공기관 용역 입찰\n도우미 웹 서비스", { x: M, y: 1.15, w: 6.3, h: 1.7, fontSize: 40, bold: true, color: K.ink, lineSpacingMultiple: 1.05 });
-  T(s, "공고마다 다른 점수 규칙, 찾아서 금액 범위까지", { x: M, y: 3.0, w: 6.3, h: 0.4, fontSize: 16, color: K.ink2 });
-  s.addImage({ path: LOGO(false), x: M - 0.05, y: 3.55, w: 0.7 * LOGO_R, h: 0.7, objectName: nm("logo") });
-  T(s, "(가칭)", { x: M + 0.7 * LOGO_R + 0.08, y: 3.78, w: 1.2, h: 0.32, fontSize: 14, color: K.mute });
-  s.addImage({ data: await icon("FaScaleBalanced", K.green), x: M, y: 4.5, w: 0.28, h: 0.28, objectName: nm("esg-icon") });
-  T(s, "조달 정보 차이를 줄이는 도구", { x: M + 0.4, y: 4.46, w: 5.4, h: 0.34, fontSize: 16, bold: true, color: K.green });
-  T(s, "Narani", { x: M, y: 5.15, w: 1.5, h: 0.36, fontSize: 16, bold: true, color: K.ink });
-  chip(s, "회사 대상 이용권형(SaaS)", M + 1.6, 5.16, K.electro, K.electroTint, { w: 2.7, h: 0.34, size: 12 });
-  shot(s, "detail_top.jpg", 6.85, 0.42, 5.9, 1568 / 661, "공고 상세", { labelTop: true });
-  shot(s, "dashboard.jpg", 7.55, 2.55, 5.1, 1530 / 661, "대시보드");
+  T(s, "2026 예비창업패키지 · 피치덱", { x: M, y: 0.68, w: 6.0, h: 0.32, fontSize: 14, bold: true, color: K.electro });
+  T(s, "공공기관 용역 입찰\n도우미 웹 서비스", { x: M, y: 1.12, w: 6.0, h: 1.64, fontSize: 40, bold: true, color: K.ink, lineSpacingMultiple: 1.05 });
+  T(s, "공고마다 다른 점수 규칙, 찾아서 금액 범위까지", { x: M, y: 3.04, w: 6.0, h: 0.4, fontSize: 16, color: K.ink2 });
+  s.addImage({ path: LOGO(false), x: M - 0.05, y: 3.94, w: 0.62 * LOGO_R, h: 0.62, objectName: nm("logo") });
+  T(s, "(가칭)", { x: M + 0.62 * LOGO_R + 0.10, y: 4.10, w: 1.2, h: 0.32, fontSize: 14, color: K.mute });
+  s.addImage({ data: await icon("FaScaleBalanced", K.ink2), x: M, y: 5.04, w: 0.26, h: 0.26, objectName: nm("esg-icon") });
+  T(s, "조달 정보 차이를 줄이는 도구", { x: M + 0.38, y: 4.99, w: 5.4, h: 0.34, fontSize: 16, bold: true, color: K.ink2 });
+  T(s, "Narani", { x: M, y: 5.78, w: 1.5, h: 0.36, fontSize: 16, bold: true, color: K.ink });
+  chip(s, "회사 대상 이용권형(SaaS)", M + 1.6, 5.79, K.ink2, K.white, { w: 2.7, h: 0.34, size: 12, line: K.silver, lw: 1 });
+  shot(s, "detail_top.jpg", 6.95, 0.42, 5.78, 1568 / 661, "공고 상세", { labelTop: true });
+  shot(s, "dashboard.jpg", 7.62, 2.62, 5.11, 1530 / 661, "대시보드");
   s.addNotes("공공기관 용역 입찰에서 공고마다 다른 점수 규칙을 찾아, 써 낼 금액의 범위까지 알려 주는 BidBox입니다. 이 서비스를 만든 Narani 대표 [이름]입니다. 오른쪽은 지금 동작하는 시제품입니다. 청소, 경비, 파견, 직업소개 네 업종 회사가 쓰는 이용권형 웹 서비스이고, 조달 정보 차이를 줄이는 도구입니다. ■ 질의응답 참고(발표 때 읽지 않음): 청소·경비·파견·직업소개 네 업종 회사가 이용권을 사서 쓰는 웹 서비스. 조달 정보 차이를 줄이는 것이 사회적 의미.");
 
   pres.addSection({ title: "P 문제 인식" });
@@ -738,16 +738,18 @@ if (QUIET) {
   const anchors = [[pcL + pcW, pcY1 + pcH / 2], [pcR, pcY1 + pcH / 2], [pcL + pcW, pcY2 + pcH / 2], [pcR, pcY2 + pcH / 2]];
   for (const [x1, y1] of anchors) {
     const [x2, y2] = toHead(x1, y1);
-    diag(s, x1, y1, x2, y2);
+    const dx = x2 - x1, dy = y2 - y1, len = Math.max(0.08, Math.hypot(dx, dy));
+    s.addShape(pres.shapes.RECTANGLE, { x: (x1 + x2) / 2 - len / 2, y: (y1 + y2) / 2 - 0.005, w: len, h: 0.01,
+      fill: { color: K.silver }, line: { type: "none" }, rotate: Math.atan2(dy, dx) * 180 / Math.PI, objectName: nm("rel") });
   }
   await problemCard(s, pcL, pcY1, pcW, pcH, PROB("docs.jpg"), "본문에 규칙 없음", ["첨부에서 직접 찾음", "기관·날짜마다 판이 다름"]);
   await problemCard(s, pcR, pcY1, pcW, pcH, PROB("gauge.jpg"), "하한율이 자꾸 바뀜", ["87.995% → 89.995%", "청소·경비 · 9년 만", "1년 새 세 번 · 각 2%p"]);
   await problemCard(s, pcL, pcY2, pcW, pcH, PROB("folders.jpg"), "옛 판과 개정본", ["인천 2017-04-11본", "2017-12-13 개정본이 같이 있음"]);
   await problemCard(s, pcR, pcY2, pcW, pcH, PROB("reject.jpg"), "틀리면 탈락", ["자문 성공보수 1.5%", "중소 수주 142.1조원 · 63.1%"]);
-  s.addShape(pres.shapes.OVAL, { x: headX - 0.08, y: headY - 0.08, w: headD + 0.16, h: headD + 0.16, fill: { color: K.white }, line: { color: K.electro, width: 1.75 }, objectName: nm("head-ring") });
+  s.addShape(pres.shapes.OVAL, { x: headX - 0.08, y: headY - 0.08, w: headD + 0.16, h: headD + 0.16, fill: { color: K.white }, line: { color: K.silver, width: 1.25 }, objectName: nm("head-ring") });
   s.addImage({ path: PROB("head.jpg"), x: headX, y: headY, w: headD, h: headD, rounding: true, objectName: nm("head") });
   T(s, "입찰 담당자", { x: headX - 0.3, y: headY + headD + 0.06, w: headD + 0.6, h: 0.28, fontSize: 14, bold: true, color: K.ink, align: "center" });
-  T(s, "네 갈래가 여기로 모임", { x: headX - 0.45, y: headY + headD + 0.32, w: headD + 0.9, h: 0.26, fontSize: 12, color: K.electro, align: "center" });
+  T(s, "네 갈래가 여기로 모임", { x: headX - 0.45, y: headY + headD + 0.32, w: headD + 0.9, h: 0.26, fontSize: 12, color: K.mute, align: "center" });
   note(s, "출처: 조달경제신문 2026-04-17·05-23 · 조달청 공고 제2026-260호 · 조달청 2025-06-27 · 비드큐 · 외부 자료, BidBox 측정값 아님 · 인터뷰·지불 의사 미확인");
   s.addNotes("입찰 공고를 열면 본문에는 점수 규칙이 없고, 첨부에서 기관과 날짜마다 다른 판을 직접 골라야 합니다. 인천광역시만 봐도 2017년 4월 11일 본과 12월 13일 개정본이 함께 있습니다. 하한율도 1년 새 세 번, 2%포인트씩 올랐습니다. 지방계약 공사는 2025년 7월 1일, 국가 시설공사는 2026년 1월 30일, 일반용역은 2026년 5월 26일 공고부터입니다. 청소·경비는 9년 만에 87.995%에서 89.995%가 됐습니다. 잘못 고르면 탈락할 수 있고, 사람 자문은 성공보수 1.5%입니다. 중소기업 수주는 142.1조원, 63.1%입니다. 이 네 갈래가 담당자 한 사람에게 모입니다. ■ 질의응답 참고(발표 때 읽지 않음): 2025-07-01 지방계약 공사, 2026-01-30 국가계약 시설공사, 2026-05-26 공고부터 일반용역. 분야별 하한은 시설 89.995%, 소프트웨어 87.995%, 학술연구 82.495%, 보험 47.994%. 노컷뉴스 2026-03-20은 재정경제부가 물품·일반용역 하한율을 2%p 올리기로 한 사실을 전함. 중소기업 수주 142.1조원(63.1%, 조달청 2025-06-27).");
 
@@ -755,23 +757,23 @@ if (QUIET) {
 
   // ===== 3. 한 화면 + 시제품 =====
   s = lightSlide("S 실현 가능성", "S · 실현 가능성", "불편은 [[한 화면에서]]");
-  T(s, "불편", { x: M, y: 1.92, w: 2.4, h: 0.28, fontSize: 13, color: K.mute });
-  T(s, "해결", { x: M + 3.05, y: 1.92, w: 2.2, h: 0.28, fontSize: 13, bold: true, color: K.electro });
+  T(s, "불편", { x: M, y: 1.98, w: 2.4, h: 0.28, fontSize: 13, color: K.mute });
+  T(s, "해결", { x: M + 3.05, y: 1.98, w: 2.2, h: 0.28, fontSize: 13, bold: true, color: K.ink });
   const ps = [["어느 판인지 모름", "날짜에 맞는 판"], ["금액을 직접 계산", "최저가 · 최상가"], ["지난 낙찰을 따로", "AI 예측가"], ["공고를 매일 고름", "네 업종 기본"]];
   for (let i = 0; i < 4; i++) {
-    const y = 2.28 + i * 0.95;
-    box(s, { x: M, y, w: 2.55, h: 0.82, fill: K.electroTint, line: "F3C6E4", radius: 0.12, shadow: true });
-    T(s, ps[i][0], { x: M + 0.08, y, w: 2.4, h: 0.82, fontSize: 15, bold: true, color: K.ink, align: "center", valign: "middle" });
-    arrow(s, M + 2.64, y + 0.26, 0.34, K.blue2);
-    box(s, { x: M + 3.08, y, w: 2.45, h: 0.82, fill: K.white, line: K.line, radius: 0.12, shadow: true });
+    const y = 2.30 + i * 0.95;
+    box(s, { x: M, y, w: 2.55, h: 0.82, fill: K.white, line: K.line, radius: 0.05, shadow: false });
+    T(s, ps[i][0], { x: M + 0.08, y, w: 2.4, h: 0.82, fontSize: 15, bold: true, color: K.ink2, align: "center", valign: "middle" });
+    arrow(s, M + 2.64, y + 0.26, 0.34, K.silver);
+    box(s, { x: M + 3.08, y, w: 2.45, h: 0.82, fill: K.white, line: K.silver, radius: 0.05, shadow: false });
     T(s, ps[i][1], { x: M + 3.16, y, w: 2.28, h: 0.82, fontSize: 15, bold: true, color: K.ink, align: "center", valign: "middle" });
   }
-  const solveW = 6.05, solveX = W - M - solveW, imgY = 2.15, imgH = solveW / (1568 / 661);
-  box(s, { x: solveX - 0.1, y: 2.02, w: solveW + 0.2, h: 4.35, fill: K.navy, radius: 0.16, shadow: true, name: "solve-stage" });
+  const solveW = 6.05, solveX = W - M - solveW - 0.1, imgY = 2.30, imgH = solveW / (1568 / 661);
+  box(s, { x: solveX - 0.1, y: 2.12, w: solveW + 0.2, h: 3.85, fill: K.white, line: K.ink, lw: 1.25, radius: 0.06, shadow: false, name: "solve-stage" });
   s.addImage({ path: CAP("detail_top.jpg"), x: solveX, y: imgY, w: solveW, h: imgH, objectName: nm("solve-shot") });
-  T(s, "지금 동작하는 시제품", { x: solveX + 0.2, y: imgY + imgH + 0.16, w: 3.3, h: 0.32, fontSize: 14, bold: true, color: K.white });
-  T(s, "최저 · 예측 · 최상", { x: solveX + 0.2, y: imgY + imgH + 0.48, w: 3.2, h: 0.4, fontSize: 20, bold: true, color: K.white });
-  chip(s, "낙찰 보증 없음", solveX + solveW - 2.15, imgY + imgH + 0.22, K.white, K.navy, { w: 1.95, h: 0.34, size: 13, line: K.electro, lw: 1.5 });
+  T(s, "지금 동작하는 시제품", { x: solveX + 0.16, y: imgY + imgH + 0.20, w: 3.3, h: 0.32, fontSize: 14, bold: true, color: K.ink2 });
+  T(s, "최저 · 예측 · 최상", { x: solveX + 0.16, y: imgY + imgH + 0.52, w: 3.2, h: 0.4, fontSize: 20, bold: true, color: K.ink });
+  chip(s, "낙찰 보증 없음", solveX + solveW - 2.11, imgY + imgH + 0.26, K.ink, K.white, { w: 1.95, h: 0.34, size: 13, line: K.electro, lw: 1.5 });
   s.addNotes("그래서 이 불편을 한 화면에 모았습니다. 어느 판인지 모르면 날짜에 맞는 규칙표를 고르고, 금액을 직접 계산하던 자리는 최저가와 최상가입니다. 지난 낙찰을 따라가던 자리는 AI 예측가이고, 공고를 매일 고르던 일은 네 업종이 목록 기본값입니다. 지금 화면은 실제로 동작하는 시제품입니다. 최저가와 최상가는 회사 신용 점수와 평판 점수를 반영합니다. 세 금액은 참고이고, 낙찰은 보증하지 않습니다. ■ 질의응답 참고(발표 때 읽지 않음): 최저·최상가는 회사 신용 점수와 평판 점수를 반영. 네 업종이 목록 기본값. 규칙을 확인하지 못하면 직접 입력. 공고 모으기부터 근거 상담까지 한 흐름.");
 
   // ===== 4. 수집 + 세 가지 + 확인된 규칙 =====
@@ -780,15 +782,15 @@ if (QUIET) {
   const pipeW = (CW - 0.36) / 4;
   pipe.forEach(([a, b], i) => {
     const x = M + i * (pipeW + 0.12);
-    box(s, { x, y: 1.92, w: pipeW, h: 0.78, fill: i === 3 ? K.amberTint : K.white, line: K.line, radius: 0.12, shadow: true });
+    box(s, { x, y: 1.92, w: pipeW, h: 0.78, fill: K.white, line: K.line, radius: 0.05, shadow: false });
     T(s, a, { x: x + 0.1, y: 1.98, w: pipeW - 0.2, h: 0.34, fontSize: 14, bold: true, color: K.ink, align: "center" });
     T(s, b, { x: x + 0.1, y: 2.32, w: pipeW - 0.2, h: 0.28, fontSize: 12, color: K.ink2, align: "center" });
   });
-  const tools = [["규칙표 · AI 아님", "206종", "없으면 직접 입력", K.ink], ["LightGBM", "90.25%", "범위 안에 든 비율", K.electro], ["근거 상담(RAG)", "24/24", "없으면 거절", K.electro]];
+  const tools = [["규칙표 · AI 아님", "206종", "없으면 직접 입력", K.ink], ["LightGBM", "90.25%", "범위 안에 든 비율", K.ink], ["근거 상담(RAG)", "24/24", "없으면 거절", K.ink]];
   const tw = (CW - 0.48) / 3;
   tools.forEach(([tag, num, out, c], i) => {
     const x = M + i * (tw + 0.24);
-    box(s, { x, y: 2.86, w: tw, h: 2.35, fill: K.white, line: i === 1 ? K.electro : K.line, lw: i === 1 ? 1.5 : 1, shadow: true });
+    box(s, { x, y: 2.86, w: tw, h: 2.35, fill: K.white, line: K.line, lw: 1, radius: 0.05, shadow: false });
     T(s, tag, { x: x + 0.18, y: 3.0, w: tw - 0.36, h: 0.34, fontSize: 14, bold: true, color: K.ink2 });
     T(s, num, { x: x + 0.16, y: 3.4, w: tw - 0.32, h: 0.85, fontSize: 36, bold: true, color: c });
     T(s, out, { x: x + 0.18, y: 4.45, w: tw - 0.36, h: 0.4, fontSize: 15, bold: true, color: K.ink });
@@ -806,13 +808,13 @@ if (QUIET) {
   const edge = { type: "solid", pt: 0.75, color: K.line };
   const open = { type: "none" };
   // 기호와 글자를 칸으로 나눠, 글자 길이와 상관없이 기호가 한 세로줄에 있게 한다. 맞닿은 변은 선을 빼 한 칸처럼 보인다.
-  const pair = (v, bid) => {
+  const pair = (v, bid, hot) => {
     const mark = v[0], rest = v.slice(1).trim();
-    const fill = bid ? K.electroTint : K.white;
+    const fill = bid && hot ? K.electroTint : K.white;
     return [
       { text: mark, options: { color: sym[mark] || K.ink, bold: true, fontSize: 20, align: "center", valign: "middle",
         fill: { color: fill }, border: [edge, open, edge, edge], margin: [0.02, 0.02, 0.02, 0.02] } },
-      { text: rest, options: { color: bid ? K.ink : K.ink2, bold: !!bid && !!rest, fontSize: 13, align: "left", valign: "middle",
+      { text: rest, options: { color: hot ? (bid ? K.ink : K.ink2) : K.mute, bold: !!bid && !!rest, fontSize: 13, align: "left", valign: "middle",
         fill: { color: fill }, border: [edge, edge, edge, open], margin: [0.04, 0.08, 0.04, 0.02] } },
     ];
   };
@@ -829,9 +831,10 @@ if (QUIET) {
     ["옛 판·지금 판", "—", "△", "—", "○ 날짜 기준"],
     ["금액 비공개", "—", "—", "—", "○ 0원 없음"],
     ["요금", "—", "△ 구독", "✕ 1.5%", "○ 1,000원"]];
-  const rows = [hdr].concat(rowsD.map((r) => {
-    const item = { text: r[0], options: { bold: true, fontSize: 14, color: K.ink, fill: { color: K.bg }, align: "left", valign: "middle" } };
-    return [item].concat(r.slice(1).flatMap((v, i) => pair(v, i === 3)));
+  const rows = [hdr].concat(rowsD.map((r, ri) => {
+    const hot = ri < 3;
+    const item = { text: r[0], options: { bold: true, fontSize: 14, color: hot ? K.ink : K.mute, fill: { color: K.bg }, align: "left", valign: "middle" } };
+    return [item].concat(r.slice(1).flatMap((v, i) => pair(v, i === 3, hot)));
   }));
   s.addTable(rows, { x: M, y: 1.95, w: CW, colW: [2.10, 0.42, 2.353, 0.42, 1.90, 0.42, 1.70, 0.42, 2.40], rowH: 0.52, fontFace: F, valign: "middle",
     border: { type: "solid", pt: 0.75, color: K.line }, margin: [0.04, 0.06, 0.04, 0.08], objectName: nm("compare") });
@@ -841,30 +844,31 @@ if (QUIET) {
   // ===== 6. 8개월 =====
   s = lightSlide("S 실현 가능성", "S · 실현 가능성", "8개월, [[유료 전환까지]]");
   const half = (CW - 0.24) / 2;
-  s.addText([{ text: "1단계 · 1~4개월   ", options: { bold: true, color: K.electro } }, { text: "2,000만 원", options: { bold: true, color: K.ink } }],
-    { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.1, x: M, y: 1.92, w: half, h: 0.5, fill: { color: K.electroTint }, line: { type: "none" },
+  s.addText([{ text: "1단계 · 1~4개월   ", options: { bold: true, color: K.ink2 } }, { text: "2,000만 원", options: { bold: true, color: K.ink } }],
+    { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.05, x: M, y: 1.92, w: half, h: 0.5, fill: { color: K.slateTint }, line: { type: "none" },
       fontFace: F, fontSize: 15, align: "center", valign: "middle", margin: 0, objectName: nm("phase") });
   s.addText([{ text: "2단계 · 5~8개월   ", options: { bold: true, color: K.ink2 } }, { text: "2,000만 원 · 중간평가 후", options: { bold: true, color: K.ink } }],
-    { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.1, x: M + half + 0.24, y: 1.92, w: half, h: 0.5, fill: { color: K.white }, line: { color: K.line, width: 1 },
+    { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.05, x: M + half + 0.24, y: 1.92, w: half, h: 0.5, fill: { color: K.white }, line: { color: K.line, width: 1 },
       fontFace: F, fontSize: 15, align: "center", valign: "middle", margin: 0, objectName: nm("phase") });
-  s.addShape(pres.shapes.LINE, { x: M + 0.45, y: 3.28, w: CW - 0.9, h: 0, line: { color: K.blue2, width: 2.5 }, objectName: nm("tl") });
+  // v27c: 10·20·8사 카드가 4·6·8개월 점 바로 아래에 오도록 점 간격을 카드 폭만큼 안쪽에서 나눈다.
+  // 첫 점은 왼쪽 여백 + 카드 반, 끝 점은 오른쪽 여백 - 카드 반이라 첫·끝 카드가 여백에 맞는다.
+  const gw = 2.15, c0 = M + gw / 2, c1 = W - M - gw / 2, tlStep = (c1 - c0) / 7;
+  const cxa = (i) => c0 + tlStep * i;
+  s.addShape(pres.shapes.LINE, { x: c0, y: 3.28, w: c1 - c0, h: 0, line: { color: K.silver, width: 2 }, objectName: nm("tl") });
   const ms = ["운영 공개", "회사 점수", "이용권 결제", "시험 10사", "지자체 규칙", "시험 20사", "단가 확정", "유료 전환"];
-  const step = CW / 8;
   ms.forEach((t, i) => {
-    const cxm = M + step * i + step / 2, hot = i === 2 || i === 7;
-    s.addText(String(i + 1), { shape: pres.shapes.OVAL, x: cxm - 0.24, y: 3.04, w: 0.48, h: 0.48, fill: { color: hot ? K.electro : K.white },
-      line: { color: K.electro, width: 1.5 }, fontFace: F, fontSize: 14, bold: true, color: hot ? K.white : K.electro, align: "center", valign: "middle", margin: 0, objectName: nm("node") });
-    T(s, `${i + 1}개월`, { x: cxm - 0.7, y: 2.58, w: 1.4, h: 0.28, fontSize: 12, color: K.mute, align: "center" });
-    T(s, t, { x: cxm - 0.72, y: 3.58, w: 1.44, h: 0.55, fontSize: 14, bold: true, color: K.ink, align: "center" });
+    const cxm = cxa(i), hot = i === 2 || i === 7;
+    s.addText(String(i + 1), { shape: pres.shapes.OVAL, x: cxm - 0.24, y: 3.04, w: 0.48, h: 0.48, fill: { color: hot ? K.ink : K.white },
+      line: { color: hot ? K.ink : K.silver, width: 1.25 }, fontFace: F, fontSize: 14, bold: true, color: hot ? K.white : K.ink2, align: "center", valign: "middle", margin: 0, objectName: nm("node") });
+    T(s, `${i + 1}개월`, { x: cxm - 0.65, y: 2.58, w: 1.3, h: 0.28, fontSize: 12, color: K.mute, align: "center" });
+    T(s, t, { x: cxm - 0.65, y: 3.58, w: 1.3, h: 0.55, fontSize: 14, bold: true, color: K.ink, align: "center" });
   });
   const goals = [["시험 사용", "10사", "4개월차", 3], ["시험 사용", "20사", "6개월차 · 가설", 5], ["유료 전환", "8사", "8개월차 · 가설", 7]];
-  const gw = 2.15;
   goals.forEach(([a, b, c, mi], i) => {
-    const cxm = M + step * mi + step / 2;
-    const x = Math.max(M, Math.min(cxm - gw / 2, W - M - gw));
-    s.addShape(pres.shapes.RECTANGLE, { x: cxm - 0.02, y: 4.16, w: 0.04, h: 0.2, fill: { color: K.electro }, line: { type: "none" }, objectName: nm("stem") });
-    box(s, { x, y: 4.35, w: gw, h: 1.15, fill: K.white, line: i === 2 ? K.electro : K.line, shadow: true });
-    T(s, b, { x: x + 0.08, y: 4.42, w: gw - 0.16, h: 0.5, fontSize: 28, bold: true, color: K.electro, align: "center" });
+    const cxm = cxa(mi), x = cxm - gw / 2;
+    s.addShape(pres.shapes.RECTANGLE, { x: cxm - 0.02, y: 4.16, w: 0.04, h: 0.2, fill: { color: K.silver }, line: { type: "none" }, objectName: nm("stem") });
+    box(s, { x, y: 4.35, w: gw, h: 1.15, fill: K.white, line: i === 2 ? K.mute : K.line, lw: i === 2 ? 1.25 : 1, radius: 0.05 });
+    T(s, b, { x: x + 0.08, y: 4.42, w: gw - 0.16, h: 0.5, fontSize: 28, bold: true, color: K.ink, align: "center" });
     T(s, a, { x: x + 0.08, y: 4.94, w: gw - 0.16, h: 0.24, fontSize: 13, color: K.ink2, align: "center" });
     T(s, c, { x: x + 0.08, y: 5.16, w: gw - 0.16, h: 0.24, fontSize: 13, color: K.ink2, align: "center" });
   });
@@ -886,22 +890,22 @@ if (QUIET) {
     const [tag, hero, when, what, main] = bm[i];
     const pending = hero === "미정" || hero === "미공개";
     const x = M + i * (bmW + bmGap);
-    box(s, { x, y: 1.92, w: bmW, h: 2.55, fill: main ? K.electro : K.white, line: main ? K.electro : K.line, shadow: true });
-    T(s, tag, { x: x + 0.12, y: 2.04, w: bmW - 0.24, h: 0.32, fontSize: 14, bold: true, color: main ? K.white : K.ink2, align: "center" });
-    T(s, hero, { x: x + 0.08, y: 2.4, w: bmW - 0.16, h: 0.72, fontSize: main ? 32 : pending ? 22 : 28, bold: true, color: main ? K.white : pending ? K.mute : K.electro, align: "center" });
-    T(s, when, { x: x + 0.12, y: 3.16, w: bmW - 0.24, h: 0.32, fontSize: 14, bold: true, color: main ? K.white : K.ink, align: "center" });
-    T(s, what, { x: x + 0.14, y: 3.52, w: bmW - 0.28, h: 0.7, fontSize: 14, color: main ? K.white : K.ink2, align: "center" });
+    box(s, { x, y: 1.92, w: bmW, h: 2.55, fill: main ? K.ink : K.white, line: main ? K.ink : K.line, radius: 0.05 });
+    T(s, tag, { x: x + 0.12, y: 2.04, w: bmW - 0.24, h: 0.32, fontSize: 14, bold: true, color: main ? K.white : (pending ? K.mute : K.ink2), align: "center" });
+    T(s, hero, { x: x + 0.08, y: 2.4, w: bmW - 0.16, h: 0.72, fontSize: main ? 36 : (pending ? 20 : 28), bold: true, color: main ? K.white : (pending ? K.mute : K.ink), align: "center" });
+    T(s, when, { x: x + 0.12, y: 3.16, w: bmW - 0.24, h: 0.32, fontSize: 14, bold: true, color: main ? K.white : (pending ? K.mute : K.ink), align: "center" });
+    T(s, what, { x: x + 0.14, y: 3.52, w: bmW - 0.28, h: 0.7, fontSize: 14, color: main ? K.white : (pending ? K.mute : K.ink2), align: "center" });
     if (i < 3) arrow(s, x + bmW + 0.02, 2.95, bmGap - 0.04, K.blue2);
   }
-  box(s, { x: M, y: 4.62, w: 8.15, h: 0.95, fill: K.white, line: K.electro, lw: 1.5, shadow: true });
-  T(s, "연 80만 원", { x: M + 0.22, y: 4.72, w: 3.15, h: 0.74, fontSize: 32, bold: true, color: K.electro, valign: "middle" });
+  box(s, { x: M, y: 4.62, w: 8.15, h: 0.95, fill: K.white, line: K.line, radius: 0.05 });
+  T(s, "연 80만 원", { x: M + 0.22, y: 4.72, w: 3.15, h: 0.74, fontSize: 32, bold: true, color: K.ink, valign: "middle" });
   T(s, "유료 8사 × 1년 100이용권 × 1,000원\n지불 의사를 보는 가설 · 손익 아님", { x: M + 3.45, y: 4.74, w: 4.5, h: 0.72, fontSize: 14, color: K.ink2, valign: "middle" });
   chip(s, "성공보수 없음", 9.05, 4.82, K.ink, K.white, { w: 3.65, h: 0.55, size: 16, line: K.electro, lw: 1.5 });
   const fun = [["무료", "지금"], ["10사", "4개월"], ["20사", "6개월 · 가설"], ["8사", "8개월 · 가설"]];
   fun.forEach(([a, b], i) => {
     const fw = (CW - 0.54) / 4, x = M + i * (fw + 0.18), hot = i === 3;
     s.addText([{ text: a, options: { bold: true, fontSize: 18 } }, { text: "   " + b, options: { fontSize: 13 } }],
-      { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.1, x, y: 5.72, w: fw, h: 0.52, fill: { color: hot ? K.electro : K.white },
+      { shape: pres.shapes.ROUNDED_RECTANGLE, rectRadius: 0.05, x, y: 5.72, w: fw, h: 0.52, fill: { color: hot ? K.ink : K.white },
         line: hot ? { type: "none" } : { color: K.line, width: 1 }, fontFace: F, color: hot ? K.white : K.ink, align: "center", valign: "middle", margin: 0, objectName: nm("funnel") });
   });
   note(s, "처음 시장 7,494억원+는 고객 계약액(TAM 55.1조 · SAM 10.2조, 매출 아님) · 소개 180만 · 모집 300만 · 대행·교육 2곳 확정 전", 6.36);
@@ -909,34 +913,33 @@ if (QUIET) {
 
   // ===== 8. 확장 + 자금 =====
   s = lightSlide("S 성장전략", "S · 성장전략", "용역에서 [[공사로]], 자금은 4,000만");
-  const rd = [["1년차", "네 업종", "0.75조", 0.75, K.electroTint, K.ink],
-    ["2년차", "용역 확대", "10.2조", 10.2, K.blue2, K.ink],
-    ["3년차", "물품 · 공사", "23.4조", 23.4, K.blue, K.white],
-    ["4년차", "공사 · API", "54.4조", 54.4, K.blueDeep, K.white],
-    ["5년차", "자체조달", "+80.0조", null, K.navy, K.white]];
+  const rd = [["1년차", "네 업종", "0.75조", 0.75, K.ink],
+    ["2년차", "용역 확대", "10.2조", 10.2, K.ink],
+    ["3년차", "물품 · 공사", "23.4조", 23.4, K.ink],
+    ["4년차", "공사 · API", "54.4조", 54.4, K.ink],
+    ["5년차", "자체조달", "+80.0조", null, K.ink]];
   const tech = ["지자체 규칙", "낙찰방법 44종", "공사 규칙", "계정 · API", "공고 연동"];
-  const labW = 0.7, rgap = 0.08, colW = (CW - labW - 4 * rgap) / 5;
-  const scaleMax = 54.4;
-  rd.forEach(([year, biz, amt, bar, fill, ink], i) => {
-    const x = M + labW + i * (colW + rgap);
-    box(s, { x, y: 1.9, w: colW, h: 0.4, fill, radius: 0.08, name: "year" });
-    T(s, year, { x, y: 1.9, w: colW, h: 0.4, fontSize: 13, bold: true, color: ink, align: "center", valign: "middle" });
-    T(s, amt, { x, y: 2.32, w: colW, h: 0.3, fontSize: 16, bold: true, color: i >= 3 ? K.blue : K.electro, align: "center" });
+  // v27c: 막대는 모두 같은 출발선(barX)에서 0.75·10.2·23.4·54.4조만 길이에 비례한다.
+  // +80.0조는 눈금(54.4조) 밖이라 막대를 그리지 않고 금액 글자만 오른쪽 칸에 둔다.
+  const labW = 1.3, barX = 4.55, barW = 6.3, amtX = 11.0, scaleMax = 54.4;
+  T(s, "사업", { x: 1.58, y: 1.94, w: labW, h: 0.26, fontSize: 11, bold: true, color: K.mute });
+  T(s, "기술", { x: 2.98, y: 1.94, w: 1.5, h: 0.26, fontSize: 11, bold: true, color: K.mute });
+  T(s, "범위", { x: barX, y: 1.94, w: 1.0, h: 0.26, fontSize: 11, bold: true, color: K.mute });
+  rd.forEach(([year, biz, amt, bar, amtInk], i) => {
+    const y = 2.26 + i * 0.4;
+    box(s, { x: M, y: y + 0.02, w: 0.86, h: 0.3, fill: K.slateTint, radius: 0.05, name: "year" });
+    T(s, year, { x: M, y: y + 0.02, w: 0.86, h: 0.3, fontSize: 12, bold: true, color: i >= 3 ? K.mute : K.ink, align: "center", valign: "middle" });
+    T(s, biz, { x: 1.58, y, w: labW, h: 0.34, fontSize: 13, bold: true, color: i >= 3 ? K.mute : K.ink, valign: "middle" });
+    T(s, tech[i], { x: 2.98, y, w: 1.5, h: 0.34, fontSize: 11, color: i >= 3 ? K.mute : K.ink2, valign: "middle" });
     if (bar != null) {
-      const bw = Math.max(0.12, (colW - 0.04) * (bar / scaleMax));
-      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 2.64, w: colW, h: 0.1, fill: { color: K.slateTint }, line: { type: "none" }, rectRadius: 0.04, objectName: nm("range-track") });
-      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 2.64, w: bw, h: 0.1, fill: { color: K.electro }, line: { type: "none" }, rectRadius: 0.04, objectName: nm("range-bar") });
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: barX, y: y + 0.11, w: barW, h: 0.12, fill: { color: K.slateTint }, line: { type: "none" }, rectRadius: 0.05, objectName: nm("range-track") });
+      const bw = barW * (bar / scaleMax);
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: barX, y: y + 0.11, w: bw, h: 0.12, fill: { color: K.blue }, line: { type: "none" }, rectRadius: 0.05, objectName: nm("range-bar") });
     }
-    box(s, { x, y: 2.82, w: colW, h: 0.64, fill: K.white, line: K.line, radius: 0.08 });
-    T(s, biz, { x: x + 0.06, y: 2.82, w: colW - 0.12, h: 0.64, fontSize: 14, bold: true, color: K.ink, align: "center", valign: "middle" });
-    box(s, { x, y: 3.52, w: colW, h: 0.56, fill: K.slateTint, radius: 0.08 });
-    T(s, tech[i], { x: x + 0.04, y: 3.52, w: colW - 0.08, h: 0.56, fontSize: 13, color: K.ink2, align: "center", valign: "middle" });
+    T(s, amt, { x: amtX, y, w: 1.3, h: 0.34, fontSize: 14, bold: true, color: amtInk, align: "right", valign: "middle" });
   });
-  T(s, "범위", { x: M, y: 2.32, w: labW, h: 0.42, fontSize: 12, bold: true, color: K.electro, valign: "middle" });
-  T(s, "사업", { x: M, y: 2.82, w: labW, h: 0.64, fontSize: 12, bold: true, color: K.ink, valign: "middle" });
-  T(s, "기술", { x: M, y: 3.52, w: labW, h: 0.56, fontSize: 12, bold: true, color: K.ink2, valign: "middle" });
   T(s, "정부지원사업비 (만원, 단계마다 2,000)", { x: M, y: 4.28, w: 6.5, h: 0.28, fontSize: 13, bold: true, color: K.ink });
-  const BC = [["외주 800", 800, K.blue3], ["수수료 720", 720, K.blue2], ["광고 480", 480, "A39EAE"], ["인건비 1,000", 1000, K.electro], ["수수료 580", 580, K.blue2], ["상표·특허 300", 300, K.amber], ["120", 120.164, "5C5868"]];
+  const BC = [["외주 800", 800, K.blue3], ["수수료 720", 720, K.blue2], ["광고 480", 480, "A39EAE"], ["인건비 1,000", 1000, K.blueDeep], ["수수료 580", 580, K.blue2], ["상표·특허 300", 300, K.amber], ["120", 120.164, "5C5868"]];
   const stages = [["1단계", BC.slice(0, 3)], ["2단계", BC.slice(3)]];
   const bw0 = 6.85, bx1 = M + 1.05;
   stages.forEach(([n, segs], i) => {
@@ -955,7 +958,7 @@ if (QUIET) {
   fund.forEach(([a, v, d], i) => {
     const x = 9.0, y = 4.28 + i * 0.52;
     T(s, a, { x, y, w: 1.2, h: 0.46, fontSize: 12, color: K.ink2, valign: "middle" });
-    T(s, v, { x: x + 1.15, y, w: 1.45, h: 0.46, fontSize: 14, bold: true, color: i === 2 ? K.electro : K.ink, valign: "middle" });
+    T(s, v, { x: x + 1.15, y, w: 1.45, h: 0.46, fontSize: 14, bold: true, color: i === 3 ? K.mute : K.ink, valign: "middle" });
     T(s, d, { x: x + 2.55, y, w: 1.15, h: 0.46, fontSize: 11, color: K.mute, valign: "middle" });
   });
   note(s, "범위는 고객 계약액 · 4~5년차 계획 · 물품 13.2조 · 공사 31.0조 · 대표자 인건비 없음 · 월 운영비 3,468,720원 · 같은 정보로 입찰, 가점 안내는 2년차", 6.32);
@@ -965,8 +968,8 @@ if (QUIET) {
 
   // ===== 9. 팀 =====
   s = lightSlide("T 팀 구성", "T · 팀 구성", "대표자가 [[직접 구현]]");
-  box(s, { x: M, y: 1.95, w: 6.2, h: 4.2, fill: K.white, line: K.line, shadow: true });
-  await iconCircle(s, "FaUserTie", M + 0.28, 2.12, 0.72, K.electro, K.electroTint);
+  box(s, { x: M, y: 1.95, w: 6.2, h: 4.2, fill: K.white, line: K.line, radius: 0.05 });
+  await iconCircle(s, "FaUserTie", M + 0.28, 2.12, 0.72, K.ink2, K.slateTint);
   T(s, "대표자", { x: M + 1.16, y: 2.16, w: 3, h: 0.38, fontSize: 22, bold: true, color: K.ink });
   T(s, "기획 · 개발 · 데이터 검증", { x: M + 1.16, y: 2.54, w: 4.5, h: 0.3, fontSize: 14, color: K.mute });
   const rep = [["경력", "6년 9개월"], ["기술", "규칙 206종 · 시제품"], ["원칙", "확인된 규칙만"], ["인프라", "공고 505,271건"]];
@@ -975,16 +978,17 @@ if (QUIET) {
     T(s, k, { x: M + 0.32, y, w: 1.15, h: 0.5, fontSize: 14, bold: true, color: K.ink2, valign: "middle" });
     T(s, v, { x: M + 1.5, y, w: 4.4, h: 0.5, fontSize: 18, bold: true, color: K.ink, valign: "middle" });
   });
-  box(s, { x: 7.05, y: 1.95, w: 5.68, h: 1.85, fill: K.white, line: K.electro, lw: 1.5, shadow: true });
-  T(s, "영업 담당 1명", { x: 7.28, y: 2.1, w: 3.2, h: 0.36, fontSize: 18, bold: true, color: K.ink });
+  // v27c: 오른쪽 두 칸은 위·아래 높이 합이 왼쪽 칸과 같고(1.90 + 0.30 + 2.00 = 4.20), 사이는 0.30인치다.
+  box(s, { x: 7.05, y: 1.95, w: 5.68, h: 1.9, fill: K.white, line: K.line, radius: 0.05 });
+  T(s, "영업 담당 1명", { x: 7.28, y: 2.1, w: 2.95, h: 0.36, fontSize: 18, bold: true, color: K.ink });
   chip(s, "채용 · 5개월차", 10.35, 2.12, K.amber, K.amberTint, { w: 2.15, h: 0.32 });
-  T(s, "경력 2~3년", { x: 7.28, y: 2.6, w: 5.1, h: 0.55, fontSize: 28, bold: true, color: K.electro });
+  T(s, "경력 2~3년", { x: 7.28, y: 2.6, w: 5.1, h: 0.55, fontSize: 28, bold: true, color: K.ink });
   T(s, "시험 사용 모집 · 입찰 실무 검수", { x: 7.28, y: 3.22, w: 5.1, h: 0.32, fontSize: 14, color: K.ink2 });
-  box(s, { x: 7.05, y: 4.0, w: 5.68, h: 2.15, fill: K.white, line: K.line, shadow: true });
-  T(s, "협력 기관 3곳 · 모두 확정 전", { x: 7.28, y: 4.12, w: 5.2, h: 0.32, fontSize: 15, bold: true, color: K.ink });
+  box(s, { x: 7.05, y: 4.15, w: 5.68, h: 2.0, fill: K.white, line: K.line, radius: 0.05 });
+  T(s, "협력 기관 3곳 · 모두 확정 전", { x: 7.28, y: 4.27, w: 5.2, h: 0.32, fontSize: 15, bold: true, color: K.ink });
   const prt = [["변리", "상표 1 · 특허 출원 1", "7개월"], ["보안 점검", "취약점 점검 1식", "3개월"], ["대행·교육", "모집 채널 2곳", "4개월"]];
   prt.forEach(([a, b, c], i) => {
-    const y = 4.52 + i * 0.48;
+    const y = 4.65 + i * 0.46;
     T(s, a, { x: 7.28, y, w: 1.45, h: 0.4, fontSize: 14, bold: true, color: K.ink, valign: "middle" });
     T(s, b, { x: 8.75, y, w: 2.45, h: 0.4, fontSize: 13, color: K.ink2, valign: "middle" });
     T(s, c, { x: 11.2, y, w: 1.3, h: 0.4, fontSize: 13, color: K.mute, align: "right", valign: "middle" });
@@ -1001,13 +1005,17 @@ if (QUIET) {
   const fin = [["206종", "공고에 맞는 계산 규칙"], ["31,305건", "최근 12개월 규칙 판정"], ["0원", "추천하지 않음"]];
   fin.forEach(([v, l], i) => {
     const fw = 3.9, x = M + i * (fw + 0.22);
-    s.addShape(pres.shapes.RECTANGLE, { x, y: 3.35, w: 0.55, h: 0.06, fill: { color: K.electro }, line: { type: "none" }, objectName: nm("fin-bar") });
-    T(s, v, { x, y: 3.55, w: fw, h: 0.7, fontSize: 36, bold: true, color: K.electro });
-    T(s, l, { x, y: 4.28, w: fw, h: 0.32, fontSize: 14, color: K.ink2 });
+    // v27c: 세 숫자 칸은 같은 크기·같은 간격(0.22), 모서리 0.05, 그림자 없음. 위 괘선은 메탈릭 실버.
+    box(s, { x, y: 3.28, w: fw, h: 1.42, fill: K.white, line: K.line, radius: 0.05 });
+    s.addShape(pres.shapes.RECTANGLE, { x: x + 0.2, y: 3.44, w: 0.55, h: 0.05, fill: { color: K.silver }, line: { type: "none" }, objectName: nm("fin-bar") });
+    T(s, v, { x: x + 0.2, y: 3.56, w: fw - 0.4, h: 0.72, fontSize: 36, bold: true, color: K.ink });
+    T(s, l, { x: x + 0.2, y: 4.28, w: fw - 0.4, h: 0.3, fontSize: 14, color: K.ink2 });
   });
-  T(s, "네 업종에서 시작해, 8개월 안에 유료 8사 가설을 확인합니다.", { x: M, y: 4.9, w: 11, h: 0.4, fontSize: 18, color: K.ink });
+  T(s, "네 업종에서 시작해, 8개월 안에 유료 8사 가설을 확인합니다.", { x: M, y: 4.94, w: 11, h: 0.4, fontSize: 18, color: K.ink });
   T(s, "감사합니다 · 질문 받겠습니다", { x: M, y: 5.5, w: 8, h: 0.45, fontSize: 22, bold: true, color: K.ink });
-  T(s, "Narani  ·  낙찰 보증 없음. 세 가지 금액은 참고 정보", { x: M, y: 6.1, w: 10, h: 0.32, fontSize: 14, color: K.mute });
+  // v27c: 「낙찰 보증 없음」 줄은 문장을 쪼개지 않고 테두리 칩으로 감싼다(이 장의 일렉트로 한 곳).
+  box(s, { x: M - 0.14, y: 6.0, w: 5.5, h: 0.46, fill: K.white, line: K.electro, lw: 1.25, radius: 0.16 });
+  T(s, "Narani  ·  낙찰 보증 없음. 세 가지 금액은 참고 정보", { x: M, y: 6.06, w: 5.2, h: 0.34, fontSize: 14, color: K.mute, valign: "middle" });
   s.addNotes("정리하면, 확인된 규칙 206종만 계산하고, 최근 12개월 31,305건에서 규칙을 확인한 공고만 금액을 냅니다. 금액이 없는 공고에는 0원을 추천하지 않습니다. 네 업종에서 시작해, 8개월 안에 유료 8사라는 가설을 확인하겠습니다. 중소 용역업체도 같은 정보로 입찰하게 하는 것이 목표입니다. 낙찰은 보증하지 않습니다. Narani 대표 [이름]이었습니다. 감사합니다. 질문 받겠습니다.");
 
   for (const [ls, kind, seed] of lightQueue) ls.background = { data: await bg(kind, seed) };
