@@ -1,4 +1,5 @@
 // BidBox 피치덱(.pptx) 생성기
+// v28 (2026-11-14): 바탕 그라데이션을 흰 종이에 가깝게 올리고, 위에 얹은 보라 빛은 절반 이하로 낮춘다. 문장·숫자는 v27과 같다. v27 pptx는 덮어쓰지 않는다.
 // v27 (2026-11-14): 표면·1~5장·6~10장의 디자인 마감을 합친다. 카드 모서리 0.05·그림자 없음·바탕 무늬는 더 옅게, 일렉트로 퍼플은 장마다 한 곳. 문장·숫자는 v26과 같다. v26 pptx는 덮어쓰지 않는다.
 // 수치·사실: AGENTS.md 「현재 사업계획서」와 「피치덱」. 새 숫자 없음.
 // 여백·글자 크기·카드 간격·명암: .agents/skills/bizplan-writing/references/pitch-design.md (v11부터).
@@ -483,20 +484,20 @@ async function washImage(kind, seed = 7) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PW}" height="${PH}">
     <defs>
       <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#F4F0FC"/>
-        <stop offset="0.48" stop-color="#E6DBF6"/>
-        <stop offset="1" stop-color="#D9CBF2"/>
+        <stop offset="0" stop-color="#FBFAFD"/>
+        <stop offset="0.48" stop-color="#F7F4FB"/>
+        <stop offset="1" stop-color="#F3EEF8"/>
       </linearGradient>
       <radialGradient id="a" cx="88%" cy="6%" r="58%">
-        <stop offset="0" stop-color="#5C4596" stop-opacity="0.30"/>
+        <stop offset="0" stop-color="#5C4596" stop-opacity="0.10"/>
         <stop offset="1" stop-color="#5C4596" stop-opacity="0"/>
       </radialGradient>
       <radialGradient id="b" cx="8%" cy="96%" r="52%">
-        <stop offset="0" stop-color="#3E2A78" stop-opacity="0.20"/>
+        <stop offset="0" stop-color="#3E2A78" stop-opacity="0.06"/>
         <stop offset="1" stop-color="#3E2A78" stop-opacity="0"/>
       </radialGradient>
       <radialGradient id="c" cx="70%" cy="78%" r="40%">
-        <stop offset="0" stop-color="#8E74C4" stop-opacity="0.22"/>
+        <stop offset="0" stop-color="#8E74C4" stop-opacity="0.08"/>
         <stop offset="1" stop-color="#8E74C4" stop-opacity="0"/>
       </radialGradient>
       <clipPath id="band"><rect x="1480" y="0" width="${PW - 1480}" height="${band}"/></clipPath>
