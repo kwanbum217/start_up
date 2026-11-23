@@ -40,6 +40,7 @@ description: >
    python3 -I scripts/docx/check_docx.py <새파일.docx>                       # 서식: 「결과: 모두 통과」
    python3 -I .agents/skills/bizplan-writing/scripts/check_voice.py <새파일.docx>  # 문장: AI 티 후보
    python3 -I .agents/skills/bizplan-writing/scripts/check_plain.py <새파일.docx>  # 문장: 어려운 말 후보(수정 전후 수를 보고)
+   python3 -I scripts/docx/check_forbidden.py <새파일.docx>                 # 쓰지 않기로 한 표현(학력 등): 0곳이어야 통과
    ```
    쪽 수는 `zsh scripts/docx/count_pages.sh <새파일.docx>`로 센다(12쪽 이하). 반영 기록에 적는 쪽수는 이 출력만 쓴다. LibreOffice를 그냥 변환해 센 쪽수는 적지 않는다. 한글이 빈칸이라 2~3쪽 적게 나온다.
 6. **구글 문서 반영**: 사용자에게 「검토용 구글 문서를 vNN으로 덮어쓸지」 묻고, 허락하면 `references/gdoc.md` 절차대로 올린다. 사용자가 이번 세션에서 이미 허락했으면 다시 묻지 않는다. 피치덱은 `references/gslides.md`로 같은 방식(허락 뒤 같은 링크에 덮어쓰기)이다.
@@ -51,3 +52,4 @@ description: >
 - **탐지기를 속이는 장치를 쓰지 않는다.** 보이지 않는 글자, 비슷한 모양의 다른 문자, 일부러 넣은 오타, 무의미한 문장 순서 섞기는 금지. 문서가 깨지거나(HWP·PDF 변환), 조작으로 보여 신뢰를 잃는다.
 - **공고문의 생성형 AI 규정을 먼저 본다.** 공고나 접수 안내에 AI 활용 표기·금지 조항이 있으면 그 조항을 따르고, 사용자에게 알린다. 이 스킬의 목적은 「AI가 쓴 것을 숨기기」가 아니라 「대표자가 자기 말로 설명할 수 있는 계획서」다.
 - 제품이 하지 않는 일, 저장소에 없는 숫자, 이력서에 없는 경력(AGENTS.md 목록)은 쓰지 않는다.
+- 학력(「고등학교 졸업」 등)은 계획서에 쓰지 않는다(2026-11-23 사용자 지정). 4장 표의 항목 이름도 「경력」이고, 문장을 쓰거나 고칠 때마다 넣지 않았는지 확인한다. 정본은 `AGENTS.md` 「계획서에 쓰지 않는 대표자 정보」, 점검은 `scripts/docx/check_forbidden.py`다.
